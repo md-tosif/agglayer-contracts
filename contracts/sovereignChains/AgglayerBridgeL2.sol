@@ -893,6 +893,22 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         address[] memory originTokenAddress,
         uint256[] memory amount
     ) external virtual onlyGlobalExitRootRemover ifEmergencyState {
+        _setLocalBalanceTree(originNetwork, originTokenAddress, amount);
+    }
+
+    /**
+     * @notice Set local balance tree leaves to specific amounts
+     * @dev Permissioned function by the GlobalExitRootRemover role
+     * @param originNetwork The origin network of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
+     * @param originTokenAddress The origin address of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
+     * @dev The key is generated as keccak256(abi.encodePacked(originNetwork, originTokenAddress))
+     * @param amount The amount to set for the local balance tree leaf
+     */
+    function _setLocalBalanceTree(
+        uint32[] memory originNetwork,
+        address[] memory originTokenAddress,
+        uint256[] memory amount
+    ) internal {
         if (
             originNetwork.length != originTokenAddress.length ||
             originNetwork.length != amount.length
