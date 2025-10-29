@@ -13,8 +13,6 @@
     },
     "bridge": {
         "bridgeManager": "0xYourBridgeManagerAddress",
-        "sovereignWETHAddress": "0x0000000000000000000000000000000000000000",
-        "sovereignWETHAddressIsNotMintable": false,
         "emergencyBridgePauser": "0xYourEmergencyPauserAddress",
         "emergencyBridgeUnpauser": "0xYourEmergencyUnpauserAddress"
     },
