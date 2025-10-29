@@ -604,6 +604,7 @@ async function deployAggOracleCommittee(
     // Import proxy into Hardhat Upgrades manifest for future upgrade compatibility
     await upgrades.forceImport(aggOracleProxy.target as string, AggOracleCommitteeFactory, {
         kind: 'transparent',
+        constructorArgs: [gerManagerAddress],
     });
     logger.info('✅ AggOracleCommittee proxy imported to Hardhat Upgrades manifest');
 
