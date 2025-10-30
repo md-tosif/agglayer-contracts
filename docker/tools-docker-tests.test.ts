@@ -254,7 +254,7 @@ describe('Tooling docker build tests Contract', () => {
             path.join(__dirname, '../tools/createSovereignGenesis/create-genesis-sovereign-params.json'),
         );
         fs.copyFileSync(
-            path.join(__dirname, './scripts/tools/genesis-base.json'),
+            path.join(__dirname, './deploymentOutput/genesis.json'),
             path.join(__dirname, '../tools/createSovereignGenesis/genesis-base.json'),
         );
         // Run tool
