@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 import "../interfaces/IBridgeMessageReceiver.sol";
-import "../v2/interfaces/IPolygonZkEVMBridgeV2.sol";
+import "../AgglayerBridge.sol";
 
 contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
     uint256 internal constant _DEPOSIT_CONTRACT_TREE_DEPTH = 32;
@@ -10,7 +10,7 @@ contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
     event MessageReceived(address destinationAddress);
     event UpdateParameters();
 
-    IPolygonZkEVMBridgeV2 public immutable bridgeAddress;
+    AgglayerBridge public immutable bridgeAddress;
     bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofLocalExitRoot;
     bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofRollupExitRoot;
     uint256 globalIndex;
@@ -23,7 +23,7 @@ contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
     uint256 amount;
     bytes metadata;
 
-    constructor(IPolygonZkEVMBridgeV2 _bridgeAddress) {
+    constructor(AgglayerBridge _bridgeAddress) {
         bridgeAddress = _bridgeAddress;
     }
 
@@ -127,7 +127,7 @@ contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
         // revert with "DestinationNetworkInvalid"
         (bool success, ) = address(bridgeAddress).call(
             abi.encodeCall(
-                IPolygonZkEVMBridgeV2.claimMessage,
+                AgglayerBridge.claimMessage,
                 (
                     smtProofLocalExitRoot1,
                     smtProofRollupExitRoot1,
@@ -161,7 +161,7 @@ contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
 
         (bool success2, ) = address(bridgeAddress).call{value: msg.value}(
             abi.encodeCall(
-                IPolygonZkEVMBridgeV2.bridgeAsset,
+                AgglayerBridge.bridgeAsset,
                 (
                     destinationNetwork3,
                     destinationAddress3,
@@ -175,7 +175,7 @@ contract BridgeMessageReceiverMock is IBridgeMessageReceiver {
 
         require(success2 == true);
 
-        address callInfo = bridgeAddress.getProxiedTokensManager();
+        uint32 callInfo = bridgeAddress.networkID();
 
         // claimMessage destinationAddress == EOA
         (
