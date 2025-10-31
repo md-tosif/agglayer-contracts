@@ -99,6 +99,28 @@ npx hardhat compile
 
 NOTE: Hardhat generated artifacts are required to resolve the version mismatch between contracts while running the tests, due to the stricter compiler version handling in Foundry.
 
+ **⚠️ WARNING: Foundry Compilation Differences**
+
+Smart contracts compiled with Foundry produce different bytecode than those compiled with Hardhat. This is due to differences in:
+
+- Compiler version handling and optimization settings
+- Metadata hash generation and inclusion
+- Library linking and dependency resolution
+
+ **CRITICAL: Foundry-compiled artifacts MUST NOT be used for:**
+
+- ✗ Deploying contracts to production networks
+- ✗ Upgrading any production smart contracts
+- ✗ Generating deployment addresses or verification data
+
+ **Foundry is intended ONLY for:**
+
+- ✓ Enhanced testing and test development
+- ✓ Non-critical scripting and prototyping
+- ✓ Development workflows and local testing
+
+ **For all production deployments and upgrades, use Hardhat-compiled artifacts exclusively.**
+
 ### Install dependencies
 
 ```shell
