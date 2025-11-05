@@ -22,13 +22,8 @@ import {
     computeAggchainHash,
     computeSignersHash,
 } from '../../src/utils-common-aggchain';
-import { NO_ADDRESS } from '../../src/constants';
+import { NO_ADDRESS, AGGCHAIN_DEFAULT_VKEY_ROLE, AL_ADD_PP_ROUTE_ROLE, AL_MULTISIG_ROLE } from '../../src/constants';
 import { VerifierType, computeRandomBytes } from '../../src/pessimistic-utils';
-import {
-    AGGCHAIN_DEFAULT_VKEY_ROLE,
-    AL_ADD_PP_ROUTE_ROLE,
-    AL_MULTISIG_ROLE,
-} from './helpers/consts';
 
 const randomPessimisticVKey = computeRandomBytes(32);
 

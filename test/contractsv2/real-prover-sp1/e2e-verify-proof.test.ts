@@ -31,7 +31,7 @@ import {
     STOP_EMERGENCY_ROLE,
     EMERGENCY_COUNCIL_ROLE,
     EMERGENCY_COUNCIL_ADMIN,
-} from '../helpers/consts';
+} from '../../../src/constants';
 
 describe('Polygon Rollup Manager with Polygon Pessimistic Consensus', () => {
     let deployer: any;

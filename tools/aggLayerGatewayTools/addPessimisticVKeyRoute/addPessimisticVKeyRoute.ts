@@ -2,8 +2,10 @@
 import path = require('path');
 import fs = require('fs');
 
+import { ethers } from 'hardhat';
 import params from './parameters.json';
 import { AgglayerGateway } from '../../../typechain-types';
+import { DEFAULT_ADMIN_ROLE, AL_ADD_PP_ROUTE_ROLE } from '../../../src/constants';
 import { transactionTypes, genOperation } from '../../utils';
 import { decodeScheduleData } from '../../../upgrade/utils';
 import { logger } from '../../../src/logger';
@@ -20,9 +22,6 @@ async function main() {
     const destPath = params.outputPath
         ? path.join(__dirname, params.outputPath)
         : path.join(__dirname, `add_pp_route_output_${params.type}_${dateStr}.json`);
-
-    const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
 
     /// //////////////////////////
     ///   CHECK TOOL PARAMS   ///

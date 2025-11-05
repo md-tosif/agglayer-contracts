@@ -17,6 +17,7 @@ import {
 
 import { logger } from '../../src/logger';
 import { checkParams } from '../../src/utils';
+import { AL_MULTISIG_ROLE } from '../../src/constants';
 
 import upgradeParams from './upgrade_parameters.json';
 import upgradeOutput from './upgrade_output.json'; // This will be generated after running the upgrade script
@@ -326,7 +327,6 @@ describe('Should shadow fork network, execute upgrade and validate Upgrade V12',
         expect(actualThreshold).to.equal(expectedThreshold);
 
         // Verify multisig role was granted correctly
-        const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
         const hasMultisigRole = await aggLayerGatewayContract.hasRole(AL_MULTISIG_ROLE, expectedMultisigRole);
         expect(hasMultisigRole).to.be.true;
 

@@ -25,12 +25,7 @@ import {
 
 import { encodeAggchainDataFEP, computeHashAggchainParamsFEP } from '../../src/utils-aggchain-FEP';
 
-import { NO_ADDRESS } from '../../src/constants';
-import {
-    AGGCHAIN_DEFAULT_VKEY_ROLE,
-    AL_ADD_PP_ROUTE_ROLE,
-    AL_MULTISIG_ROLE,
-} from './helpers/consts';
+import { NO_ADDRESS, AGGCHAIN_DEFAULT_VKEY_ROLE, AL_ADD_PP_ROUTE_ROLE, AL_MULTISIG_ROLE } from '../../src/constants';
 
 describe('Polygon rollup manager aggregation layer v3: FEP', () => {
     // SIGNERS

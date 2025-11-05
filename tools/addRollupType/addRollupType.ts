@@ -10,6 +10,7 @@ import { AGGCHAIN_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
 import { ConsensusContracts, VerifierType } from '../../src/pessimistic-utils';
 import addRollupTypeParameters from './add_rollup_type.json';
 import { AgglayerManager } from '../../typechain-types';
+import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE } from '../../src/constants';
 import {
     checkParams,
     getDeployerFromParameters,
@@ -143,7 +144,6 @@ async function main() {
 
     if (type !== transactionTypes.TIMELOCK) {
         // Check roles
-        const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
         if ((await rollupManagerContract.hasRole(DEFAULT_ADMIN_ROLE, deployer.address)) === false) {
             throw new Error(
                 'Deployer does not have admin role. Use the test flag on deploy_parameters if this is a test deployment',
@@ -151,7 +151,6 @@ async function main() {
         }
 
         // Since it's a mock deployment deployer has all the rights
-        const ADD_ROLLUP_TYPE_ROLE = ethers.id('ADD_ROLLUP_TYPE_ROLE');
 
         // Check role:
         if ((await rollupManagerContract.hasRole(ADD_ROLLUP_TYPE_ROLE, deployer.address)) === false)

@@ -17,7 +17,7 @@ import {
 } from '../../typechain-types';
 import { encodeInitializeBytesLegacy } from '../../src/utils-common-aggchain';
 import { VerifierType, computeRandomBytes } from '../../src/pessimistic-utils';
-import { AL_MULTISIG_ROLE } from './helpers/consts';
+import { AL_MULTISIG_ROLE } from '../../src/constants';
 
 const MerkleTreeBridge = MTBridge;
 const { getLeafValue } = mtBridgeUtils;
