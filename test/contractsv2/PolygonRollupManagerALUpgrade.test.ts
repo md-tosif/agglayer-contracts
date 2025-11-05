@@ -24,6 +24,11 @@ import {
 } from '../../src/utils-common-aggchain';
 import { NO_ADDRESS } from '../../src/constants';
 import { VerifierType, computeRandomBytes } from '../../src/pessimistic-utils';
+import {
+    AGGCHAIN_DEFAULT_VKEY_ROLE,
+    AL_ADD_PP_ROUTE_ROLE,
+    AL_MULTISIG_ROLE,
+} from './helpers/consts';
 
 const randomPessimisticVKey = computeRandomBytes(32);
 
@@ -61,8 +66,6 @@ describe('Polygon rollup manager aggregation layer v3 UPGRADED', () => {
     // BRIDGE CONSTANTS
     const NETWORK_ID_MAINNET = 0;
     // AGGLAYER CONSTANTS
-    const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE');
-    const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
     const PESSIMISTIC_SELECTOR = '0x00000001';
     // AGGCHAIN CONSTANTS
     // bytes2(version)=0x0001 | bytes2(type)=0x0002 => selector 0x00010002
@@ -323,7 +326,6 @@ describe('Polygon rollup manager aggregation layer v3 UPGRADED', () => {
         );
 
         // Grant AL_MULTISIG_ROLE to initialize signers
-        const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
         await aggLayerGatewayContract.connect(admin).grantRole(AL_MULTISIG_ROLE, admin.address);
 
         // Initialize empty signers to avoid AggchainSignersHashNotInitialized error

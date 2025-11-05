@@ -19,6 +19,21 @@ import {
 import { computeWrappedTokenProxyAddress } from './helpers/helpers-sovereign-bridge';
 import { computeRandomBytes } from '../../src/pessimistic-utils';
 import { encodeInitializeBytesLegacy } from '../../src/utils-common-aggchain';
+import {
+    DEFAULT_ADMIN_ROLE,
+    ADD_ROLLUP_TYPE_ROLE,
+    OBSOLETE_ROLLUP_TYPE_ROLE,
+    CREATE_ROLLUP_ROLE,
+    ADD_EXISTING_ROLLUP_ROLE,
+    UPDATE_ROLLUP_ROLE,
+    TRUSTED_AGGREGATOR_ROLE,
+    TRUSTED_AGGREGATOR_ROLE_ADMIN,
+    TWEAK_PARAMETERS_ROLE,
+    SET_FEE_ROLE,
+    STOP_EMERGENCY_ROLE,
+    EMERGENCY_COUNCIL_ROLE,
+    EMERGENCY_COUNCIL_ADMIN,
+} from './helpers/consts';
 
 type BatchDataStructEtrog = PolygonRollupBaseEtrog.BatchDataStruct;
 
@@ -92,21 +107,6 @@ describe('Polygon Rollup Manager', () => {
     const globalExitRootL2Address = '0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa' as unknown as Address;
 
     let firstDeployment = true;
-
-    // roles
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
-    const ADD_ROLLUP_TYPE_ROLE = ethers.id('ADD_ROLLUP_TYPE_ROLE');
-    const OBSOLETE_ROLLUP_TYPE_ROLE = ethers.id('OBSOLETE_ROLLUP_TYPE_ROLE');
-    const CREATE_ROLLUP_ROLE = ethers.id('CREATE_ROLLUP_ROLE');
-    const ADD_EXISTING_ROLLUP_ROLE = ethers.id('ADD_EXISTING_ROLLUP_ROLE');
-    const UPDATE_ROLLUP_ROLE = ethers.id('UPDATE_ROLLUP_ROLE');
-    const TRUSTED_AGGREGATOR_ROLE = ethers.id('TRUSTED_AGGREGATOR_ROLE');
-    const TRUSTED_AGGREGATOR_ROLE_ADMIN = ethers.id('TRUSTED_AGGREGATOR_ROLE_ADMIN');
-    const TWEAK_PARAMETERS_ROLE = ethers.id('TWEAK_PARAMETERS_ROLE');
-    const SET_FEE_ROLE = ethers.id('SET_FEE_ROLE');
-    const STOP_EMERGENCY_ROLE = ethers.id('STOP_EMERGENCY_ROLE');
-    const EMERGENCY_COUNCIL_ROLE = ethers.id('EMERGENCY_COUNCIL_ROLE');
-    const EMERGENCY_COUNCIL_ADMIN = ethers.id('EMERGENCY_COUNCIL_ADMIN');
 
     const SIGNATURE_BYTES = 32 + 32 + 1;
     const EFFECTIVE_PERCENTAGE_BYTES = 1;
