@@ -102,15 +102,5 @@
         "verify:v2:sepolia": "npx hardhat run deployment/v2/verifyContracts.js --network sepolia",
         "deploy:testnet:testV1ToV2:localhost": "npx hardhat compile && rm -f deployment/testV1ToV2/deploy_ongoing.json && npm run prepare:testV1ToV2:ZkEVM:localhost && npm run deploy:testV1ToV2:localhost",
         "saveDeployment:sepolia": "mkdir -p deployments/sepolia_$(date +%s) && cp -r deployment/v2/deploy_*.json deployments/sepolia_$(date +%s) && cp .openzeppelin/sepolia.json deployments/sepolia_$(date +%s) && cp deployment/v2/genesis.json deployments/sepolia_$(date +%s) && cp deployment/v2/create_rollup_output_*.json deployments/sepolia_$(date +%s)",
-        "testnetPol:upgradeV2:sepolia": "npx hardhat run upgrade/upgradeToV2/testnet/deployTestnetPol.ts --network sepolia",
-        "upgradev2:timelock:sepolia": "npx hardhat run upgrade/upgradeToV2/upgradeToV2.ts --network sepolia && npm run saveUpgradeV2:sepolia",
-        "verify:upgradeV2:sepolia": "npx hardhat run upgrade/upgradeToV2/verifyContracts.ts --network sepolia",
-        "upgradev2L2:timelock:zkevmDevnet": "npx hardhat run upgrade/upgradeToV2/upgradeL2ToV2.ts --network zkevmDevnet",
-        "saveUpgradeV2:sepolia": "mkdir -p upgrade/upgradeToV2/sepolia_$(date +%s) && cp -r upgrade/upgradeToV2/upgrade_*.json upgrade/upgradeToV2/sepolia_$(date +%s) && cp -r upgrade/upgradeToV2/deploy_*.json upgrade/upgradeToV2/sepolia_$(date +%s) && cp .openzeppelin/sepolia.json upgrade/upgradeToV2/sepolia_$(date +%s)",
-        "upgradev2L2:timelock:polygonZKEVMTestnet": "npx hardhat run upgrade/upgradeToV2/upgradeL2ToV2.ts --network polygonZKEVMTestnet",
-        "upgradev2L2:timelock:polygonZKEVMMainnet": "npx hardhat run upgrade/upgradeToV2/upgradeL2ToV2.ts --network polygonZKEVMMainnet",
-        "upgradev2:timelock:mainnet": "npx hardhat run upgrade/upgradeToV2/upgradeToV2.ts --network mainnet && npm run saveUpgradeV2:mainnet",
-        "verify:upgradeV2:mainnet": "npx hardhat run upgrade/upgradeToV2/verifyContracts.ts --network mainnet",
-        "saveUpgradeV2:mainnet": "mkdir -p upgrade/upgradeToV2/mainnet_$(date +%s) && cp -r upgrade/upgradeToV2/upgrade_*.json upgrade/upgradeToV2/mainnet_$(date +%s) && cp -r upgrade/upgradeToV2/deploy_*.json upgrade/upgradeToV2/mainnet_$(date +%s) && cp .openzeppelin/mainnet.json upgrade/upgradeToV2/mainnet_$(date +%s)"
     }
 }
