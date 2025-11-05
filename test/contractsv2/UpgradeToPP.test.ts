@@ -17,6 +17,7 @@ import {
 } from '../../typechain-types';
 import { encodeInitializeBytesLegacy } from '../../src/utils-common-aggchain';
 import { VerifierType, computeRandomBytes } from '../../src/pessimistic-utils';
+import { AL_MULTISIG_ROLE } from '../../src/constants';
 
 const MerkleTreeBridge = MTBridge;
 const { getLeafValue } = mtBridgeUtils;
@@ -210,7 +211,6 @@ describe('Upgradeable to PPV2 or ALGateway', () => {
         );
 
         // Grant AL_MULTISIG_ROLE to initialize signers
-        const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
         await aggLayerGatewayContract.connect(admin).grantRole(AL_MULTISIG_ROLE, admin.address);
 
         // Initialize empty signers to avoid AggchainSignersHashNotInitialized error

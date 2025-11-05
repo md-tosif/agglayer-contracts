@@ -17,6 +17,7 @@ import {
 import createRollupParameters from './create_new_rollup.json';
 import updateVanillaGenesis from '../../deployment/v2/utils/updateVanillaGenesis';
 import { logger } from '../../src/logger';
+import { DEFAULT_ADMIN_ROLE, CREATE_ROLLUP_ROLE } from '../../src/constants';
 import {
     AgglayerManager,
     PolygonZkEVMEtrog,
@@ -164,7 +165,6 @@ async function main() {
     ) as AgglayerManager;
 
     // Check if the deployer has right to deploy new rollups from rollupManager contract
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
     if ((await rollupManagerContract.hasRole(DEFAULT_ADMIN_ROLE, deployer.address)) === false) {
         throw new Error(
             `Deployer does not have admin role. Use the test flag on deploy_parameters if this is a test deployment`,
@@ -236,7 +236,6 @@ async function main() {
     }
 
     // Grant role CREATE_ROLLUP_ROLE to deployer
-    const CREATE_ROLLUP_ROLE = ethers.id('CREATE_ROLLUP_ROLE');
     if ((await rollupManagerContract.hasRole(CREATE_ROLLUP_ROLE, deployer.address)) === false)
         await rollupManagerContract.grantRole(CREATE_ROLLUP_ROLE, deployer.address);
 

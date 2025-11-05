@@ -25,7 +25,7 @@ import {
 
 import { encodeAggchainDataFEP, computeHashAggchainParamsFEP } from '../../src/utils-aggchain-FEP';
 
-import { NO_ADDRESS } from '../../src/constants';
+import { NO_ADDRESS, AGGCHAIN_DEFAULT_VKEY_ROLE, AL_ADD_PP_ROUTE_ROLE, AL_MULTISIG_ROLE } from '../../src/constants';
 
 describe('Polygon rollup manager aggregation layer v3: FEP', () => {
     // SIGNERS
@@ -56,8 +56,6 @@ describe('Polygon rollup manager aggregation layer v3: FEP', () => {
     // BRIDGE CONSTANTS
     const NETWORK_ID_MAINNET = 0;
     // AGGLAYER CONSTANTS
-    const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE');
-    const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
     const PESSIMISTIC_SELECTOR = '0x00000001';
     // calculate aggchainHash
     const newStateRoot = ethers.id('newStateRoot');
@@ -249,7 +247,6 @@ describe('Polygon rollup manager aggregation layer v3: FEP', () => {
         );
 
         // Grant AL_MULTISIG_ROLE to initialize signers
-        const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
         await aggLayerGatewayContract.connect(admin).grantRole(AL_MULTISIG_ROLE, admin.address);
 
         // Initialize empty signers to avoid AggchainSignersHashNotInitialized error

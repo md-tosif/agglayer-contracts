@@ -10,6 +10,13 @@ import { ethers, upgrades } from 'hardhat';
 import { checkParams, getProviderAdjustingMultiplierGas, getDeployerFromParameters, getGitInfo } from '../../src/utils';
 import { verifyContractEtherscan } from '../../upgrade/utils';
 import { AgglayerGateway } from '../../typechain-types';
+import {
+    DEFAULT_ADMIN_ROLE,
+    AGGCHAIN_DEFAULT_VKEY_ROLE,
+    AL_ADD_PP_ROUTE_ROLE,
+    AL_FREEZE_PP_ROUTE_ROLE,
+    AL_MULTISIG_ROLE,
+} from '../../src/constants';
 import deployParameters from './deploy_parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
@@ -103,12 +110,8 @@ async function main() {
     ).to.be.revertedWithCustomError(aggLayerGatewayContract, 'InvalidInitialization');
 
     // Check initializer params (ROLES)
-    const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE');
-    const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
-    const AL_FREEZE_PP_ROUTE_ROLE = ethers.id('AL_FREEZE_PP_ROUTE_ROLE');
-    const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
     // Admin role
-    const hasRoleDefaultAdmin = await aggLayerGateway.hasRole(ethers.ZeroHash, defaultAdminAddress);
+    const hasRoleDefaultAdmin = await aggLayerGateway.hasRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
     expect(hasRoleDefaultAdmin).to.be.equal(true);
     // Other roles
     const hasRoleAggchainDefaultVKey = await aggLayerGateway.hasRole(

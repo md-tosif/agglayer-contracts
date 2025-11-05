@@ -23,6 +23,7 @@ import {
 import createRollupParameters from './create_rollup_parameters.json';
 import deployOutput from './deploy_output.json';
 import updateVanillaGenesis from './utils/updateVanillaGenesis';
+import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE, CREATE_ROLLUP_ROLE } from '../../src/constants';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -209,7 +210,6 @@ async function main() {
         deployOutput.polygonZkEVMGlobalExitRootAddress,
     ) as AgglayerGER;
 
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
     if ((await rollupManagerContract.hasRole(DEFAULT_ADMIN_ROLE, deployer.address)) === false) {
         throw new Error(
             `Deployer does not have admin role. Use the test flag on deploy_parameters if this is a test deployment`,
@@ -217,8 +217,6 @@ async function main() {
     }
 
     // Since it's a mock deployment deployer has all the rights
-    const ADD_ROLLUP_TYPE_ROLE = ethers.id('ADD_ROLLUP_TYPE_ROLE');
-    const CREATE_ROLLUP_ROLE = ethers.id('CREATE_ROLLUP_ROLE');
 
     // Check role:
     if ((await rollupManagerContract.hasRole(ADD_ROLLUP_TYPE_ROLE, deployer.address)) === false)

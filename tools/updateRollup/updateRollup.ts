@@ -8,6 +8,7 @@ import { ethers, network } from 'hardhat';
 import { AgglayerManager } from '../../typechain-types';
 import { transactionTypes, genOperation } from '../utils';
 import '../../deployment/helpers/utils';
+import { UPDATE_ROLLUP_ROLE } from '../../src/constants';
 import updateRollupsParameters from './updateRollup.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -137,7 +138,6 @@ async function main() {
 
             if (updateRollupsParameters.type === transactionTypes.EOA) {
                 // Check role
-                const UPDATE_ROLLUP_ROLE = ethers.id('UPDATE_ROLLUP_ROLE');
                 if ((await rollupManagerContract.hasRole(UPDATE_ROLLUP_ROLE, deployer.address)) === false) {
                     // log that address has no role
                     throw new Error(`Address ${deployer.address} does not have the UPDATE_ROLLUP_ROLE role`);

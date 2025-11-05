@@ -4,6 +4,13 @@ import { ethers, upgrades } from 'hardhat';
 import { AgglayerGateway, SP1VerifierPlonk } from '../../typechain-types';
 import input from './real-prover-sp1/test-inputs/input.json';
 import { computeSignersHash } from '../../src/utils-common-aggchain';
+import {
+    DEFAULT_ADMIN_ROLE,
+    AGGCHAIN_DEFAULT_VKEY_ROLE,
+    AL_ADD_PP_ROUTE_ROLE,
+    AL_FREEZE_PP_ROUTE_ROLE,
+    AL_MULTISIG_ROLE,
+} from '../../src/constants';
 
 describe('AgglayerGateway tests', () => {
     upgrades.silenceWarnings();
@@ -17,12 +24,6 @@ describe('AgglayerGateway tests', () => {
     let aggchainVKey: any;
     let addPPRoute: any;
     let freezePPRoute: any;
-
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
-    const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE');
-    const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
-    const AL_FREEZE_PP_ROUTE_ROLE = ethers.id('AL_FREEZE_PP_ROUTE_ROLE');
-    const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
 
     const initPPVKeySelector = '0x00000001';
     const initPPVkey = '0xbbbbbb85702e0582d900f3a19521270c92a58e2588230c4a5cf3b45103f4a512';

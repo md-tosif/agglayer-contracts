@@ -1,8 +1,10 @@
 import path = require('path');
 import fs = require('fs');
 
+import { ethers } from 'hardhat';
 import params from './parameters.json';
 import { AgglayerGateway } from '../../../typechain-types';
+import { DEFAULT_ADMIN_ROLE, AGGCHAIN_DEFAULT_VKEY_ROLE } from '../../../src/constants';
 import { transactionTypes, genOperation } from '../../utils';
 import { decodeScheduleData } from '../../../upgrade/utils';
 import { logger } from '../../../src/logger';
@@ -19,9 +21,6 @@ async function main() {
     const destPath = params.outputPath
         ? path.join(__dirname, params.outputPath)
         : path.join(__dirname, `unset_default_vkey_output_${params.type}_${dateStr}.json`);
-
-    const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE');
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
 
     /// //////////////////////////
     ///   CHECK TOOL PARAMS   ///

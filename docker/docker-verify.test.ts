@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { AgglayerManager, AgglayerGER, AggchainFEP } from '../typechain-types';
 
+import { TRUSTED_AGGREGATOR_ROLE } from '../src/constants';
 import { computeRandomBytes } from '../src/pessimistic-utils';
 import { encodeAggchainDataFEP } from '../src/utils-aggchain-FEP';
 
@@ -69,7 +70,6 @@ describe('Docker verifyProof test', () => {
         );
 
         // check Role
-        const TRUSTED_AGGREGATOR_ROLE = ethers.id('TRUSTED_AGGREGATOR_ROLE');
         expect(await rollupManagerContract.hasRole(TRUSTED_AGGREGATOR_ROLE, trustedAggregator.address)).to.be.equal(
             true,
         );
