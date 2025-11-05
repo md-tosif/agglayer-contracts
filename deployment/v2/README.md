@@ -30,8 +30,8 @@ The value is on `100 gweis`, if it's necessary to update it go to `helpers/deplo
 Note that this operation will change all the deterministic address deployed.
 
 ```
-npm run deploy:deployer:ZkEVM:goerli
-npm run verify:deployer:ZkEVM:goerli
+npm run deploy:v2:sepolia
+npm run verify:v2:sepolia
 ```
 
 To deploy on testnet is necessary a token MATIC contract, therefore, there's another script that previously to the actual deployment, deploys a matic contracts and adds it automatically to the `deploy_parameters.json`
@@ -41,14 +41,14 @@ To deploy on testnet use:`deploy:testnet:ZkEVM:${network}`
 In other cases use fulfill `maticTokenAddress` in the `deploy_parameters.json` and run `deploy:ZkEVM:${network}`
 
 ```
-npm run deploy:testnet:ZkEVM:goerli
+npm run deploy:testnet:v2:sepolia
 
 ```
 
 To verify contracts use `npm run verify:ZkEVM:${network}`
 
 ```
-npm run verify:ZkEVM:goerli
+npm run verify:upgradeV2:sepolia
 ```
 
 A new folder will be created with the following name `deployments/${network}_$(date +%s)` with all the output information and the OZ proxy information.
@@ -66,7 +66,7 @@ A new folder will be created with the following name `deployments/${network}_$(d
 - `pendingStateTimeout`: uint64, Once a pending state exceeds this timeout it can be consolidated by everyone
 - `emergencyCouncilAddress`: address, Emergency council address
 - `polTokenAddress`: address, POL token address, only if deploy on testnet can be left blank and will fulfilled by the scripts.
-- `zkEVMDeployerAddress`: address, Address of the `PolygonZkEVMDeployer`. Can be left blank, will be fulfilled automatically with the `deploy:deployer:ZkEVM:goerli` script.
+- `zkEVMDeployerAddress`: address, Address of the `PolygonZkEVMDeployer`. Can be left blank, will be fulfilled automatically with the `deploy:v2:sepolia` script.
 - `ppVKey`: pessimistic program verification key (AgglayerGateway)
 - `ppVKeySelector`: The 4 bytes selector to add to the pessimistic verification keys (AgglayerGateway)
 - `realVerifier`: bool, Indicates whether deploy a real verifier or not (AgglayerGateway)

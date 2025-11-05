@@ -30,7 +30,7 @@ You can change the deployment `mnemonic` creating a `.env` file in the project r
 - `pendingStateTimeout`: uint64, Once a pending state exceeds this timeout it can be consolidated by everyone
 - `emergencyCouncilAddress`: address, Emergency council address
 - `polTokenAddress`: address, POL token address, only if deploy on testnet can be left blank and will fulfilled by the scripts.
-- `zkEVMDeployerAddress`: address, Address of the `PolygonZkEVMDeployer`. Can be left blank, will be fulfilled automatically with the `deploy:deployer:ZkEVM:goerli` script
+- `zkEVMDeployerAddress`: address, Address of the `PolygonZkEVMDeployer`. Can be left blank, will be fulfilled automatically with the `deploy:v2:sepolia` script
 - `ppVKey`: pessimistic program verification key (AgglayerGateway)
 - `ppVKeySelector`: The 4 bytes selector to add to the pessimistic verification keys (AgglayerGateway)
 - `multisigRoleAddress`: address, The address that can manage multisig signers and threshold (AgglayerGateway)
