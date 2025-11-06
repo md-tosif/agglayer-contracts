@@ -9,7 +9,7 @@ import yargs from 'yargs/yargs';
 import { getStorageAt, setCode, setNonce } from '@nomicfoundation/hardhat-network-helpers';
 import { ethers, upgrades } from 'hardhat';
 import { MemDB, ZkEVMDB, getPoseidon, smtUtils } from '@0xpolygonhermez/zkevm-commonjs';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 import {
     deployPolygonZkEVMDeployer,
     create2Deployment,

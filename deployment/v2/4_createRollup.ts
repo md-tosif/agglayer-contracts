@@ -11,6 +11,12 @@ import '../helpers/utils';
 
 import * as utilsFEP from '../../src/utils-aggchain-FEP';
 import * as utilsAggchain from '../../src/utils-common-aggchain';
+import {
+    GENESIS_CONTRACT_NAMES,
+    DEFAULT_ADMIN_ROLE,
+    ADD_ROLLUP_TYPE_ROLE,
+    CREATE_ROLLUP_ROLE,
+} from '../../src/constants';
 import * as utilsPP from '../../src/pessimistic-utils';
 import {
     AgglayerManager,
@@ -23,7 +29,6 @@ import {
 import createRollupParameters from './create_rollup_parameters.json';
 import deployOutput from './deploy_output.json';
 import updateVanillaGenesis from './utils/updateVanillaGenesis';
-import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE, CREATE_ROLLUP_ROLE } from '../../src/constants';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -649,12 +654,12 @@ async function main() {
                 !ethers.isAddress(sovereignParams.sovereignWETHAddress))
         ) {
             const wethObject = genesis.genesis.find(function (obj) {
-                return obj.contractName === utilsAggchain.GENESIS_CONTRACT_NAMES.WETH_PROXY;
+                return obj.contractName === GENESIS_CONTRACT_NAMES.WETH_PROXY;
             });
             outputJson.WETHProxyAddress = wethObject.address;
 
             const wethImpObject = genesis.genesis.find(function (obj) {
-                return obj.contractName === utilsAggchain.GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION;
+                return obj.contractName === GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION;
             });
             outputJson.WETHImplementationAddress = wethImpObject.address;
         }

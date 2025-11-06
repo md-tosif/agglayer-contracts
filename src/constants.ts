@@ -64,3 +64,70 @@ export const AGGCHAIN_DEFAULT_VKEY_ROLE = ethers.id('AGGCHAIN_DEFAULT_VKEY_ROLE'
 export const AL_ADD_PP_ROUTE_ROLE = ethers.id('AL_ADD_PP_ROUTE_ROLE');
 export const AL_FREEZE_PP_ROUTE_ROLE = ethers.id('AL_FREEZE_PP_ROUTE_ROLE');
 export const AL_MULTISIG_ROLE = ethers.id('AL_MULTISIG_ROLE');
+
+/// ////////////////////////////
+///   GENESIS CONSTANTS    /////
+/// ////////////////////////////
+
+export const GENESIS_CONTRACT_NAMES = {
+    WETH: 'WETH',
+    WETH_PROXY: 'WETH proxy',
+    TOKEN_WRAPPED_IMPLEMENTATION: 'TokenWrapped implementation',
+    SOVEREIGN_BRIDGE: 'AgglayerBridgeL2',
+    SOVEREIGN_BRIDGE_IMPLEMENTATION: 'AgglayerBridgeL2 implementation',
+    SOVEREIGN_BRIDGE_PROXY: 'AgglayerBridgeL2 proxy',
+    BYTECODE_STORER: 'BytecodeStorer',
+    BRIDGE_V2: 'AgglayerBridge',
+    GER_L2_SOVEREIGN: 'AgglayerGERL2',
+    GER_L2_SOVEREIGN_IMPLEMENTATION: 'AgglayerGERL2 implementation',
+    GER_L2_SOVEREIGN_PROXY: 'AgglayerGERL2 proxy',
+    GER_L2: 'LegacyAgglayerGERL2',
+    GER_L2_IMPLEMENTATION: 'LegacyAgglayerGERL2 implementation',
+    GER_L2_PROXY: 'LegacyAgglayerGERL2 proxy',
+    PROXY_ADMIN: 'ProxyAdmin',
+    POLYGON_TIMELOCK: 'PolygonZkEVMTimelock',
+    POLYGON_DEPLOYER: 'PolygonZkEVMDeployer',
+    BRIDGE_LIB: `BridgeLib`,
+    AGG_ORACLE_PROXY: 'AggOracleCommittee proxy',
+    AGG_ORACLE_IMPL: 'AggOracleCommittee implementation',
+    ROLLUP_MANAGER_IMPLEMENTATION: 'AgglayerManager implementation',
+    AGGLAYER_GATEWAY_IMPLEMENTATION: 'AgglayerGateway implementation',
+    GER_IMPLEMENTATION: 'AgglayerGER implementation',
+};
+
+// Next contracts names came from the genesis creation from different tags of agglayer-contracts repository.
+// Genesis files have been created previously and so they could have old naming.
+// Those genesis are already imported on different tooling and added as a metadata on-chain. Therefore, these arrays aims
+// to support them too.
+
+// TokenWrapped implementation
+export const supportedTokenWrappedImplementation = [
+    'TokenWrapped Implementation', // https://github.com/agglayer/agglayer-contracts/blob/v11.0.0-rc.3/deployment/v2/1_createGenesis.ts#L193
+    `${GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION}`, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L195
+];
+
+// L2 GER Manager implementation
+export const supportedGERManagers = [
+    'PolygonZkEVMGlobalExitRootL2 implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L328
+    `${GENESIS_CONTRACT_NAMES.GER_L2} implementation`, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L368
+];
+
+// L2 GER Manager proxy
+export const supportedGERManagersProxy = [
+    'PolygonZkEVMGlobalExitRootL2 proxy', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L346
+    `${GENESIS_CONTRACT_NAMES.GER_L2} proxy`, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L386
+];
+
+// L2 Bridge implementation
+export const supportedBridgeContracts = [
+    'PolygonZkEVMBridge implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L294
+    'PolygonZkEVMBridgeV2 implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L319
+    `${GENESIS_CONTRACT_NAMES.BRIDGE_V2} implementation`, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L334
+];
+
+// L2 Bridge proxy
+export const supportedBridgeContractsProxy = [
+    'PolygonZkEVMBridge proxy', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L309
+    'PolygonZkEVMBridgeV2 proxy', // https://github.com/agglayer/agglayer-contracts/blob/v11.0.0-rc.3/deployment/v2/1_createGenesis.ts#L333
+    `${GENESIS_CONTRACT_NAMES.BRIDGE_V2} proxy`, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L349
+];

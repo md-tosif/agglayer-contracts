@@ -5,12 +5,13 @@ import path = require('path');
 import fs = require('fs');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
-import { supportedBridgeContracts, transactionTypes, genOperation } from '../utils';
+import { transactionTypes, genOperation } from '../utils';
+import { supportedBridgeContracts, DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE } from '../../src/constants';
+
 import { AGGCHAIN_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
 import { ConsensusContracts, VerifierType } from '../../src/pessimistic-utils';
 import addRollupTypeParameters from './add_rollup_type.json';
 import { AgglayerManager } from '../../typechain-types';
-import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE } from '../../src/constants';
 import {
     checkParams,
     getDeployerFromParameters,

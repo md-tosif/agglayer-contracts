@@ -10,7 +10,7 @@ import { ethers, upgrades } from 'hardhat';
 import { MemDB, ZkEVMDB, getPoseidon, smtUtils } from '@0xpolygonhermez/zkevm-commonjs';
 import { deployPolygonZkEVMDeployer, create2Deployment, getAddressInfo } from '../helpers/deployment-helpers';
 import { ProxyAdmin } from '../../typechain-types';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 import '../helpers/utils';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });

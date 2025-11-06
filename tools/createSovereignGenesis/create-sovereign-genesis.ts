@@ -17,7 +17,7 @@ import { checkParams, getGitInfo } from '../../src/utils';
 import { logger } from '../../src/logger';
 import { formatGenesis } from './helpers';
 import { checkBridgeAddress } from '../utils';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 // read files
 import genesisBase from './genesis-base.json';
 import createGenesisSovereignParams from './create-genesis-sovereign-params.json';
