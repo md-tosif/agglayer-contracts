@@ -401,12 +401,14 @@ abstract contract BaseTest is Test {
 
     /**
      * @dev Replace an immutable address in a PUSH32 instruction
+     * @dev WARNING: Do not replicate this pattern in production contracts!
      * Solidity immutables for addresses are stored as PUSH32 with 12 bytes padding
      * @param _bytecode The original bytecode
      * @param _actual The actual address to set
      * @return The modified bytecode
      */
     function _replaceImmutableInPush32(bytes memory _bytecode, address _actual) internal pure returns (bytes memory) {
+        // @todo This needs to be replaced with a more robust bytecode parser in the future
         // Pattern to search for: PUSH32 (0x7f) + 12 zero bytes + 20 zero bytes (address)
         bytes memory searchPattern = abi.encodePacked(
             bytes1(0x7f), // PUSH32 opcode
