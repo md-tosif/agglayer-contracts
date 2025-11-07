@@ -105,31 +105,36 @@ export const GENESIS_CONTRACT_NAMES = {
 // TokenWrapped implementation
 export const SUPPORT_TOKEN_WRAPPED_IMPLEMENTATION = [
     'TokenWrapped Implementation', // https://github.com/agglayer/agglayer-contracts/blob/v11.0.0-rc.3/deployment/v2/1_createGenesis.ts#L193
-    GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L195
+    // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L195
+    GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION,
 ];
 
 // L2 GER Manager implementation
 export const SUPPORT_GER_MANAGER_IMPLEMENTATION = [
     'PolygonZkEVMGlobalExitRootL2 implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L328
-    GENESIS_CONTRACT_NAMES.GER_L2_IMPLEMENTATION, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L368
+    // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L368
+    GENESIS_CONTRACT_NAMES.GER_L2_IMPLEMENTATION,
 ];
 
 // L2 GER Manager proxy
 export const SUPPORT_GER_MANAGER_PROXY = [
     'PolygonZkEVMGlobalExitRootL2 proxy', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L346
-    GENESIS_CONTRACT_NAMES.GER_L2_PROXY, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L386
+    // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L386
+    GENESIS_CONTRACT_NAMES.GER_L2_PROXY,
 ];
 
 // L2 Bridge implementation
 export const SUPPORT_BRIDGE_IMPLEMENTATION = [
     'PolygonZkEVMBridge implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L294
     'PolygonZkEVMBridgeV2 implementation', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L319
-    GENESIS_CONTRACT_NAMES.BRIDGE_V2_IMPLEMENTATION, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L334
+    // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L334
+    GENESIS_CONTRACT_NAMES.BRIDGE_V2_IMPLEMENTATION,
 ];
 
 // L2 Bridge proxy
 export const SUPPORT_BRIDGE_PROXY = [
     'PolygonZkEVMBridge proxy', // https://github.com/agglayer/agglayer-contracts/blob/v4.0.0-fork.7/deployment/v2/1_createGenesis.ts#L309
     'PolygonZkEVMBridgeV2 proxy', // https://github.com/agglayer/agglayer-contracts/blob/v11.0.0-rc.3/deployment/v2/1_createGenesis.ts#L333
-    GENESIS_CONTRACT_NAMES.BRIDGE_V2_PROXY, // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L349
+    // https://github.com/agglayer/agglayer-contracts/blob/v12.1.0/deployment/v2/1_createGenesis.ts#L349
+    GENESIS_CONTRACT_NAMES.BRIDGE_V2_PROXY,
 ];
