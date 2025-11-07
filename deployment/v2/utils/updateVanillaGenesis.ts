@@ -261,7 +261,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
         {},
     );
 
-    // Check if the genesis contains BridgeLib contract or replace it with deployed bridgeLib contract
+    // Check if the genesis contains BridgeLib contract and replace it with deployed bridgeLib contract, or add it if not present
     let bridgeLibImplementationObject = genesis.genesis.find(function (obj) {
         return obj.contractName === GENESIS_CONTRACT_NAMES.BRIDGE_LIB;
     });
