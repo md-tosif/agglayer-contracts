@@ -5,11 +5,11 @@ import { MemDB, ZkEVMDB, getPoseidon, smtUtils, processorUtils } from '@0xpolygo
 import { getContractAddress } from '@ethersproject/address';
 import {
     GENESIS_CONTRACT_NAMES,
-    supportedGERManagers,
-    supportedGERManagersProxy,
-    supportedBridgeContracts,
-    supportedBridgeContractsProxy,
-    supportedTokenWrappedImplementation,
+    SUPPORT_GER_MANAGER_IMPLEMENTATION,
+    SUPPORT_GER_MANAGER_PROXY,
+    SUPPORT_BRIDGE_IMPLEMENTATION,
+    SUPPORT_BRIDGE_PROXY,
+    SUPPORT_TOKEN_WRAPPED_IMPLEMENTATION,
 } from '../../../src/constants';
 import { padTo32Bytes, padTo20Bytes } from './deployment-utils';
 import { checkParams } from '../../../src/utils';
@@ -108,11 +108,11 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     const gerContractName = GENESIS_CONTRACT_NAMES.GER_L2_SOVEREIGN;
     const gerFactory = await ethers.getContractFactory(gerContractName);
     const oldBridge = genesis.genesis.find(function (obj) {
-        return supportedBridgeContracts.includes(obj.contractName);
+        return SUPPORT_BRIDGE_IMPLEMENTATION.includes(obj.contractName);
     });
     // Get bridge proxy address
     const bridgeProxy = genesis.genesis.find(function (obj) {
-        return supportedBridgeContractsProxy.includes(obj.contractName);
+        return SUPPORT_BRIDGE_PROXY.includes(obj.contractName);
     });
     const deployGERData = await gerFactory.getDeployTransaction(bridgeProxy.address);
     injectedTx.data = deployGERData.data;
@@ -215,10 +215,10 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
 
     // Check if the genesis contains TokenWrappedImplementation contract
     let tokenWrappedImplementationObject = genesis.genesis.find(function (obj) {
-        return supportedTokenWrappedImplementation.includes(obj.contractName);
+        return SUPPORT_TOKEN_WRAPPED_IMPLEMENTATION.includes(obj.contractName);
     });
 
-    // If its not contained add it to the genesis
+    // If it's not contained add it to the genesis
     if (typeof tokenWrappedImplementationObject === 'undefined') {
         tokenWrappedImplementationObject = tokenWrappedImplementationObjectNew;
         genesis.genesis.push(tokenWrappedImplementationObject);
@@ -244,7 +244,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
 
     // Replace it with deployed bridgeLib contract
     const bridgeLibImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBridgeLib)}`;
-    const bridgeLibImplementationState = await zkEVMDB.getCurrentAccountState(sovereignBridgeAddress);
+    const bridgeLibImplementationState = await zkEVMDB.getCurrentAccountState(precalculatedAddressBridgeLib);
     const bridgeLibImplementationObjectNew = {
         contractName: GENESIS_CONTRACT_NAMES.BRIDGE_LIB,
         balance: bridgeLibImplementationState.balance.toString(),
@@ -266,7 +266,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
         return obj.contractName === GENESIS_CONTRACT_NAMES.BRIDGE_LIB;
     });
 
-    // If its not contained add it to the genesis
+    // If it's not contained add it to the genesis
     if (typeof bridgeLibImplementationObject === 'undefined') {
         bridgeLibImplementationObject = bridgeLibImplementationObjectNew;
         genesis.genesis.push(bridgeLibImplementationObject);
@@ -282,7 +282,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     /// ///////////////////////
 
     const oldGer = genesis.genesis.find(function (obj) {
-        return supportedGERManagers.includes(obj.contractName);
+        return SUPPORT_GER_MANAGER_IMPLEMENTATION.includes(obj.contractName);
     });
     oldGer.contractName = GENESIS_CONTRACT_NAMES.GER_L2_SOVEREIGN_IMPLEMENTATION;
     oldGer.bytecode = `0x${await zkEVMDB.getBytecode(GERAddress)}`;
@@ -294,7 +294,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
 
     // Initialize bridge
     const gerProxy = genesis.genesis.find(function (obj) {
-        return supportedGERManagersProxy.includes(obj.contractName);
+        return SUPPORT_GER_MANAGER_PROXY.includes(obj.contractName);
     });
 
     const {

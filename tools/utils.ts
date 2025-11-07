@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 import * as ethers from 'ethers';
 import { getGitInfo } from '../src/utils';
-import { supportedBridgeContractsProxy } from '../src/constants';
+import { SUPPORT_BRIDGE_PROXY } from '../src/constants';
 
 export function genOperation(target, value, data, predecessor, salt) {
     const abiEncoded = ethers.AbiCoder.defaultAbiCoder().encode(
@@ -58,7 +58,7 @@ export function checkBridgeAddress(genesis, expectedBridgeAddress) {
     let bridgeContractName = '';
 
     for (let i = 0; i < genesis.genesis.length; i++) {
-        if (supportedBridgeContractsProxy.includes(genesis.genesis[i].contractName)) {
+        if (SUPPORT_BRIDGE_PROXY.includes(genesis.genesis[i].contractName)) {
             genesisBridgeAddress = genesis.genesis[i].address;
             bridgeContractName = genesis.genesis[i].contractName;
             break;
