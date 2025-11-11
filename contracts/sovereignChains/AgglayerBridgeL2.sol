@@ -31,6 +31,22 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         bytes metadata;
     }
 
+    // Struct to represent claim data for forceEmitDetailedClaimEvent function
+    struct ClaimData {
+        bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofLocalExitRoot;
+        bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofRollupExitRoot;
+        uint256 globalIndex;
+        bytes32 mainnetExitRoot;
+        bytes32 rollupExitRoot;
+        uint8 leafType;
+        uint32 originNetwork;
+        address originAddress;
+        uint32 destinationNetwork;
+        address destinationAddress;
+        uint256 amount;
+        bytes metadata;
+    }
+
     // Map to store wrappedAddresses that are not mintable
     mapping(address wrappedAddress => bool isNotMintable)
         public wrappedAddressIsNotMintable;
@@ -172,10 +188,9 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
 
     /**
      * @dev Emitted when a claim is set
-     * @param leafIndex Index of the leaf of the set claim in the Merkle tree
-     * @param sourceNetwork Identifier of the source network of the claim (0 = Ethereum).
+     * @param globalIndex Global index set
      */
-    event SetClaim(uint32 leafIndex, uint32 sourceNetwork);
+    event SetClaim(uint256 globalIndex);
 
     /**
      * @dev Emitted when local exit tree is moved backward
@@ -240,6 +255,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         uint256 indexed globalIndex,
         bytes32 mainnetExitRoot,
         bytes32 rollupExitRoot,
+        uint8 leafType,
         uint32 originNetwork,
         address originTokenAddress,
         uint32 destinationNetwork,
@@ -695,7 +711,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
             // Set the claim
             _setAndCheckClaimed(leafIndex, sourceBridgeNetwork);
 
-            emit SetClaim(leafIndex, sourceBridgeNetwork);
+            emit SetClaim(globalIndex);
         }
     }
 
@@ -836,6 +852,57 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
             computedRoot,
             abi.encode(newLeaves)
         );
+    }
+
+    /**
+     * @notice Force emit detailed claim events for multiple claims
+     * @dev This function allows emitting DetailedClaimEvent for claims without actually processing them
+     * @param claims Array of claim data to emit events for
+     */
+    function forceEmitDetailedClaimEvent(
+        ClaimData[] calldata claims
+    ) external onlyGlobalExitRootRemover {
+        for (uint256 i = 0; i < claims.length; ++i) {
+            ClaimData calldata claim = claims[i];
+
+            // Verify leaf is included into existing
+            (uint32 leafIndex, uint32 sourceBridgeNetwork) = _verifyLeaf(
+                claim.smtProofLocalExitRoot,
+                claim.smtProofRollupExitRoot,
+                claim.globalIndex,
+                claim.mainnetExitRoot,
+                claim.rollupExitRoot,
+                getLeafValue(
+                    claim.leafType,
+                    claim.originNetwork,
+                    claim.originAddress,
+                    claim.destinationNetwork,
+                    claim.destinationAddress,
+                    claim.amount,
+                    keccak256(claim.metadata)
+                )
+            );
+
+            // Verify this global index was already claimed
+            if (isClaimed(leafIndex, sourceBridgeNetwork) == false) {
+                revert ClaimNotSet();
+            }
+
+            emit DetailedClaimEvent(
+                claim.smtProofLocalExitRoot,
+                claim.smtProofRollupExitRoot,
+                claim.globalIndex,
+                claim.mainnetExitRoot,
+                claim.rollupExitRoot,
+                claim.leafType,
+                claim.originNetwork,
+                claim.originAddress,
+                claim.destinationNetwork,
+                claim.destinationAddress,
+                claim.amount,
+                claim.metadata
+            );
+        }
     }
 
     /**
@@ -1128,7 +1195,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     function isClaimed(
         uint32 leafIndex,
         uint32 sourceBridgeNetwork
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 globalIndex = uint256(leafIndex) +
             uint256(sourceBridgeNetwork) *
             _MAX_LEAFS_PER_NETWORK;
@@ -1177,74 +1244,6 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         onlyEmergencyBridgeUnpauser
     {
         _deactivateEmergencyState();
-    }
-
-    /**
-     * @notice Override claimAsset to emit additional DetailedClaimEvent for rollup gas efficiency
-     * @dev This function extends the parent claimAsset functionality by emitting an additional event
-     *      with all calldata parameters. This event can be emitted on rollups because gas costs are
-     *      cheaper than on L1, providing more detailed information about the claim parameters.
-     * @dev The function inherits all security modifiers from the parent implementation:
-     *      - ifNotEmergencyState: Prevents claims during emergency state
-     *      - nonReentrant: Prevents reentrancy attacks during token transfers
-     * @param smtProofLocalExitRoot Smt proof to proof the leaf against the network exit root
-     * @param smtProofRollupExitRoot Smt proof to proof the rollupLocalExitRoot against the rollups exit root
-     * @param globalIndex Global index is defined as:
-     *        | 191 bits |    1 bit     |   32 bits   |     32 bits    |
-     *        |    0     |  mainnetFlag | rollupIndex | localRootIndex |
-     * @param mainnetExitRoot Mainnet exit root
-     * @param rollupExitRoot Rollup exit root
-     * @param originNetwork Origin network
-     * @param originTokenAddress Origin token address
-     * @param destinationNetwork Network destination (must be this networkID)
-     * @param destinationAddress Address destination
-     * @param amount Amount of tokens to claim
-     * @param metadata Abi encoded metadata if any, empty otherwise
-     * @dev Emits both ClaimEvent (from parent) and DetailedClaimEvent (sovereign-specific)
-     */
-    function claimAsset(
-        bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofLocalExitRoot,
-        bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofRollupExitRoot,
-        uint256 globalIndex,
-        bytes32 mainnetExitRoot,
-        bytes32 rollupExitRoot,
-        uint32 originNetwork,
-        address originTokenAddress,
-        uint32 destinationNetwork,
-        address destinationAddress,
-        uint256 amount,
-        bytes calldata metadata
-    ) public override(IAgglayerBridge, AgglayerBridge) {
-        // Call parent implementation with all inherited security modifiers:
-        // - ifNotEmergencyState: Only allows claims when emergency state is inactive
-        // - nonReentrant: Prevents reentrancy attacks during token operations
-        super.claimAsset(
-            smtProofLocalExitRoot,
-            smtProofRollupExitRoot,
-            globalIndex,
-            mainnetExitRoot,
-            rollupExitRoot,
-            originNetwork,
-            originTokenAddress,
-            destinationNetwork,
-            destinationAddress,
-            amount,
-            metadata
-        );
-
-        emit DetailedClaimEvent(
-            smtProofLocalExitRoot,
-            smtProofRollupExitRoot,
-            globalIndex,
-            mainnetExitRoot,
-            rollupExitRoot,
-            originNetwork,
-            originTokenAddress,
-            destinationNetwork,
-            destinationAddress,
-            amount,
-            metadata
-        );
     }
 
     ///////////////////////////
@@ -1374,9 +1373,9 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      * @param destinationNetwork Network destination
      * @param destinationAddress Address destination
      * @param amount message value
-     * @param metadataHash Hash of the metadata
+     * @param metadata Raw metadata bytes
      */
-    function _verifyLeafBridge(
+    function _verifyLeafAndSetNullifier(
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofLocalExitRoot,
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofRollupExitRoot,
         uint256 globalIndex,
@@ -1388,8 +1387,24 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         uint32 destinationNetwork,
         address destinationAddress,
         uint256 amount,
-        bytes32 metadataHash
+        bytes memory metadata
     ) internal override {
+        // Emit detailed claim event first to avois stack too deep errrors
+        emit DetailedClaimEvent(
+            smtProofLocalExitRoot,
+            smtProofRollupExitRoot,
+            globalIndex,
+            mainnetExitRoot,
+            rollupExitRoot,
+            leafType,
+            originNetwork,
+            originAddress,
+            destinationNetwork,
+            destinationAddress,
+            amount,
+            metadata
+        );
+
         bytes32 leafValue = getLeafValue(
             leafType,
             originNetwork,
@@ -1397,10 +1412,10 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
             destinationNetwork,
             destinationAddress,
             amount,
-            metadataHash
+            keccak256(metadata)
         );
 
-        _verifyLeaf(
+        (uint32 leafIndex, uint32 sourceBridgeNetwork) = _verifyLeaf(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
             globalIndex,
@@ -1408,6 +1423,9 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
             rollupExitRoot,
             leafValue
         );
+
+        // Set and check nullifier
+        _setAndCheckClaimed(leafIndex, sourceBridgeNetwork);
 
         // Update claimedGlobalIndexHashChain
         claimedGlobalIndexHashChain = Hashes.efficientKeccak256(

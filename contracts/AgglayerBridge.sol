@@ -578,7 +578,7 @@ contract AgglayerBridge is
         }
 
         // Verify leaf exist and it does not have been claimed
-        _verifyLeafBridge(
+        _verifyLeafAndSetNullifier(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
             globalIndex,
@@ -590,7 +590,7 @@ contract AgglayerBridge is
             destinationNetwork,
             destinationAddress,
             amount,
-            keccak256(metadata)
+            metadata
         );
 
         emit ClaimEvent(
@@ -738,7 +738,7 @@ contract AgglayerBridge is
         }
 
         // Verify leaf exist and it does not have been claimed
-        _verifyLeafBridge(
+        _verifyLeafAndSetNullifier(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
             globalIndex,
@@ -750,7 +750,7 @@ contract AgglayerBridge is
             destinationNetwork,
             destinationAddress,
             amount,
-            keccak256(metadata)
+            metadata
         );
 
         emit ClaimEvent(
@@ -805,9 +805,9 @@ contract AgglayerBridge is
      * @param destinationNetwork Network destination
      * @param destinationAddress Address destination
      * @param amount message value
-     * @param metadataHash Hash of the metadata
+     * @param metadata Raw metadata bytes
      */
-    function _verifyLeafBridge(
+    function _verifyLeafAndSetNullifier(
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofLocalExitRoot,
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofRollupExitRoot,
         uint256 globalIndex,
@@ -819,9 +819,9 @@ contract AgglayerBridge is
         uint32 destinationNetwork,
         address destinationAddress,
         uint256 amount,
-        bytes32 metadataHash
+        bytes memory metadata
     ) internal virtual {
-        _verifyLeaf(
+        (uint32 leafIndex, uint32 sourceBridgeNetwork) = _verifyLeaf(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
             globalIndex,
@@ -834,9 +834,12 @@ contract AgglayerBridge is
                 destinationNetwork,
                 destinationAddress,
                 amount,
-                metadataHash
+                keccak256(metadata)
             )
         );
+
+        // Set and check nullifier
+        _setAndCheckClaimed(leafIndex, sourceBridgeNetwork);
     }
 
     /**
@@ -903,7 +906,7 @@ contract AgglayerBridge is
     }
 
     /**
-     * @notice Verify leaf and checks that it has not been claimed
+     * @notice Verify leaf
      * @param smtProofLocalExitRoot Smt proof
      * @param smtProofRollupExitRoot Smt proof
      * @param globalIndex Index of the leaf
@@ -918,7 +921,7 @@ contract AgglayerBridge is
         bytes32 mainnetExitRoot,
         bytes32 rollupExitRoot,
         bytes32 leafValue
-    ) internal virtual {
+    ) internal virtual returns (uint32, uint32) {
         // Check blockhash where the global exit root was set
         // Note that previous timestamps were set, since in only checked if != 0 it's ok
         uint256 blockHashGlobalExitRoot = globalExitRootManager
@@ -967,9 +970,7 @@ contract AgglayerBridge is
                 revert InvalidSmtProof();
             }
         }
-
-        // Set and check nullifier
-        _setAndCheckClaimed(leafIndex, sourceBridgeNetwork);
+        return (leafIndex, sourceBridgeNetwork);
     }
 
     /**
@@ -980,7 +981,7 @@ contract AgglayerBridge is
     function isClaimed(
         uint32 leafIndex,
         uint32 sourceBridgeNetwork
-    ) external view virtual returns (bool) {
+    ) public view virtual returns (bool) {
         uint256 globalIndex;
 
         // For consistency with the previous set nullifiers
