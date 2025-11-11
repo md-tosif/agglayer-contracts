@@ -1194,8 +1194,7 @@ contract AgglayerBridge is
         bytes memory proxyInitBytecode = INIT_BYTECODE_TRANSPARENT_PROXY();
 
         // Deploy wrapped token proxy
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             newWrappedTokenProxy := create2(
                 0,
                 add(proxyInitBytecode, 0x20),
@@ -1257,6 +1256,7 @@ contract AgglayerBridge is
     function INIT_BYTECODE_TRANSPARENT_PROXY()
         public
         view
+        virtual
         returns (bytes memory)
     {
         return bridgeLib.INIT_BYTECODE_TRANSPARENT_PROXY();

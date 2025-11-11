@@ -5,6 +5,8 @@ pragma solidity 0.8.28;
 import "../interfaces/IAgglayerBridgeL2.sol";
 import "../AgglayerBridge.sol";
 import "../interfaces/IAgglayerGERL2.sol";
+import "../interfaces/IInitializerAgglayerBridgeL2.sol";
+import "../lib/InitializerAgglayerBridgeL2.sol";
 
 /**
  * Sovereign chains bridge that will be deployed on all Sovereign chains
@@ -15,7 +17,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     using SafeERC20 for ITokenWrappedBridgeUpgradeable;
     // address used to permission the initialization of the contract
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    address private immutable deployer;
+    address private immutable initializerContract;
 
     // Current bridge version
     string internal constant BRIDGE_SOVEREIGN_VERSION = "v1.1.0";
@@ -271,124 +273,82 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      * Disable initializers on the implementation following the best practices
      * @dev the deployer is set to the contract creator and will be the only allowed to initialize the contract in a 2 steps process
      */
-    constructor() AgglayerBridge() {
-        deployer = msg.sender;
+    constructor(address _initializerAgglayerBridgeL2) AgglayerBridge() {
+        initializerContract = _initializerAgglayerBridgeL2;
         _disableInitializers();
     }
 
     /**
-     * @dev initializer function to set the initial values of the contract when the contract is deployed for the first time
-     * @param _networkID networkID
-     * @param _gasTokenAddress gas token address
-     * @param _gasTokenNetwork gas token network
-     * @param _globalExitRootManager global exit root manager address
-     * @param _polygonRollupManager Rollup manager address
-     * @notice The value of `_polygonRollupManager` on the L2 deployment of the contract will be address(0), so
-     * emergency state is not possible for the L2 deployment of the bridge in StateTransition chains, intentionally
-     * @param _gasTokenMetadata Abi encoded gas token metadata
-     * @param _bridgeManager bridge manager address
-     * @param _sovereignWETHAddress sovereign WETH address
-     * @param _sovereignWETHAddressIsNotMintable Flag to indicate if the wrapped ETH is not mintable
-     * @param _emergencyBridgePauser emergency bridge pauser address, allowed to be zero if the chain wants to disable the feature to stop the bridge
-     * @param _emergencyBridgeUnpauser emergency bridge unpauser address, allowed to be zero if the chain wants to disable the feature to unpause the bridge
-     * @param _proxiedTokensManager address of the proxied tokens manager
+     * @notice Initialize the AgglayerBridgeL2 contract
+     * @dev This function delegates the initialization to the InitializerAgglayerBridgeL2 contract
+     * @dev Parameters are passed through via delegatecall to the initializer contract
+     *
+     * Parameters (forwarded to InitializerAgglayerBridgeL2):
+     * - _networkID: networkID
+     * - _gasTokenAddress: gas token address
+     * - _gasTokenNetwork: gas token network
+     * - _globalExitRootManager: global exit root manager address
+     * - _polygonRollupManager: Rollup manager address (address(0) on L2 deployment, so emergency state is not possible for L2 deployment in StateTransition chains, intentionally)
+     * - _gasTokenMetadata: Abi encoded gas token metadata
+     * - _bridgeManager: bridge manager address
+     * - _sovereignWETHAddress: sovereign WETH address
+     * - _sovereignWETHAddressIsNotMintable: Flag to indicate if the wrapped ETH is not mintable
+     * - _emergencyBridgePauser: emergency bridge pauser address, allowed to be zero if the chain wants to disable the feature to stop the bridge
+     * - _emergencyBridgeUnpauser: emergency bridge unpauser address, allowed to be zero if the chain wants to disable the feature to unpause the bridge
+     * - _proxiedTokensManager: address of the proxied tokens manager
      */
     function initialize(
-        uint32 _networkID,
-        address _gasTokenAddress,
-        uint32 _gasTokenNetwork,
-        IBaseLegacyAgglayerGER _globalExitRootManager,
-        address _polygonRollupManager,
-        bytes memory _gasTokenMetadata,
-        address _bridgeManager,
-        address _sovereignWETHAddress,
-        bool _sovereignWETHAddressIsNotMintable,
-        address _emergencyBridgePauser,
-        address _emergencyBridgeUnpauser,
-        address _proxiedTokensManager
-    ) public virtual reinitializer(3) {
-        // only the deployer can initialize the contract.
-        /// @dev the complexity of the initializes makes it very complex to deploy a proxy and
-        /// @dev initialize the contract in an atomic transaction, so we need to permission the function to avoid frontrunning attacks
-        require(msg.sender == deployer, OnlyDeployer());
+        uint32,
+        address,
+        uint32,
+        IBaseLegacyAgglayerGER,
+        address,
+        bytes memory,
+        address,
+        address,
+        bool,
+        address,
+        address,
+        address
+    ) public virtual {
+        // Check initializer
+        if (_getInitializedVersion() > 2) {
+            revert InvalidInitializeFunction();
+        }
+        // Get immutable variable to local variable to use in assembly
+        address initializerContractLocal = initializerContract;
 
-        require(
-            address(_globalExitRootManager) != address(0),
-            InvalidZeroAddress()
-        );
+        // Delegate call initialize function
+        assembly ("memory-safe") {
+            let lastAllocatedMemory := mload(0x40)
+            // Copy msg.data. We take full control of memory in this inline assembly
+            // block because it will not return to Solidity code. We overwrite the
+            // Solidity scratch pad at memory position 0.
+            calldatacopy(0, lastAllocatedMemory, calldatasize())
 
-        // Network ID must be different from 0 for sovereign chains
-        require(_networkID != 0, InvalidZeroNetworkID());
+            // Call the implementation.
+            // out and outsize are 0 because we don't know the size yet.
+            let result := delegatecall(
+                gas(),
+                initializerContractLocal,
+                lastAllocatedMemory,
+                calldatasize(),
+                0,
+                0
+            )
 
-        networkID = _networkID;
-        globalExitRootManager = _globalExitRootManager;
-        polygonRollupManager = _polygonRollupManager;
-        bridgeManager = _bridgeManager;
-        emergencyBridgePauser = _emergencyBridgePauser;
-        emit AcceptEmergencyBridgePauserRole(address(0), emergencyBridgePauser);
-        emergencyBridgeUnpauser = _emergencyBridgeUnpauser;
-        emit AcceptEmergencyBridgeUnpauserRole(
-            address(0),
-            emergencyBridgeUnpauser
-        );
+            // Copy the returned data.
+            returndatacopy(0, lastAllocatedMemory, returndatasize())
 
-        // Set proxied tokens manager
-        require(
-            _proxiedTokensManager != address(this),
-            BridgeAddressNotAllowed()
-        );
-
-        // It's not allowed proxiedTokensManager to be zero address. If disabling token upgradability is required, add a not owned account like 0xffff...fffff
-        require(_proxiedTokensManager != address(0), InvalidZeroAddress());
-
-        proxiedTokensManager = _proxiedTokensManager;
-
-        emit AcceptProxiedTokensManagerRole(address(0), proxiedTokensManager);
-
-        // Set gas token
-        if (_gasTokenAddress == address(0)) {
-            // Gas token will be ether
-            if (_gasTokenNetwork != 0) {
-                revert GasTokenNetworkMustBeZeroOnEther();
+            switch result
+            // delegatecall returns 0 on error.
+            case 0 {
+                revert(lastAllocatedMemory, returndatasize())
             }
-            // Health check for sovereign WETH address
-            if (
-                _sovereignWETHAddress != address(0) ||
-                _sovereignWETHAddressIsNotMintable
-            ) {
-                revert InvalidSovereignWETHAddressParams();
-            }
-            // WETHToken, gasTokenAddress and gasTokenNetwork will be 0
-            // gasTokenMetadata will be empty
-        } else {
-            // Gas token will be an erc20
-            gasTokenAddress = _gasTokenAddress;
-            gasTokenNetwork = _gasTokenNetwork;
-            gasTokenMetadata = _gasTokenMetadata;
-
-            // Set sovereign weth token or create new if not provided
-            if (_sovereignWETHAddress == address(0)) {
-                // Health check for sovereign WETH address is mintable
-                if (_sovereignWETHAddressIsNotMintable == true) {
-                    revert InvalidSovereignWETHAddressParams();
-                }
-                // Create a wrapped token for WETH, with salt == 0
-                WETHToken = _deployWrappedToken(
-                    0, // salt
-                    abi.encode("Wrapped Ether", "WETH", 18)
-                );
-            } else {
-                WETHToken = ITokenWrappedBridgeUpgradeable(
-                    _sovereignWETHAddress
-                );
-                wrappedAddressIsNotMintable[
-                    _sovereignWETHAddress
-                ] = _sovereignWETHAddressIsNotMintable;
+            default {
+                return(lastAllocatedMemory, returndatasize())
             }
         }
-
-        // Initialize OZ contracts
-        __ReentrancyGuard_init();
     }
 
     /**
