@@ -18,7 +18,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     address private immutable deployer;
 
     // Current bridge version
-    string public constant BRIDGE_SOVEREIGN_VERSION = "v1.1.0";
+    string internal constant BRIDGE_SOVEREIGN_VERSION = "v1.1.0";
 
     // Struct to represent leaf data for forwardLET function
     struct LeafData {
@@ -82,7 +82,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     // Emergency bridge unpauser address: can unpause the bridge, both bridges and claims
     address public emergencyBridgeUnpauser;
 
-    //  This account will be able to accept the emergencyBridgeUnpauser role
+    // This account will be able to accept the emergencyBridgeUnpauser role
     address public pendingEmergencyBridgeUnpauser;
 
     /**
@@ -402,13 +402,6 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         address, //_polygonRollupManager
         bytes memory //_gasTokenMetadata
     ) external override(IAgglayerBridge, AgglayerBridge) initializer {
-        revert InvalidInitializeFunction();
-    }
-
-    /**
-     * @notice Override the function to prevent the usage, only allowed for L1 bridge, not sovereign chains
-     */
-    function initialize() public pure override(AgglayerBridge) {
         revert InvalidInitializeFunction();
     }
 
