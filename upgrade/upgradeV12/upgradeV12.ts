@@ -11,7 +11,7 @@ import { AgglayerManager, AgglayerBridge } from '../../typechain-types';
 import { genTimelockOperation, decodeScheduleData, trackVerification } from '../utils';
 import { checkParams, getProviderAdjustingMultiplierGas, getDeployerFromParameters } from '../../src/utils';
 import { addInfoOutput } from '../../tools/utils';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 import * as upgradeParameters from './upgrade_parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });

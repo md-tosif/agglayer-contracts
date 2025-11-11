@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
 import { trackVerification } from '../utils';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 import { AgglayerManager } from '../../typechain-types';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });

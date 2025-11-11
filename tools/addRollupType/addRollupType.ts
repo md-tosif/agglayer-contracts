@@ -5,12 +5,13 @@ import path = require('path');
 import fs = require('fs');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
-import { supportedBridgeContracts, transactionTypes, genOperation } from '../utils';
+import { transactionTypes, genOperation, checkBridgeAddress } from '../utils';
+import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE } from '../../src/constants';
+
 import { AGGCHAIN_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
 import { ConsensusContracts, VerifierType } from '../../src/pessimistic-utils';
 import addRollupTypeParameters from './add_rollup_type.json';
 import { AgglayerManager } from '../../typechain-types';
-import { DEFAULT_ADMIN_ROLE, ADD_ROLLUP_TYPE_ROLE } from '../../src/constants';
 import {
     checkParams,
     getDeployerFromParameters,
@@ -124,22 +125,8 @@ async function main() {
             throw new Error("Genesis root in the 'add_rollup_type.json' does not match the root in the 'genesis.json'");
         }
 
-        // get bridge address in genesis file
-        let genesisBridgeAddress = ethers.ZeroAddress;
-        let bridgeContractName = '';
-        for (let i = 0; i < genesis.genesis.length; i++) {
-            if (supportedBridgeContracts.includes(genesis.genesis[i].contractName)) {
-                genesisBridgeAddress = genesis.genesis[i].address;
-                bridgeContractName = genesis.genesis[i].contractName;
-                break;
-            }
-        }
-
-        if (polygonZkEVMBridgeAddress.toLowerCase() !== genesisBridgeAddress.toLowerCase()) {
-            throw new Error(
-                `'${bridgeContractName}' root in the 'genesis.json' does not match 'bridgeAddress' in the 'AgglayerManager'`,
-            );
-        }
+        // check bridge address is the same in genesisBase and on-chain
+        checkBridgeAddress(genesis, polygonZkEVMBridgeAddress);
     }
 
     if (type !== transactionTypes.TIMELOCK) {

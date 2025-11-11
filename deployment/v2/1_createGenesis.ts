@@ -10,7 +10,7 @@ import { ethers, upgrades } from 'hardhat';
 import { MemDB, ZkEVMDB, getPoseidon, smtUtils } from '@0xpolygonhermez/zkevm-commonjs';
 import { deployPolygonZkEVMDeployer, create2Deployment, getAddressInfo } from '../helpers/deployment-helpers';
 import { ProxyAdmin } from '../../typechain-types';
-import { GENESIS_CONTRACT_NAMES } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES } from '../../src/constants';
 import '../helpers/utils';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -156,8 +156,7 @@ async function main() {
     }
 
     // Deploy implementation PolygonZkEVMBridge
-    const bridgeContractName = GENESIS_CONTRACT_NAMES.BRIDGE_V2;
-    const polygonZkEVMBridgeFactory = await ethers.getContractFactory(bridgeContractName, deployer);
+    const polygonZkEVMBridgeFactory = await ethers.getContractFactory(GENESIS_CONTRACT_NAMES.BRIDGE_V2, deployer);
     const deployTransactionBridge = (await polygonZkEVMBridgeFactory.getDeployTransaction()).data;
     // Mandatory to override the gasLimit since the estimation with create are mess up D:
     const overrideGasLimit = BigInt(10500000);
@@ -250,8 +249,10 @@ async function main() {
     /*
      *Deployment Global exit root manager
      */
-    const globalExitRootContractName = GENESIS_CONTRACT_NAMES.GER_L2;
-    const PolygonZkEVMGlobalExitRootL2Factory = await ethers.getContractFactory(globalExitRootContractName, deployer);
+    const PolygonZkEVMGlobalExitRootL2Factory = await ethers.getContractFactory(
+        GENESIS_CONTRACT_NAMES.GER_L2,
+        deployer,
+    );
     let polygonZkEVMGlobalExitRootL2;
     for (let i = 0; i < attemptsDeployProxy; i++) {
         try {
@@ -331,7 +332,7 @@ async function main() {
     // Bridge implementation
     const bridgeImplementationInfo = await getAddressInfo(bridgeImplementationAddress as string);
     genesis.push({
-        contractName: `${bridgeContractName} implementation`,
+        contractName: GENESIS_CONTRACT_NAMES.BRIDGE_V2_IMPLEMENTATION,
         balance: '0',
         nonce: bridgeImplementationInfo.nonce.toString(),
         address: finalBridgeImplAddress,
@@ -346,7 +347,7 @@ async function main() {
     bridgeProxyInfo.storage[IMPLEMENTATION_SLOT] = ethers.zeroPadValue(finalBridgeImplAddress as string, 32);
 
     genesis.push({
-        contractName: `${bridgeContractName} proxy`,
+        contractName: GENESIS_CONTRACT_NAMES.BRIDGE_V2_PROXY,
         balance: balanceBridge,
         nonce: bridgeProxyInfo.nonce.toString(),
         address: finalBridgeProxyAddress,
@@ -365,7 +366,7 @@ async function main() {
     }
 
     genesis.push({
-        contractName: `${globalExitRootContractName} implementation`,
+        contractName: GENESIS_CONTRACT_NAMES.GER_L2_IMPLEMENTATION,
         balance: '0',
         nonce: implGlobalExitRootL2Info.nonce.toString(),
         address: finalGlobalExitRootL2ImplAddress,
@@ -383,7 +384,7 @@ async function main() {
     );
 
     genesis.push({
-        contractName: `${globalExitRootContractName} proxy`,
+        contractName: GENESIS_CONTRACT_NAMES.GER_L2_PROXY,
         balance: '0',
         nonce: proxyGlobalExitRootL2Info.nonce.toString(),
         address: finalGlobalExitRootL2ProxyAddress,

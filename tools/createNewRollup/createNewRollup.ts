@@ -12,12 +12,11 @@ import {
     AGGCHAIN_CONTRACT_NAMES,
     encodeInitializeBytesLegacy,
     encodeInitAggchainManager,
-    GENESIS_CONTRACT_NAMES,
 } from '../../src/utils-common-aggchain';
+import { GENESIS_CONTRACT_NAMES, DEFAULT_ADMIN_ROLE, CREATE_ROLLUP_ROLE } from '../../src/constants';
 import createRollupParameters from './create_new_rollup.json';
 import updateVanillaGenesis from '../../deployment/v2/utils/updateVanillaGenesis';
 import { logger } from '../../src/logger';
-import { DEFAULT_ADMIN_ROLE, CREATE_ROLLUP_ROLE } from '../../src/constants';
 import {
     AgglayerManager,
     PolygonZkEVMEtrog,

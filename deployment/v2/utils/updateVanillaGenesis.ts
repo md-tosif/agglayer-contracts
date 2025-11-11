@@ -3,24 +3,16 @@ import { ethers } from 'hardhat';
 
 import { MemDB, ZkEVMDB, getPoseidon, smtUtils, processorUtils } from '@0xpolygonhermez/zkevm-commonjs';
 import { getContractAddress } from '@ethersproject/address';
-import { GENESIS_CONTRACT_NAMES } from '../../../src/utils-common-aggchain';
+import {
+    GENESIS_CONTRACT_NAMES,
+    SUPPORT_GER_MANAGER_IMPLEMENTATION,
+    SUPPORT_GER_MANAGER_PROXY,
+    SUPPORT_BRIDGE_IMPLEMENTATION,
+    SUPPORT_BRIDGE_PROXY,
+    SUPPORT_TOKEN_WRAPPED_IMPLEMENTATION,
+} from '../../../src/constants';
 import { padTo32Bytes, padTo20Bytes } from './deployment-utils';
 import { checkParams } from '../../../src/utils';
-
-// constants
-// Those contracts names came from the genesis creation:
-//  - https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/deployment/v2/1_createGenesis.ts#L294
-//  - https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/deployment/v2/1_createGenesis.ts#L328
-// Genesis files have been created previously and so they have old naming, as it shown in the links above
-// Those genesis are already imported on different tooling and added as a metadata on-chain. Therefore, this util aims
-// to support them too
-const supportedGERManagers = [
-    GENESIS_CONTRACT_NAMES.GER_L2_IMPLEMENTATION,
-    'PolygonZkEVMGlobalExitRootL2 implementation',
-];
-const supportedGERManagersProxy = [GENESIS_CONTRACT_NAMES.GER_L2_PROXY, 'PolygonZkEVMGlobalExitRootL2 proxy'];
-const supportedBridgeContracts = ['PolygonZkEVMBridge implementation', 'AgglayerBridge implementation'];
-const supportedBridgeContractsProxy = ['AgglayerBridge proxy', 'PolygonZkEVMBridge proxy'];
 
 function toPaddedHex32(val: string | number | bigint): string {
     return ethers.zeroPadValue(ethers.toBeHex(val), 32);
@@ -116,11 +108,11 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     const gerContractName = GENESIS_CONTRACT_NAMES.GER_L2_SOVEREIGN;
     const gerFactory = await ethers.getContractFactory(gerContractName);
     const oldBridge = genesis.genesis.find(function (obj) {
-        return supportedBridgeContracts.includes(obj.contractName);
+        return SUPPORT_BRIDGE_IMPLEMENTATION.includes(obj.contractName);
     });
     // Get bridge proxy address
     const bridgeProxy = genesis.genesis.find(function (obj) {
-        return supportedBridgeContractsProxy.includes(obj.contractName);
+        return SUPPORT_BRIDGE_PROXY.includes(obj.contractName);
     });
     const deployGERData = await gerFactory.getDeployTransaction(bridgeProxy.address);
     injectedTx.data = deployGERData.data;
@@ -134,6 +126,9 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     await batch.executeTxs();
     await zkEVMDB.consolidate(batch);
 
+    /// ///////////////////////
+    // Bridge contract
+    /// ///////////////////////
     // replace old bridge and ger manager by sovereign contracts bytecode, storage and nonce
     oldBridge.contractName = GENESIS_CONTRACT_NAMES.SOVEREIGN_BRIDGE_IMPLEMENTATION;
     oldBridge.bytecode = `0x${await zkEVMDB.getBytecode(sovereignBridgeAddress)}`;
@@ -145,76 +140,98 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     const bridgeInfo = await zkEVMDB.getCurrentAccountState(sovereignBridgeAddress);
     oldBridge.nonce = Number(bridgeInfo.nonce);
 
+    /// ///////////////////////
+    // BytecodeStorer contract
+    /// ///////////////////////
     // Compute the address of the BytecodeStorer contract deployed by the deployed sovereign bridge
     const precalculatedAddressBytecodeStorer = ethers.getCreateAddress({
         from: sovereignBridgeAddress,
         nonce: 1,
     });
 
+    const bytecodeStorerDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBytecodeStorer)}`;
+    const bytecodeStorerState = await zkEVMDB.getCurrentAccountState(precalculatedAddressBytecodeStorer);
+    const bytecodeStorerObjectNew = {
+        contractName: GENESIS_CONTRACT_NAMES.BYTECODE_STORER,
+        balance: bytecodeStorerState.balance.toString(),
+        nonce: bytecodeStorerState.nonce.toString(),
+        address: precalculatedAddressBytecodeStorer,
+        bytecode: bytecodeStorerDeployedBytecode,
+    };
+
+    bytecodeStorerObjectNew.storage = await zkEVMDB.dumpStorage(precalculatedAddressBytecodeStorer);
+    bytecodeStorerObjectNew.storage = Object.entries(bytecodeStorerObjectNew.storage).reduce((acc, [key, value]) => {
+        acc[key] = padTo32Bytes(value);
+        return acc;
+    }, {});
+
     // Check if the genesis contains BytecodeStorer contract
-    const bytecodeStorerObject = genesis.genesis.find(function (obj) {
+    let bytecodeStorerObject = genesis.genesis.find(function (obj) {
         return obj.contractName === GENESIS_CONTRACT_NAMES.BYTECODE_STORER;
     });
 
-    // If its not contained add it to the genesis
+    // Replace it with deployed bytecodeStorer contract or push it to the genesis if it does not exist
     if (typeof bytecodeStorerObject === 'undefined') {
-        const bytecodeStorerDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBytecodeStorer)}`;
-        const bytecodeStorerGenesis = {
-            contractName: GENESIS_CONTRACT_NAMES.BYTECODE_STORER,
-            balance: '0',
-            nonce: '1',
-            address: precalculatedAddressBytecodeStorer,
-            bytecode: bytecodeStorerDeployedBytecode,
-        };
-        genesis.genesis.push(bytecodeStorerGenesis);
+        bytecodeStorerObject = bytecodeStorerObjectNew;
+        genesis.genesis.push(bytecodeStorerObject);
     } else {
-        bytecodeStorerObject.address = precalculatedAddressBytecodeStorer;
+        // modify the reference in genesis.genesis
+        Object.assign(bytecodeStorerObject, bytecodeStorerObjectNew);
         // Check bytecode of the BytecodeStorer contract is the same as the one in the genesis
-        expect(bytecodeStorerObject.bytecode).to.equal(
-            `0x${await zkEVMDB.getBytecode(precalculatedAddressBytecodeStorer)}`,
-        );
+        expect(bytecodeStorerObject.bytecode).to.equal(bytecodeStorerDeployedBytecode);
     }
 
+    /// ///////////////////////
+    // TokenWrappedImplementation contract
+    /// ///////////////////////
     // Compute the address of the wrappedTokenImplementation contract deployed by the deployed sovereign bridge with nonce 2
     const precalculatedAddressTokenWrappedImplementation = ethers.getCreateAddress({
         from: sovereignBridgeAddress,
         nonce: 2,
     });
 
+    const tokenWrappedImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressTokenWrappedImplementation)}`;
+    const tokenWrappedImplementationState = await zkEVMDB.getCurrentAccountState(
+        precalculatedAddressTokenWrappedImplementation,
+    );
+    const tokenWrappedImplementationObjectNew = {
+        contractName: GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION,
+        balance: tokenWrappedImplementationState.balance.toString(),
+        nonce: tokenWrappedImplementationState.nonce.toString(),
+        address: precalculatedAddressTokenWrappedImplementation,
+        bytecode: tokenWrappedImplementationDeployedBytecode,
+    };
+
+    tokenWrappedImplementationObjectNew.storage = await zkEVMDB.dumpStorage(
+        precalculatedAddressTokenWrappedImplementation,
+    );
+    tokenWrappedImplementationObjectNew.storage = Object.entries(tokenWrappedImplementationObjectNew.storage).reduce(
+        (acc, [key, value]) => {
+            acc[key] = padTo32Bytes(value);
+            return acc;
+        },
+        {},
+    );
+
     // Check if the genesis contains TokenWrappedImplementation contract
     let tokenWrappedImplementationObject = genesis.genesis.find(function (obj) {
-        return obj.contractName === GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION;
+        return SUPPORT_TOKEN_WRAPPED_IMPLEMENTATION.includes(obj.contractName);
     });
 
-    // If its not contained add it to the genesis
+    // If it's not contained add it to the genesis
     if (typeof tokenWrappedImplementationObject === 'undefined') {
-        const tokenWrappedImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressTokenWrappedImplementation)}`;
-        tokenWrappedImplementationObject = {
-            contractName: GENESIS_CONTRACT_NAMES.TOKEN_WRAPPED_IMPLEMENTATION,
-            balance: '0',
-            nonce: '1',
-            address: precalculatedAddressTokenWrappedImplementation,
-            bytecode: tokenWrappedImplementationDeployedBytecode,
-        };
-        tokenWrappedImplementationObject.storage = await zkEVMDB.dumpStorage(
-            precalculatedAddressTokenWrappedImplementation,
-        );
-        tokenWrappedImplementationObject.storage = Object.entries(tokenWrappedImplementationObject.storage).reduce(
-            (acc, [key, value]) => {
-                acc[key] = padTo32Bytes(value);
-                return acc;
-            },
-            {},
-        );
+        tokenWrappedImplementationObject = tokenWrappedImplementationObjectNew;
         genesis.genesis.push(tokenWrappedImplementationObject);
     } else {
-        tokenWrappedImplementationObject.address = precalculatedAddressTokenWrappedImplementation;
+        // modify the reference in genesis.genesis
+        Object.assign(tokenWrappedImplementationObject, tokenWrappedImplementationObjectNew);
         // Check bytecode of the TokenWrappedImplementation contract
-        expect(tokenWrappedImplementationObject.bytecode).to.equal(
-            `0x${await zkEVMDB.getBytecode(precalculatedAddressTokenWrappedImplementation)}`,
-        );
+        expect(tokenWrappedImplementationObject.bytecode).to.equal(tokenWrappedImplementationDeployedBytecode);
     }
 
+    /// ///////////////////////
+    // BridgeLib contract
+    /// ///////////////////////
     // Compute the address of the bridgeLib contract deployed by the deployed sovereign bridge with nonce 3
     const precalculatedAddressBridgeLib = ethers.getCreateAddress({
         from: sovereignBridgeAddress,
@@ -225,40 +242,47 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     const bridgeState = await zkEVMDB.getCurrentAccountState(sovereignBridgeAddress);
     expect(Number(bridgeState.nonce)).to.equal(4);
 
-    // Check if the genesis contains BridgeLib contract
+    // Replace it with deployed bridgeLib contract
+    const bridgeLibImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBridgeLib)}`;
+    const bridgeLibImplementationState = await zkEVMDB.getCurrentAccountState(precalculatedAddressBridgeLib);
+    const bridgeLibImplementationObjectNew = {
+        contractName: GENESIS_CONTRACT_NAMES.BRIDGE_LIB,
+        balance: bridgeLibImplementationState.balance.toString(),
+        nonce: bridgeLibImplementationState.nonce.toString(),
+        address: precalculatedAddressBridgeLib,
+        bytecode: bridgeLibImplementationDeployedBytecode,
+    };
+    bridgeLibImplementationObjectNew.storage = await zkEVMDB.dumpStorage(precalculatedAddressBridgeLib);
+    bridgeLibImplementationObjectNew.storage = Object.entries(bridgeLibImplementationObjectNew.storage).reduce(
+        (acc, [key, value]) => {
+            acc[key] = padTo32Bytes(value);
+            return acc;
+        },
+        {},
+    );
+
+    // Check if the genesis contains BridgeLib contract and replace it with deployed bridgeLib contract, or add it if not present
     let bridgeLibImplementationObject = genesis.genesis.find(function (obj) {
         return obj.contractName === GENESIS_CONTRACT_NAMES.BRIDGE_LIB;
     });
 
-    // If its not contained add it to the genesis
+    // If it's not contained add it to the genesis
     if (typeof bridgeLibImplementationObject === 'undefined') {
-        const bridgeLibImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBridgeLib)}`;
-        bridgeLibImplementationObject = {
-            contractName: GENESIS_CONTRACT_NAMES.BRIDGE_LIB,
-            balance: '0',
-            nonce: '1',
-            address: precalculatedAddressBridgeLib,
-            bytecode: bridgeLibImplementationDeployedBytecode,
-        };
-        bridgeLibImplementationObject.storage = await zkEVMDB.dumpStorage(precalculatedAddressBridgeLib);
-        bridgeLibImplementationObject.storage = Object.entries(bridgeLibImplementationObject.storage).reduce(
-            (acc, [key, value]) => {
-                acc[key] = padTo32Bytes(value);
-                return acc;
-            },
-            {},
-        );
+        bridgeLibImplementationObject = bridgeLibImplementationObjectNew;
         genesis.genesis.push(bridgeLibImplementationObject);
     } else {
-        bridgeLibImplementationObject.address = precalculatedAddressBridgeLib;
-        // Check bytecode of the BridgeLibImplementation contract
-        expect(bridgeLibImplementationObject.bytecode).to.equal(
-            `0x${await zkEVMDB.getBytecode(precalculatedAddressBridgeLib)}`,
-        );
+        // modify the reference in genesis.genesis
+        Object.assign(bridgeLibImplementationObject, bridgeLibImplementationObjectNew);
+        // Check bytecode of the BridgeLib contract
+        expect(bridgeLibImplementationObject.bytecode).to.equal(bridgeLibImplementationDeployedBytecode);
     }
 
+    /// ///////////////////////
+    // GER contract
+    /// ///////////////////////
+
     const oldGer = genesis.genesis.find(function (obj) {
-        return supportedGERManagers.includes(obj.contractName);
+        return SUPPORT_GER_MANAGER_IMPLEMENTATION.includes(obj.contractName);
     });
     oldGer.contractName = GENESIS_CONTRACT_NAMES.GER_L2_SOVEREIGN_IMPLEMENTATION;
     oldGer.bytecode = `0x${await zkEVMDB.getBytecode(GERAddress)}`;
@@ -270,7 +294,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
 
     // Initialize bridge
     const gerProxy = genesis.genesis.find(function (obj) {
-        return supportedGERManagersProxy.includes(obj.contractName);
+        return SUPPORT_GER_MANAGER_PROXY.includes(obj.contractName);
     });
 
     const {
