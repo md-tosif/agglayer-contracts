@@ -793,7 +793,10 @@ contract AgglayerBridge is
     }
 
     /**
-     * @notice Get leaf value and verify the merkle proof
+     * @notice Verify leaf merkle proof and mark the claim as processed (set nullifier)
+     * @dev This function combines leaf verification with nullifier setting to prevent double-claiming
+     * The metadata parameter is provided as raw bytes instead of pre-hashed to allow child contracts
+     * to emit it in events (particularly useful in AgglayerBridgeL2 for DetailedClaimEvent)
      * @param smtProofLocalExitRoot Smt proof to proof the leaf against the exit root
      * @param smtProofRollupExitRoot Smt proof to proof the rollupLocalExitRoot against the rollups exit root
      * @param globalIndex Global index
@@ -805,7 +808,7 @@ contract AgglayerBridge is
      * @param destinationNetwork Network destination
      * @param destinationAddress Address destination
      * @param amount message value
-     * @param metadata Raw metadata bytes
+     * @param metadata Raw metadata bytes (will be hashed for leaf value computation)
      */
     function _verifyLeafAndSetNullifier(
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofLocalExitRoot,
@@ -906,13 +909,16 @@ contract AgglayerBridge is
     }
 
     /**
-     * @notice Verify leaf
+     * @notice Verify leaf and extract source network information
+     * @dev This function verifies the merkle proofs but does NOT set the claimed nullifier
      * @param smtProofLocalExitRoot Smt proof
      * @param smtProofRollupExitRoot Smt proof
      * @param globalIndex Index of the leaf
      * @param mainnetExitRoot Mainnet exit root
      * @param rollupExitRoot Rollup exit root
      * @param leafValue leaf value
+     * @return leafIndex The index of the leaf in the local exit root
+     * @return sourceBridgeNetwork The source network identifier extracted from globalIndex
      */
     function _verifyLeaf(
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata smtProofLocalExitRoot,

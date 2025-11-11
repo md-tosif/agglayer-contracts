@@ -31,7 +31,10 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         bytes metadata;
     }
 
-    // Struct to represent claim data for forceEmitDetailedClaimEvent function
+    /**
+     * @notice Struct to represent claim data for forceEmitDetailedClaimEvent function
+     * @dev Contains all parameters needed to verify and emit a DetailedClaimEvent
+     */
     struct ClaimData {
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofLocalExitRoot;
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] smtProofRollupExitRoot;
@@ -855,8 +858,11 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     }
 
     /**
-     * @notice Force emit detailed claim events for multiple claims
-     * @dev This function allows emitting DetailedClaimEvent for claims without actually processing them
+     * @notice Force emit detailed claim events for already processed claims
+     * @dev This function is useful for replaying historical claims to emit DetailedClaimEvent.
+     * It verifies that each claim was already processed (nullifier is set) and then emits
+     * the DetailedClaimEvent with all claim parameters.
+     * @dev Only callable by GlobalExitRootRemover role for security
      * @param claims Array of claim data to emit events for
      */
     function forceEmitDetailedClaimEvent(
@@ -1389,7 +1395,9 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         uint256 amount,
         bytes memory metadata
     ) internal override {
-        // Emit detailed claim event first to avois stack too deep errrors
+        // Emit detailed claim event with all parameters for better traceability on L2
+        // This event is emitted before verification to avoid stack too deep errors
+        // It's cheaper to emit on L2 than L1, providing full claim details for indexers
         emit DetailedClaimEvent(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
