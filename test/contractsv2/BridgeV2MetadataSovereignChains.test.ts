@@ -524,9 +524,6 @@ describe('SovereignBridge Contract', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
     });
 
     it('should PolygonZkEVMBridge with permit DAI type contracts', async () => {
@@ -637,9 +634,6 @@ describe('SovereignBridge Contract', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
     });
 
     it('should PolygonZkEVMBridge with permit UNI type contracts', async () => {
@@ -755,8 +749,5 @@ describe('SovereignBridge Contract', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
     });
 });

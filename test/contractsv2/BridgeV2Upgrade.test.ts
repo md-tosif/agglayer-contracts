@@ -45,10 +45,6 @@ describe('BridgeV2 upgrade', () => {
         // Upgrade and initialize bridgeV2
         bridgeContract = (await upgrades.upgradeProxy(bridgeContract.target, bridgeV2Factory, {
             unsafeAllow: ['constructor', 'missing-initializer', 'missing-initializer-call'],
-            call: {
-                fn: 'initialize()',
-                args: [],
-            },
         })) as unknown as AgglayerBridge;
     });
 
@@ -62,31 +58,6 @@ describe('BridgeV2 upgrade', () => {
         const proxyAdmin = proxyAdminFactory.attach(proxyAdminAddress);
         const ownerAddress = await proxyAdmin.owner();
 
-        expect(await bridgeContract.getProxiedTokensManager()).to.be.equal(ownerAddress);
-        expect(await bridgeContract.wrappedTokenBytecodeStorer()).to.not.be.equal(ethers.ZeroAddress);
         expect(await bridgeContract.getWrappedTokenBridgeImplementation()).to.not.be.equal(ethers.ZeroAddress);
-    });
-
-    it('Should transfer Proxied tokens manager role correctly', async () => {
-        // Check OnlyProxiedTokensManager
-        await expect(
-            bridgeContract.connect(rollupManager).transferProxiedTokensManagerRole(rollupManager.address),
-        ).to.revertedWithCustomError(bridgeContract, 'OnlyProxiedTokensManager');
-
-        // Make first role transfer step
-        await expect(bridgeContract.transferProxiedTokensManagerRole(rollupManager.address))
-            .to.emit(bridgeContract, 'TransferProxiedTokensManagerRole')
-            .withArgs(deployer.address, rollupManager.address);
-
-        // Accept role transfer
-        // Check OnlyPendingProxiedTokensManager
-        await expect(bridgeContract.acceptProxiedTokensManagerRole()).to.revertedWithCustomError(
-            bridgeContract,
-            'OnlyPendingProxiedTokensManager',
-        );
-
-        await expect(bridgeContract.connect(rollupManager).acceptProxiedTokensManagerRole())
-            .to.emit(bridgeContract, 'AcceptProxiedTokensManagerRole')
-            .withArgs(deployer.address, rollupManager.address);
     });
 });

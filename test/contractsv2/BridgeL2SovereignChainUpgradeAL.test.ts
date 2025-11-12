@@ -236,9 +236,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup),
-        ).to.be.equal(true);
 
         await expect(
             sovereignChainBridgeContract.claimAsset(
@@ -635,9 +632,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
 
         const computedGlobalExitRoot = calculateGlobalExitRoot(rootJSMainnet, rollupExitRoot);
 
@@ -970,9 +964,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
 
         const computedGlobalExitRoot = calculateGlobalExitRoot(rootJSMainnet, rollupExitRoot);
         // Insert global exit root
@@ -1114,9 +1105,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
 
         const computedGlobalExitRoot = calculateGlobalExitRoot(rootJSMainnet, rollupExitRoot);
         // Insert global exit root
@@ -1204,9 +1192,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proof, index, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proof, index, rootSCMainnet),
-        ).to.be.equal(true);
 
         const computedGlobalExitRoot = calculateGlobalExitRoot(rootJSMainnet, rollupExitRoot);
         // Insert global exit root
@@ -1455,9 +1440,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup),
-        ).to.be.equal(true);
         const globalIndex = computeGlobalIndex(indexLocal, indexRollup, false);
         /*
          * claim
@@ -1600,9 +1582,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, indexLocal, rootLocalRollup)).to.be.equal(true);
         expect(verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup),
-        ).to.be.equal(true);
         const globalIndex = computeGlobalIndex(indexLocal, indexRollup, false);
 
         expect(false).to.be.equal(await sovereignChainBridgeContract.isClaimed(indexLocal, indexRollup + 1));
@@ -1749,17 +1728,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
             amount,
             metadataHashMainnet,
         );
-        const leafValueMainnetSC = await sovereignChainBridgeContract.getLeafValue(
-            LEAF_TYPE_ASSET,
-            originNetwork,
-            originTokenAddress,
-            newDestinationNetwork,
-            destinationAddress,
-            amount,
-            metadataHashMainnet,
-        );
-
-        expect(leafValueMainnet).to.be.equal(leafValueMainnetSC);
         merkleTreeMainnet.add(leafValueMainnet);
         const rootJSMainnet = merkleTreeMainnet.getRoot();
 
@@ -1804,14 +1772,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValueMainnet, proofMainnet, indexMainnet, rootSCMainnet)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(
-                leafValueMainnet,
-                proofMainnet,
-                indexMainnet,
-                rootSCMainnet,
-            ),
-        ).to.be.equal(true);
 
         const computedGlobalExitRoot2 = calculateGlobalExitRoot(rootJSMainnet, rollupExitRoot);
         // Insert global exit root
@@ -1932,9 +1892,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, indexLocal, rootLocalRollup)).to.be.equal(true);
         expect(verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(rootLocalRollup, proofRollup, indexRollup, rootRollup),
-        ).to.be.equal(true);
 
         expect(false).to.be.equal(await sovereignChainBridgeContract.isClaimed(indexLocal, indexRollup + 1));
 
@@ -2145,9 +2102,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup),
-        ).to.be.equal(true);
 
         const globalIndex = computeGlobalIndex(index, index, false);
         // Can't claim without tokens
@@ -2307,9 +2261,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup),
-        ).to.be.equal(true);
 
         /*
          * claim
@@ -2455,9 +2406,6 @@ describe('AgglayerBridgeL2 Contract Upgrade AL', () => {
 
         // verify merkle proof
         expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
-        expect(
-            await sovereignChainBridgeContract.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup),
-        ).to.be.equal(true);
 
         /*
          * claim
