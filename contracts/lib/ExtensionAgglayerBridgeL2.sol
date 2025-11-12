@@ -8,14 +8,15 @@ import "../interfaces/IAgglayerGERL2.sol";
 import "../interfaces/IInitializerAgglayerBridgeL2.sol";
 
 /**
- * @title InitializerAgglayerBridgeL2
- * @notice This contract is used ONLY for initialization of AgglayerBridgeL2 via delegatecall
+ * @title ExtensionAgglayerBridgeL2
+ * @notice This contract is used as an extension of AgglayerBridgeL2 via delegatecall to extend bytecode
+ * currently NOT used
  * @dev This contract inherits from AgglayerBridge to maintain storage layout compatibility
  * @dev All functions except initialize() are overridden to revert to minimize bytecode size
  * @dev Storage variables are duplicated from AgglayerBridgeL2 to ensure proper delegatecall behavior
  * @dev This contract is deployed separately and called via fallback in AgglayerBridgeL2
  */
-contract InitializerAgglayerBridgeL2 is
+contract ExtensionAgglayerBridgeL2 is
     AgglayerBridgeL2,
     IInitializerAgglayerBridgeL2
 {
@@ -28,7 +29,7 @@ contract InitializerAgglayerBridgeL2 is
      * Disable initializers on the implementation following the best practices
      * @dev the deployer is set to the contract creator and will be the only allowed to initialize the contract in a 2 steps process
      */
-    constructor() AgglayerBridgeL2(address(0)) {
+    constructor() AgglayerBridgeL2() {
         deployer = msg.sender;
         _disableInitializers();
     }
@@ -380,7 +381,7 @@ contract InitializerAgglayerBridgeL2 is
         address,
         uint256,
         bytes32
-    ) public pure override(DepositContractV2) returns (bytes32) {
+    ) internal pure override(DepositContractV2) returns (bytes32) {
         revert NonSupportedFunction();
     }
 
@@ -404,7 +405,7 @@ contract InitializerAgglayerBridgeL2 is
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata,
         uint32,
         bytes32
-    ) public pure override(DepositContractBase) returns (bool) {
+    ) internal pure override(DepositContractBase) returns (bool) {
         revert NonSupportedFunction();
     }
 
@@ -415,7 +416,7 @@ contract InitializerAgglayerBridgeL2 is
         bytes32,
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata,
         uint32
-    ) public pure override(DepositContractBase) returns (bytes32) {
+    ) internal pure override(DepositContractBase) returns (bytes32) {
         revert NonSupportedFunction();
     }
 
