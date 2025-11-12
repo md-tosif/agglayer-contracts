@@ -410,7 +410,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         address[] memory originTokenAddresses,
         address[] memory sovereignTokenAddresses,
         bool[] memory isNotMintable
-    ) external onlyBridgeManager {
+    ) external virtual onlyBridgeManager {
         if (
             originNetworks.length != originTokenAddresses.length ||
             originNetworks.length != sovereignTokenAddresses.length ||
@@ -499,7 +499,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function removeLegacySovereignTokenAddress(
         address legacySovereignTokenAddress
-    ) external onlyBridgeManager {
+    ) external virtual onlyBridgeManager {
         // Only allow to remove already remapped tokens
         TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[
             legacySovereignTokenAddress
@@ -533,7 +533,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     function setSovereignWETHAddress(
         address sovereignWETHTokenAddress,
         bool isNotMintable
-    ) external onlyBridgeManager {
+    ) external virtual onlyBridgeManager {
         _setSovereignWETHAddress(sovereignWETHTokenAddress, isNotMintable);
     }
 
@@ -558,7 +558,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         address legacyTokenAddress,
         uint256 amount,
         bytes calldata permitData
-    ) external {
+    ) external virtual {
         // Use permit if any
         if (permitData.length != 0) {
             _permit(legacyTokenAddress, permitData);
@@ -615,7 +615,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function unsetMultipleClaims(
         uint256[] memory globalIndexes
-    ) external onlyGlobalExitRootRemover {
+    ) external virtual onlyGlobalExitRootRemover {
         for (uint256 i = 0; i < globalIndexes.length; i++) {
             uint256 globalIndex = globalIndexes[i];
 
@@ -652,7 +652,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function setMultipleClaims(
         uint256[] memory globalIndexes
-    ) external onlyGlobalExitRootRemover {
+    ) external virtual onlyGlobalExitRootRemover {
         for (uint256 i = 0; i < globalIndexes.length; i++) {
             uint256 globalIndex = globalIndexes[i];
 
@@ -694,7 +694,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata newFrontier,
         bytes32 nextLeaf,
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata proof
-    ) external onlyGlobalExitRootRemover ifEmergencyState {
+    ) external virtual onlyGlobalExitRootRemover ifEmergencyState {
         // Validate that new deposit count is less than current
         if (newDepositCount >= depositCount) {
             revert InvalidDepositCount();
@@ -757,7 +757,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     function forwardLET(
         LeafData[] calldata newLeaves,
         bytes32 expectedLER
-    ) external onlyGlobalExitRootRemover ifEmergencyState {
+    ) external virtual onlyGlobalExitRootRemover ifEmergencyState {
         // Validate that newLeaves array is not empty
         if (newLeaves.length == 0) {
             revert InvalidLeavesLength();
@@ -820,7 +820,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function forceEmitDetailedClaimEvent(
         ClaimData[] calldata claims
-    ) external onlyGlobalExitRootRemover {
+    ) external virtual onlyGlobalExitRootRemover {
         for (uint256 i = 0; i < claims.length; ++i) {
             ClaimData calldata claim = claims[i];
 
@@ -876,7 +876,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         uint32[] memory originNetwork,
         address[] memory originTokenAddress,
         uint256[] memory amount
-    ) external onlyGlobalExitRootRemover ifEmergencyState {
+    ) external virtual onlyGlobalExitRootRemover ifEmergencyState {
         if (
             originNetwork.length != originTokenAddress.length ||
             originNetwork.length != amount.length
@@ -918,7 +918,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         uint32 originNetwork,
         address originTokenAddress,
         bool isNotMintable
-    ) external onlyBridgeManager {
+    ) external virtual onlyBridgeManager {
         /// @dev Check the token is not native from this network is done at `_setSovereignTokenAddress`
 
         if (
@@ -981,7 +981,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function setBridgeManager(
         address _bridgeManager
-    ) external onlyBridgeManager {
+    ) external virtual onlyBridgeManager {
         if (_bridgeManager == address(0)) {
             revert InvalidZeroAddress();
         }
@@ -1002,7 +1002,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function transferEmergencyBridgePauserRole(
         address newEmergencyBridgePauser
-    ) external onlyEmergencyBridgePauser {
+    ) external virtual onlyEmergencyBridgePauser {
         pendingEmergencyBridgePauser = newEmergencyBridgePauser;
 
         emit TransferEmergencyBridgePauserRole(
@@ -1014,7 +1014,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     /**
      * @notice Allow the current pending emergencyBridgePauser to accept the emergencyBridgePauser role
      */
-    function acceptEmergencyBridgePauserRole() external {
+    function acceptEmergencyBridgePauserRole() external virtual {
         require(
             pendingEmergencyBridgePauser == msg.sender,
             OnlyPendingEmergencyBridgePauser()
@@ -1037,7 +1037,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      */
     function transferEmergencyBridgeUnpauserRole(
         address newEmergencyBridgeUnpauser
-    ) external onlyEmergencyBridgeUnpauser {
+    ) external virtual onlyEmergencyBridgeUnpauser {
         pendingEmergencyBridgeUnpauser = newEmergencyBridgeUnpauser;
 
         emit TransferEmergencyBridgeUnpauserRole(
@@ -1049,7 +1049,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     /**
      * @notice Allow the current pending emergencyBridgeUnpauser to accept the emergencyBridgeUnpauser role
      */
-    function acceptEmergencyBridgeUnpauserRole() external {
+    function acceptEmergencyBridgeUnpauserRole() external virtual {
         require(
             pendingEmergencyBridgeUnpauser == msg.sender,
             OnlyPendingEmergencyBridgeUnpauser()
@@ -1154,7 +1154,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     function isClaimed(
         uint32 leafIndex,
         uint32 sourceBridgeNetwork
-    ) public view override returns (bool) {
+    ) public view virtual override returns (bool) {
         uint256 globalIndex = uint256(leafIndex) +
             uint256(sourceBridgeNetwork) *
             _MAX_LEAFS_PER_NETWORK;
@@ -1191,6 +1191,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     // @note This function is not used in the current implementation. We overwrite it to improve deployed bytecode size
     function activateEmergencyState()
         external
+        virtual
         override(IAgglayerBridge, AgglayerBridge)
         onlyEmergencyBridgePauser
     {
@@ -1199,6 +1200,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
 
     function deactivateEmergencyState()
         external
+        virtual
         override(IAgglayerBridge, AgglayerBridge)
         onlyEmergencyBridgeUnpauser
     {
@@ -1412,7 +1414,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      * @notice Function to retrieve the current version of the contract.
      * @return version of the contract.
      */
-    function version() external pure override returns (string memory) {
+    function version() external pure virtual override returns (string memory) {
         return BRIDGE_SOVEREIGN_VERSION;
     }
 }
