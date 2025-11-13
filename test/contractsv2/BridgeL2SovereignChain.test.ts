@@ -2922,7 +2922,7 @@ describe('AgglayerBridgeL2 Contract', () => {
             sovereignChainBridgeContract.connect(globalExitRootRemover).setMultipleClaims([mainnetGlobalIndex]),
         )
             .to.emit(sovereignChainBridgeContract, 'SetClaim')
-            .withArgs(7, 0);
+            .withArgs(mainnetGlobalIndex);
 
         // Verify mainnet claim is set
         expect(await sovereignChainBridgeContract.isClaimed(7, 0)).to.be.equal(true);

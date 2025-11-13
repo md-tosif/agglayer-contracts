@@ -193,7 +193,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
      * @dev Emitted when a claim is set
      * @param globalIndex Global index set
      */
-    event SetClaim(uint256 globalIndex);
+    event SetClaim(bytes32 globalIndex);
 
     /**
      * @dev Emitted when local exit tree is moved backward
@@ -707,7 +707,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
             // Set the claim
             _setAndCheckClaimed(leafIndex, sourceBridgeNetwork);
 
-            emit SetClaim(globalIndex);
+            emit SetClaim(bytes32(globalIndex));
         }
     }
 
@@ -853,7 +853,7 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
     /**
      * @notice Force emit detailed claim events for already processed claims
      * @dev This function is useful for replaying historical claims to emit DetailedClaimEvent.
-     * It does not verify the information, called must check it offchain
+     * It does not verify the information, call parameters must be checked offchain
      * @dev Only callable by GlobalExitRootRemover role for security
      * @param claims Array of claim data to emit events for
      */
