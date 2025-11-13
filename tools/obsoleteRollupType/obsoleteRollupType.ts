@@ -20,7 +20,7 @@ const pathOutputJson = path.join(__dirname, `./obsoleteRollupTypeOutput-${dateSt
 async function main() {
     /*
      * Check parameters
-     * Check that every necessary parameter is fullfilled
+     * Check that every necessary parameter is fulfilled
      */
     const mandatoryDeploymentParameters = ['type', 'agglayerManagerAddress'];
 
@@ -96,7 +96,7 @@ async function main() {
     } else {
         // Mode 2: Exclude specified rollup types, obsolete all others
         logger.info('Mode: Obsolete all rollup types except excluded ones');
-        const excludedRollupTypesID = paramsWithObsoleteTypes.excludedRollupTypesID;
+        const { excludedRollupTypesID } = paramsWithObsoleteTypes;
 
         // Get the total number of rollup types
         logger.info('Fetching all rollup types from AgglayerManager...');
@@ -115,16 +115,12 @@ async function main() {
 
                 if (rollupType.obsolete) {
                     logger.info(`  Rollup type ${rollupTypeID}: Already obsolete (skipping)`);
-                    continue;
-                }
-
-                if (excludedSet.has(rollupTypeID)) {
+                } else if (excludedSet.has(rollupTypeID)) {
                     logger.info(`  Rollup type ${rollupTypeID}: In excluded list (skipping)`);
-                    continue;
+                } else {
+                    logger.info(`  Rollup type ${rollupTypeID}: Will be obsoleted`);
+                    rollupTypesToObsolete.push(rollupTypeID);
                 }
-
-                logger.info(`  Rollup type ${rollupTypeID}: Will be obsoleted`);
-                rollupTypesToObsolete.push(rollupTypeID);
             } catch (e) {
                 logger.warn(`  Rollup type ${rollupTypeID}: Failed to fetch (skipping)`, e);
             }
@@ -224,7 +220,7 @@ async function main() {
             salt,
         ]);
 
-        // Decode the scheduleData for better readibility
+        // Decode the scheduleData for better readability
         const timelockTx = timelockContractFactory.interface.parseTransaction({
             data: scheduleData,
         });

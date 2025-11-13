@@ -65,9 +65,10 @@ Use when you want to obsolete all rollup types except specific ones:
 
 - Copy configuration file:
 ```
-cp ./tools/obsoleteRollupType/obsoleteRollupType-exclusion.json.example ./tools/obsoleteRollupType/obsoleteRollupType.json
+cp ./tools/obsoleteRollupType/obsoleteRollupType.json.example ./tools/obsoleteRollupType/obsoleteRollupType.json
 ```
-- Edit the `excludedRollupTypesID` array with the IDs you want to keep active
+- Add `excludedRollupTypesID` array with the IDs you want to keep active
+- Remove `obsoleteRollupTypes` array
 - Run tool:
 ```
 npx hardhat run ./tools/obsoleteRollupType/obsoleteRollupType.ts --network <network>
