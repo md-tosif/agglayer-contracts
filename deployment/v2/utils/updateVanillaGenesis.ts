@@ -173,7 +173,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     // Replace it with deployed bytecodeStorer contract or push it to the genesis if it does not exist
     if (typeof bytecodeStorerObject === 'undefined') {
         bytecodeStorerObject = bytecodeStorerObjectNew;
-        genesis.genesis.push(bytecodeStorerObject);
+        // genesis.genesis.push(bytecodeStorerObject);
     } else {
         // modify the reference in genesis.genesis
         Object.assign(bytecodeStorerObject, bytecodeStorerObjectNew);
