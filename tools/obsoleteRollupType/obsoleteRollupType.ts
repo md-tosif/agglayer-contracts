@@ -79,10 +79,11 @@ async function main() {
         }
 
         logger.info('Checking if any rollup types are already obsolete (parallel fetching)...');
-        
+
         // Fetch all rollup type data in parallel
         const rollupTypePromises = rollupTypesToObsolete.map((rollupTypeID) =>
-            rollupManagerContract.rollupTypeMap(rollupTypeID)
+            rollupManagerContract
+                .rollupTypeMap(rollupTypeID)
                 .then((rollupType) => ({ rollupTypeID, rollupType, success: true as const }))
                 .catch((error) => ({ rollupTypeID, error, success: false as const })),
         );
@@ -90,6 +91,7 @@ async function main() {
         const rollupTypeResults = await Promise.all(rollupTypePromises);
 
         // Process results
+        // eslint-disable-next-line no-restricted-syntax
         for (const result of rollupTypeResults) {
             if (!result.success) {
                 logger.error(`ERROR: Failed to check rollup type ${result.rollupTypeID}:`, (result as any).error);
@@ -120,7 +122,8 @@ async function main() {
         const rollupTypePromises = [];
         for (let i = 1; i <= rollupTypeCount; i++) {
             rollupTypePromises.push(
-                rollupManagerContract.rollupTypeMap(i)
+                rollupManagerContract
+                    .rollupTypeMap(i)
                     .then((rollupType) => ({ rollupTypeID: i, rollupType, success: true as const }))
                     .catch((error) => ({ rollupTypeID: i, error, success: false as const })),
             );
@@ -129,6 +132,7 @@ async function main() {
         const rollupTypeResults = await Promise.all(rollupTypePromises);
 
         // Process results
+        // eslint-disable-next-line no-restricted-syntax
         for (const result of rollupTypeResults) {
             if (result.success) {
                 if ((result as any).rollupType.obsolete) {
@@ -167,7 +171,8 @@ async function main() {
         const rollupPromises = [];
         for (let rollupID = 1; rollupID <= rollupCount; rollupID++) {
             rollupPromises.push(
-                rollupManagerContract.rollupIDToRollupDataV2(rollupID)
+                rollupManagerContract
+                    .rollupIDToRollupDataV2(rollupID)
                     .then((rollupData) => ({ rollupID, rollupData, success: true as const }))
                     .catch((error) => ({ rollupID, error, success: false as const })),
             );
@@ -176,6 +181,7 @@ async function main() {
         const rollupResults = await Promise.all(rollupPromises);
 
         // Process results
+        // eslint-disable-next-line no-restricted-syntax
         for (const result of rollupResults) {
             if (result.success) {
                 const rollupTypeID = Number((result as any).rollupData.rollupTypeID);
@@ -185,7 +191,11 @@ async function main() {
             }
         }
 
-        logger.info(`Used rollup types: [${Array.from(usedRollupTypes).sort((a, b) => a - b).join(', ')}]`);
+        logger.info(
+            `Used rollup types: [${Array.from(usedRollupTypes)
+                .sort((a, b) => a - b)
+                .join(', ')}]`,
+        );
 
         // Get all rollup types and filter out the used ones
         logger.info('Fetching all rollup types from AgglayerManager...');
@@ -197,7 +207,8 @@ async function main() {
         const rollupTypePromises = [];
         for (let i = 1; i <= rollupTypeCount; i++) {
             rollupTypePromises.push(
-                rollupManagerContract.rollupTypeMap(i)
+                rollupManagerContract
+                    .rollupTypeMap(i)
                     .then((rollupType) => ({ rollupTypeID: i, rollupType, success: true as const }))
                     .catch((error) => ({ rollupTypeID: i, error, success: false as const })),
             );
@@ -206,6 +217,7 @@ async function main() {
         const rollupTypeResults = await Promise.all(rollupTypePromises);
 
         // Process results
+        // eslint-disable-next-line no-restricted-syntax
         for (const result of rollupTypeResults) {
             if (result.success) {
                 if ((result as any).rollupType.obsolete) {
@@ -225,7 +237,9 @@ async function main() {
         logger.info(`Rollup types to obsolete: [${rollupTypesToObsolete.join(', ')}]`);
 
         if (rollupTypesToObsolete.length === 0) {
-            logger.info('No rollup types to obsolete. All rollup types are either in use or already obsolete. Exiting.');
+            logger.info(
+                'No rollup types to obsolete. All rollup types are either in use or already obsolete. Exiting.',
+            );
             return;
         }
     }
@@ -379,7 +393,7 @@ async function main() {
         // Build multiSendCallOnly object with optional address
         const multiSendCallOnly = {
             ...multiSendCallOnlyData,
-            ...(((obsoleteRollupTypesParameters as any).multiSendCallOnlyAddress) && {
+            ...((obsoleteRollupTypesParameters as any).multiSendCallOnlyAddress && {
                 multiSendCallOnlyAddress: (obsoleteRollupTypesParameters as any).multiSendCallOnlyAddress,
             }),
         };

@@ -202,9 +202,7 @@ export async function executeInBatches<T, R>(
  */
 export function encodeMultiSendCallOnly(multisigTransactions) {
     // MultiSendCallOnly ABI - only need the multiSend function
-    const multiSendCallOnlyAbi = [
-        'function multiSend(bytes memory transactions) public payable',
-    ];
+    const multiSendCallOnlyAbi = ['function multiSend(bytes memory transactions) public payable'];
 
     // Create interface
     const multiSendCallOnlyInterface = new ethers.Interface(multiSendCallOnlyAbi);
@@ -222,7 +220,7 @@ export function encodeMultiSendCallOnly(multisigTransactions) {
         // Data length (32 bytes)
         const dataLength = ethers.zeroPadValue(ethers.toBeHex(ethers.getBytes(tx.data).length), 32);
         // Data
-        const data = tx.data;
+        const { data } = tx;
 
         encodedTransactions += operation.slice(2);
         encodedTransactions += to.slice(2);
