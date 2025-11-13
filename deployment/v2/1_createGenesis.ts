@@ -169,7 +169,7 @@ async function main() {
         overrideGasLimit,
     );
 
-    // Retrieve wrappedTokenBytecodeStorer contract to add it to the genesis, necessary for token wrapped deployments from the bridge
+    // Retrieve bridge contract instance
     const bridgeContract = polygonZkEVMBridgeFactory.attach(bridgeImplementationAddress) as AgglayerBridge;
 
     if (isMainnet === false) {

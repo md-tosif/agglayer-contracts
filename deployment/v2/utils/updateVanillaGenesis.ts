@@ -141,10 +141,6 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     oldBridge.nonce = Number(bridgeInfo.nonce);
 
     /// ///////////////////////
-    // BytecodeStorer contract
-    /// ///////////////////////
-
-    /// ///////////////////////
     // TokenWrappedImplementation contract
     /// ///////////////////////
     // Compute the address of the wrappedTokenImplementation contract deployed by the deployed sovereign bridge with nonce 1
@@ -573,9 +569,6 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     expect(bridgeProxy.storage['0x0000000000000000000000000000000000000000000000000000000000000068']).to.include(
         gerProxy.address.toLowerCase().slice(2),
     );
-
-    // Check bridge implementation bytecode contains bytecodeStorer contract address
-    expect(oldBridge.bytecode).to.include(precalculatedAddressBytecodeStorer.toLowerCase().slice(2));
 
     // Check bridge implementation bytecode contains tokenWrappedImplementation contract address
     expect(oldBridge.bytecode).to.include(precalculatedAddressTokenWrappedImplementation.toLowerCase().slice(2));
