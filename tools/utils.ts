@@ -192,3 +192,51 @@ export async function executeInBatches<T, R>(
 
     return allResults;
 }
+
+// [{"inputs":[{"internalType":"bytes","name":"transactions","type":"bytes"}],"name":"multiSend","outputs":[],"stateMutability":"payable","type":"function"}]
+/**
+ * Encodes multiple transactions into MultiSendCallOnly format
+ * @param {Array} multisigTransactions - Array of transactions with {operation, to, value, data}
+ * @returns {Object} multiSendCallOnly object with encoded data
+ * @see https://github.com/safe-fndn/safe-smart-account/blob/v1.5.0/contracts/libraries/MultiSendCallOnly.sol
+ */
+export function encodeMultiSendCallOnly(multisigTransactions) {
+    // MultiSendCallOnly ABI - only need the multiSend function
+    const multiSendCallOnlyAbi = [
+        'function multiSend(bytes memory transactions) public payable',
+    ];
+
+    // Create interface
+    const multiSendCallOnlyInterface = new ethers.Interface(multiSendCallOnlyAbi);
+
+    // Encode transactions in MultiSendCallOnly format
+    // Format: operation(1 byte) + to(20 bytes) + value(32 bytes) + dataLength(32 bytes) + data
+    let encodedTransactions = '0x';
+    for (const tx of multisigTransactions) {
+        // Operation (1 byte) - hardcoded to 0 (CALL) as MultiSendCallOnly only supports CALL operations
+        const operation = ethers.zeroPadValue(ethers.toBeHex(0), 1);
+        // To address (20 bytes)
+        const to = ethers.getAddress(tx.to);
+        // Value (32 bytes)
+        const value = ethers.zeroPadValue(ethers.toBeHex(tx.value), 32);
+        // Data length (32 bytes)
+        const dataLength = ethers.zeroPadValue(ethers.toBeHex(ethers.getBytes(tx.data).length), 32);
+        // Data
+        const data = tx.data;
+
+        encodedTransactions += operation.slice(2);
+        encodedTransactions += to.slice(2);
+        encodedTransactions += value.slice(2);
+        encodedTransactions += dataLength.slice(2);
+        encodedTransactions += data.slice(2);
+    }
+
+    // Encode the multiSend call
+    const multiSendCallData = multiSendCallOnlyInterface.encodeFunctionData('multiSend', [encodedTransactions]);
+
+    return {
+        description: 'Use this to batch all transactions into a single MultiSendCallOnly call',
+        multiSendCallData,
+        transactionCount: multisigTransactions.length,
+    };
+}
