@@ -12,6 +12,9 @@ fs_permissions = [
 
 remappings = ["forge-std/=dependencies/forge-std-1.10.0/src/"]
 
+[lint]
+lint_on_build = false
+
 [profile.coverage]
 src = "contracts"
 libs = ["dependencies", "node_modules"]
