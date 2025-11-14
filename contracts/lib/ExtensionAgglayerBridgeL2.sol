@@ -66,7 +66,7 @@ contract ExtensionAgglayerBridgeL2 is
         address _proxiedTokensManager
     )
         public
-        override(AgglayerBridgeL2, IInitializerAgglayerBridgeL2)
+        override(AgglayerBridgeL2)
         reinitializer(3)
     {
         // only the deployer can initialize the contract.
