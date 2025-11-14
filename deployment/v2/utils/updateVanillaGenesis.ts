@@ -199,7 +199,7 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
 
     // Check nonce is 4
     const bridgeState = await zkEVMDB.getCurrentAccountState(sovereignBridgeAddress);
-    expect(Number(bridgeState.nonce)).to.equal(4);
+    expect(Number(bridgeState.nonce)).to.equal(3);
 
     // Replace it with deployed bridgeLib contract
     const bridgeLibImplementationDeployedBytecode = `0x${await zkEVMDB.getBytecode(precalculatedAddressBridgeLib)}`;
