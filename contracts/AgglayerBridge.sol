@@ -9,7 +9,6 @@ import "./interfaces/IBridgeMessageReceiver.sol";
 import "./interfaces/IAgglayerBridge.sol";
 import "./lib/EmergencyManager.sol";
 import "./lib/GlobalExitRootLib.sol";
-import "./lib/BytecodeStorer.sol";
 import {BridgeLib} from "./lib/BridgeLib.sol";
 import {ITokenWrappedBridgeUpgradeable, TokenWrappedBridgeUpgradeable} from "./lib/TokenWrappedBridgeUpgradeable.sol";
 import {ERC1967Utils} from "@openzeppelin/contracts5/proxy/ERC1967/ERC1967Utils.sol";
@@ -36,7 +35,7 @@ contract AgglayerBridge is
 
     /// Instance of the BridgeLib contract deployed for bytecode optimization
     /// Also contains the bytecode to deploy wrapped tokens, upgradeable tokens and the code of the transparent proxy
-    /// @dev thos functions been exported to a separate contract to improve this bytecode length.
+    /// @dev those functions been exported to a separate contract to improve this bytecode length.
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     BridgeLib public immutable bridgeLib;
 
@@ -1248,10 +1247,7 @@ contract AgglayerBridge is
     }
 
     /**
-     * @notice Returns the INIT_BYTECODE_TRANSPARENT_PROXY from the BytecodeStorer
-     * @dev BytecodeStorer is a contract that contains PolygonTransparentProxy as constant, it has done this way to have more bytecode available.
-     *  Using the on chain bytecode, we assure that transparent proxy is always deployed with the exact same bytecode, necessary to have all deployed wrapped token
-     *  with the same address on all the chains.
+     * @notice Returns the INIT_BYTECODE_TRANSPARENT_PROXY from the BridgeLib
      */
     function INIT_BYTECODE_TRANSPARENT_PROXY()
         public

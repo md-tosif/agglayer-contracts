@@ -5,6 +5,11 @@ import "./IBaseLegacyAgglayerGER.sol";
 
 interface IInitializerAgglayerBridgeL2 {
     /**
+     * @dev Thrown when trying to call a function that is not supported
+     */
+    error NonSupportedFunction();
+
+    /**
      * @notice Initialize the AgglayerBridgeL2 contract
      * @param _networkID The network ID of the chain
      * @param _gasTokenAddress The address of the gas token

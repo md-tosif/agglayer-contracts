@@ -132,7 +132,7 @@ const config: HardhatUserConfig = {
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 100, // should have same runs than AgglayerBridgeL2
+                        runs: 100,
                     },
                     evmVersion: 'shanghai',
                 },
@@ -247,9 +247,9 @@ const config: HardhatUserConfig = {
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 100, // should have same runs than AgglayerBridge
+                        runs: 100, // Should have the same optimizations than the AgglayerBridge/L2 to verify
                     },
-                    evmVersion: 'shanghai', // Same evm version than AgglayerBridge
+                    evmVersion: 'shanghai',
                 }, // try yul optimizer
             },
             'contracts/aggchains/AggchainFEP.sol': {

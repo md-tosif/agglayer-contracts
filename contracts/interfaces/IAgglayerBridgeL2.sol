@@ -144,9 +144,4 @@ interface IAgglayerBridgeL2 is IAgglayerBridge {
      * @dev Thrown when the caller is not the deployer
      */
     error OnlyDeployer();
-
-    /**
-     * @dev Thrown when trying to call a function that is not supported
-     */
-    error NonSupportedFunction();
 }

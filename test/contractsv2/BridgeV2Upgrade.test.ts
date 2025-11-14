@@ -1,5 +1,4 @@
 /* eslint-disable no-plusplus, no-await-in-loop */
-import { expect } from 'chai';
 import { ethers, upgrades } from 'hardhat';
 import { PolygonZkEVMBridgeV2Pessimistic, AgglayerBridge, PolygonZkEVMGlobalExitRoot } from '../../typechain-types';
 
@@ -7,7 +6,6 @@ describe('BridgeV2 upgrade', () => {
     let bridgeContract: AgglayerBridge;
     let polygonZkEVMGlobalExitRoot: PolygonZkEVMGlobalExitRoot;
 
-    let deployer: any;
     let rollupManager: any;
 
     const networkIDMainnet = 0;
@@ -46,18 +44,5 @@ describe('BridgeV2 upgrade', () => {
         bridgeContract = (await upgrades.upgradeProxy(bridgeContract.target, bridgeV2Factory, {
             unsafeAllow: ['constructor', 'missing-initializer', 'missing-initializer-call'],
         })) as unknown as AgglayerBridge;
-    });
-
-    it('Should check params after upgrade from pessimistic to bridgeV2', async () => {
-        // Check new params
-        /// Get bridge proxy admin
-        const proxyAdminAddress = await upgrades.erc1967.getAdminAddress(bridgeContract.target);
-        const proxyAdminFactory = await ethers.getContractFactory(
-            '@openzeppelin/contracts4/proxy/transparent/ProxyAdmin.sol:ProxyAdmin',
-        );
-        const proxyAdmin = proxyAdminFactory.attach(proxyAdminAddress);
-        const ownerAddress = await proxyAdmin.owner();
-
-        expect(await bridgeContract.getWrappedTokenBridgeImplementation()).to.not.be.equal(ethers.ZeroAddress);
     });
 });

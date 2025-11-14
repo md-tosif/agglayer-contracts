@@ -18,7 +18,7 @@ contract BridgeLib is IBytecodeStorer {
     //         enabled: true,
     //         runs: 999999,
     //     },
-    //     evmVersion: "shangai",
+    //     evmVersion: "shanghai",
     //     metadata: {bytecodeHash: "none"},
     // }
     bytes public constant INIT_BYTECODE_TRANSPARENT_PROXY =
