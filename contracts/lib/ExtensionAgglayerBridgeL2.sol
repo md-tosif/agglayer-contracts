@@ -64,11 +64,7 @@ contract ExtensionAgglayerBridgeL2 is
         address _emergencyBridgePauser,
         address _emergencyBridgeUnpauser,
         address _proxiedTokensManager
-    )
-        public
-        override(AgglayerBridgeL2)
-        reinitializer(3)
-    {
+    ) public override(AgglayerBridgeL2) reinitializer(3) {
         // only the deployer can initialize the contract.
         /// @dev the complexity of the initializes makes it very complex to deploy a proxy and
         /// @dev initialize the contract in an atomic transaction, so we need to permission the function to avoid frontrunning attacks

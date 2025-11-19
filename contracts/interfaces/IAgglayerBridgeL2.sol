@@ -145,7 +145,6 @@ interface IAgglayerBridgeL2 is IAgglayerBridge {
      */
     error OnlyDeployer();
 
-
     /**
      * @notice Initialize the AgglayerBridgeL2 contract
      * @param _networkID The network ID of the chain
