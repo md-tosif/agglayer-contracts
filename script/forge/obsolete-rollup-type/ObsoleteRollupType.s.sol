@@ -367,21 +367,6 @@ contract ObsoleteRollupType is Script {
     }
 
     /**
-     * @notice Helper function to check if parsed JSON data represents an empty array
-     * @param data The raw parsed JSON data
-     * @return true if the data represents an empty array
-     */
-    function _isEmptyArray(bytes memory data) internal pure returns (bool) {
-        // Empty array in JSON is "[]" which gets parsed as empty bytes or specific pattern
-        if (data.length == 0) return true;
-        if (data.length == 2) {
-            // Check for "[]" pattern
-            return data[0] == 0x5b && data[1] == 0x5d; // '[' and ']'
-        }
-        return false;
-    }
-
-    /**
      * @notice Helper function to check if a rollup type ID is in a given list
      * @param rollupTypeID The rollup type ID to check
      * @param list The list of rollup type IDs to search in
