@@ -17,7 +17,7 @@ contract AgglayerGERFuzz is BaseTest {
 
     function testFuzz_RevertIf_nonBridgeOrRollupManager_updateExitRoot(address caller, bytes32 newRoot) public {
         // @todo change addresses according to the setup in BaseTest once updated
-        vm.assume(caller != Constants.BRIDGE_ADDRESS && caller != Constants.ROLLUP_MANAGER_ADDRESS);
+        vm.assume(caller != Constants.BRIDGE_ADDRESS && caller != Constants.ROLLUP_MANAGER_ADDRESS && caller != address(proxyAdmin));
 
         vm.expectRevert(abi.encodeWithSelector(IBaseLegacyAgglayerGER.OnlyAllowedContracts.selector));
 
