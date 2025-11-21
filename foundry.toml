@@ -11,10 +11,7 @@ fs_permissions = [
     { access = "read", path = "./script/forge" }
 ]
 
-remappings = [
-    "forge-std/=dependencies/forge-std-1.10.0/src/",
-    "safe-smart-account/=dependencies/safe-smart-account-v1.5.0/",
-]
+remappings = ["forge-std/=dependencies/forge-std-1.10.0/src/"]
 
 [profile.coverage]
 src = "contracts"
@@ -28,7 +25,6 @@ skip = [
 
 [dependencies]
 forge-std = { version = "1.10.0" }
-safe-smart-account = { git = "https://github.com/safe-fndn/safe-smart-account.git", version = "v1.5.0" }
 
 [soldeer]
 remappings_generate = true
