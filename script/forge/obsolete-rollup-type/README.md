@@ -1,59 +1,139 @@
-# Obsolete Rollup Type Script
+# ObsoleteRollupType Script
 
-This script generates calldata for obsoleting a rollup type in the AgglayerManager contract.
+This Foundry script generates calldata for obsoleting rollup types in the AgglayerManager contract.
 
-## Configuration
+## Features
 
-1. Copy the example configuration file:
+- **Three Modes**:
+  - `inclusion`: Obsolete specified rollup types
+  - `exclusion`: Obsolete all rollup types except specified ones
+  - `purge`: Obsolete all rollup types not used by any rollup
 
-   ```bash
-   cp input.json.example input.json
-   ```
-
-2. Edit `input.json` with your network-specific settings:
-
-   ```json
-   {
-       "1": {
-           "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
-           "rollupTypeID": "1"
-       },
-       "11155111": {
-           "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
-           "rollupTypeID": "2"
-       }
-   }
-   ```
-
-   - **Key**: Chain ID (e.g., `"1"` for Ethereum mainnet, `"11155111"` for Sepolia)
-   - **agglayerManager**: Address of the AgglayerManager contract
-   - **rollupTypeID**: ID of the rollup type to obsolete
+- **Two Transaction Types**:
+  - `Multisig`: Returns single calldata (or MultiSendCallOnly encoded batch)
+  - `Timelock`: Returns two calldatas (scheduleBatch and executeBatch)
 
 ## Usage
 
-Run the script using Forge:
+### 1. Configure Input
 
-```bash
-forge script script/forge/obsolete-rollup-type/ObsoleteRollupType.s.sol --rpc-url <RPC_URL>
+Create or update `script/forge/obsolete-rollup-type/input.json`:
+
+```json
+{
+  "1": {
+    "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
+    "mode": "inclusion",
+    "type": "Multisig",
+    "list": [1, 2, 3],
+    "multiSendCallOnlyAddress": "0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
+  }
+}
 ```
 
-### Example
+#### Configuration Parameters
+
+- `agglayerManager` (required): Address of the AgglayerManager contract
+- `mode` (required): One of `"inclusion"`, `"exclusion"`, or `"purge"`
+- `type` (required): One of `"Multisig"` or `"Timelock"`
+- `list` (required for inclusion/exclusion): Array of rollup type IDs
+- `timelockDelay` (required for Timelock type): Delay in seconds
+- `timelockSalt` (optional for Timelock type): Salt for timelock operations (defaults to bytes32(0))
+- `multiSendCallOnlyAddress` (optional): Address of MultiSendCallOnly contract for reference
+
+### 2. Run the Script
 
 ```bash
-forge script script/forge/obsolete-rollup-type/ObsoleteRollupType.s.sol --rpc-url $SEPOLIA_RPC_URL
+forge script script/forge/obsolete-rollup-type/ObsoleteRollupType.s.sol --rpc-url $ETH_RPC_URL
 ```
+
+## Examples
+
+### Inclusion Mode - Multisig (Single Rollup Type)
+
+```json
+{
+  "1": {
+    "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
+    "mode": "inclusion",
+    "type": "Multisig",
+    "list": [5]
+  }
+}
+```
+
+Returns: Single calldata for `obsoleteRollupType(5)`
+
+### Inclusion Mode - Multisig (Multiple Rollup Types)
+
+```json
+{
+  "1": {
+    "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
+    "mode": "inclusion",
+    "type": "Multisig",
+    "list": [5, 7, 9],
+    "multiSendCallOnlyAddress": "0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
+  }
+}
+```
+
+Returns: MultiSendCallOnly encoded batch calldata
+
+### Exclusion Mode - Timelock
+
+```json
+{
+  "1": {
+    "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
+    "mode": "exclusion",
+    "type": "Timelock",
+    "list": [1, 2],
+    "timelockDelay": 86400,
+    "timelockSalt": "0x0000000000000000000000000000000000000000000000000000000000000001"
+  }
+}
+```
+
+Returns: Two calldatas (scheduleBatch and executeBatch) to obsolete all rollup types except 1 and 2
+
+### Purge Mode - Multisig
+
+```json
+{
+  "1": {
+    "agglayerManager": "0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2",
+    "mode": "purge",
+    "type": "Multisig"
+  }
+}
+```
+
+Returns: Calldata to obsolete all unused rollup types
 
 ## Output
 
-The script will:
+The script returns `bytes[]`:
 
-1. Validate that the rollup type is not already obsolete
-2. Generate the calldata for the `obsoleteRollupType` function
-3. Print the calldata to the console
+- **Multisig type**: Array with 1 element (calldata to execute via Gnosis Safe)
+- **Timelock type**: Array with 2 elements (scheduleBatch calldata, executeBatch calldata)
 
-The generated calldata can be used with a multisig wallet or governance system to execute the transaction.
+The script also logs detailed information to the console:
 
-## Requirements
+- Input configuration
+- Rollup types processing logic
+- Final calldata output
 
-- The rollup type must exist and not already be obsolete
-- The AgglayerManager address must be valid (non-zero)
+## Testing
+
+### Run Tests
+
+```bash
+forge test --match-contract ObsoleteRollupTypeTest -vv
+```
+
+## Notes
+
+- The script queries the AgglayerManager contract on-chain to determine which rollup types exist and which are already obsolete
+- All modes automatically filters out already obsolete rollup types
+- MultiSendCallOnly encoding follows the Gnosis Safe specification
