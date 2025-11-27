@@ -19,7 +19,7 @@ const pathOutputJson = path.join(__dirname, `./manageRolesOutput-${dateStr}.json
 async function main() {
     /*
      * Check deploy parameters
-     * Check that every necessary parameter is fullfilled
+     * Check that every necessary parameter is fulfilled
      */
     const mandatoryDeploymentParameters = ['timelockDelay', 'agglayerManagerAddress'];
 
@@ -47,6 +47,10 @@ async function main() {
         'STOP_EMERGENCY_ROLE',
         'EMERGENCY_COUNCIL_ROLE',
         'EMERGENCY_COUNCIL_ADMIN',
+        'TIMELOCK_ADMIN_ROLE',
+        'PROPOSER_ROLE',
+        'EXECUTOR_ROLE',
+        'CANCELLER_ROLE',
     ];
 
     // load timelock
@@ -145,7 +149,7 @@ async function main() {
     logger.info({ scheduleData });
     logger.info({ executeData });
 
-    // Decode the scheduleData for better readibility
+    // Decode the scheduleData for better readability
     const timelockTx = timelockContractFactory.interface.parseTransaction({
         data: scheduleData,
     });
