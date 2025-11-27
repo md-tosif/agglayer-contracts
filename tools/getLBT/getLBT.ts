@@ -41,7 +41,9 @@ async function main() {
         const eventsJson = JSON.parse(eventsFile);
         events.push(...eventsJson);
     } else {
-        logger.info(`Events fetching from block 0 to ${latest} with blockRange ${blockRange} and concurrencyLimit ${concurrencyLimit}`);
+        logger.info(
+            `Events fetching from block 0 to ${latest} with blockRange ${blockRange} and concurrencyLimit ${concurrencyLimit}`,
+        );
 
         // Create event filter
         const newWrappedTokenFilter = contract.filters.NewWrappedToken();
@@ -111,10 +113,7 @@ async function main() {
         objectInitialize.totalSupply.push(event.totalSupply);
     }
 
-    fs.writeFileSync(
-        path.join(__dirname, `initializeLBT-${dateStr}.json`),
-        JSON.stringify(objectInitialize, null, 2),
-    );
+    fs.writeFileSync(path.join(__dirname, `initializeLBT-${dateStr}.json`), JSON.stringify(objectInitialize, null, 2));
     logger.info(`File initializeLBT-${dateStr}.json created`);
 }
 
