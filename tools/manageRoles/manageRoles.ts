@@ -18,12 +18,12 @@ const pathOutputJson = path.join(__dirname, `./manageRolesOutput-${dateStr}.json
 
 async function main() {
     /*
-     * Check deploy parameters
+     * Check parameters
      * Check that every necessary parameter is fulfilled
      */
-    const mandatoryDeploymentParameters = ['timelockDelay', 'agglayerManagerAddress'];
+    const mandatoryParameters = ['timelockDelay', 'agglayerManagerAddress'];
 
-    mandatoryDeploymentParameters.forEach((parameterName: string) => {
+    mandatoryParameters.forEach((parameterName: string) => {
         const value = manageRolesParameters[parameterName as keyof typeof manageRolesParameters];
         if (value === undefined || value === '') {
             throw new Error(`Missing parameter: ${parameterName}`);
@@ -57,7 +57,7 @@ async function main() {
     const timelockContractFactory = await ethers.getContractFactory('PolygonZkEVMTimelock');
 
     // Load Rollup manager
-    const PolgonRollupManagerFactory = await ethers.getContractFactory('AgglayerManager');
+    const AgglayerManagerFactory = await ethers.getContractFactory('AgglayerManager');
 
     const outputsJson = [] as any;
 
@@ -113,7 +113,7 @@ async function main() {
         const operation = genOperation(
             agglayerManagerAddress,
             0, // value
-            PolgonRollupManagerFactory.interface.encodeFunctionData(functionName, [roleID, account]),
+            AgglayerManagerFactory.interface.encodeFunctionData(functionName, [roleID, account]),
             predecessor, // predecessor
             salt, // salt
         );
@@ -166,7 +166,7 @@ async function main() {
                 const payloads = timelockTx?.args[i];
                 for (let j = 0; j < payloads.length; j++) {
                     const data = payloads[j];
-                    const decodedRollupManager = PolgonRollupManagerFactory.interface.parseTransaction({
+                    const decodedRollupManager = AgglayerManagerFactory.interface.parseTransaction({
                         data,
                     });
 
