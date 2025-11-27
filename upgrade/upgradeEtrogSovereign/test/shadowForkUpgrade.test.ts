@@ -131,12 +131,8 @@ async function main() {
     // Check ger params after upgrade
     const agglayerGERL2Factory = await ethers.getContractFactory('AgglayerGERL2');
     const gerL2Contract = agglayerGERL2Factory.attach(upgradeParams.gerL2) as AgglayerGERL2;
-    expect(await gerL2Contract.globalExitRootUpdater()).to.equal(
-        upgradeParams.ger_initiaizationParameters.globalExitRootUpdater,
-    );
-    expect(await gerL2Contract.globalExitRootRemover()).to.equal(
-        upgradeParams.ger_initiaizationParameters.globalExitRootRemover,
-    );
+    expect(await gerL2Contract.globalExitRootUpdater()).to.equal(upgradeParams.ger_initParams.globalExitRootUpdater);
+    expect(await gerL2Contract.globalExitRootRemover()).to.equal(upgradeParams.ger_initParams.globalExitRootRemover);
     expect(await gerL2Contract.GER_SOVEREIGN_VERSION()).to.equal(GER_VERSION);
     expect(await gerL2Contract.bridgeAddress()).to.equal(gerBridgeAddress);
 
@@ -145,21 +141,18 @@ async function main() {
     // Check bridge params after upgrade
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridgeL2');
     const bridgeContract = bridgeFactory.attach(upgradeParams.bridgeL2) as AgglayerBridgeL2;
-    expect(await bridgeContract.BRIDGE_SOVEREIGN_VERSION()).to.equal(BRIDGE_VERSION);
+    expect(await bridgeContract.version()).to.equal(BRIDGE_VERSION);
     expect(await bridgeContract.globalExitRootManager()).to.equal(upgradeParams.gerL2);
     expect(await bridgeContract.lastUpdatedDepositCount()).to.equal(bridgeLastUpdatedDepositCount);
     expect(await bridgeContract.polygonRollupManager()).to.equal(bridgeRollupManager);
     expect(await bridgeContract.gasTokenAddress()).to.equal(bridgeGasTokenAddress);
     expect(await bridgeContract.gasTokenNetwork()).to.equal(bridgeGasTokenNetwork);
     expect(await bridgeContract.gasTokenMetadata()).to.equal(bridgeGasTokenMetadata);
-    expect(await bridgeContract.proxiedTokensManager()).to.equal(
-        upgradeParams.bridge_initiaizationParameters.proxiedTokensManagerAddress,
-    );
     expect(await bridgeContract.emergencyBridgePauser()).to.equal(
-        upgradeParams.bridge_initiaizationParameters.emergencyBridgePauserAddress,
+        upgradeParams.bridge_initParams.emergencyBridgePauserAddress,
     );
     expect(await bridgeContract.emergencyBridgeUnpauser()).to.equal(
-        upgradeParams.bridge_initiaizationParameters.emergencyBridgeUnpauserAddress,
+        upgradeParams.bridge_initParams.emergencyBridgeUnpauserAddress,
     );
 
     logger.info(`✓ Checked AgglayerBridgeL2 contract storage parameters`);

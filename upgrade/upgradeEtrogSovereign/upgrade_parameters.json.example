@@ -2,13 +2,13 @@
     "bridgeL2": "0x..",
     "gerL2": "0x..",
     "pathJsonInitLBT": "",
-    "bridge_initiaizationParameters": {
+    "bridge_initParams": {
         "bridgeManager": "0x..",
         "proxiedTokensManagerAddress": "0x..",
         "emergencyBridgePauserAddress": "0x..",
         "emergencyBridgeUnpauserAddress": "0x.."
     },
-    "ger_initiaizationParameters": {
+    "ger_initParams": {
         "globalExitRootUpdater": "0x..",
         "globalExitRootRemover": "0x.."
     },

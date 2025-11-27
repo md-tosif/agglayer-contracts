@@ -40,23 +40,24 @@ async function main() {
         'bridgeL2',
         'gerL2',
         'pathJsonInitLBT',
-        'bridge_initiaizationParameters.bridgeManager',
-        'bridge_initiaizationParameters.proxiedTokensManagerAddress',
-        'bridge_initiaizationParameters.emergencyBridgePauserAddress',
-        'bridge_initiaizationParameters.emergencyBridgeUnpauserAddress',
-        'ger_initiaizationParameters.globalExitRootUpdater',
-        'ger_initiaizationParameters.globalExitRootRemover',
+        'bridge_initParams.bridgeManager',
+        'bridge_initParams.proxiedTokensManagerAddress',
+        'bridge_initParams.emergencyBridgePauserAddress',
+        'bridge_initParams.emergencyBridgeUnpauserAddress',
+        'ger_initParams.globalExitRootUpdater',
+        'ger_initParams.globalExitRootRemover',
     ];
     checkParams(upgradeParameters, mandatoryUpgradeParameters);
 
     const salt = upgradeParameters.timelockSalt || ethers.ZeroHash;
     const { bridgeL2, gerL2, pathJsonInitLBT } = upgradeParameters;
     const { bridgeManager, proxiedTokensManagerAddress, emergencyBridgePauserAddress, emergencyBridgeUnpauserAddress } =
-        upgradeParameters.bridge_initiaizationParameters;
-    const { globalExitRootUpdater, globalExitRootRemover } = upgradeParameters.ger_initiaizationParameters;
+        upgradeParameters.bridge_initParams;
+    const { globalExitRootUpdater, globalExitRootRemover } = upgradeParameters.ger_initParams;
 
+    const finalPath = path.join(__dirname, `../../${pathJsonInitLBT}`);
     // eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires
-    const { originNetwork, originTokenAddress, totalSupply } = require(pathJsonInitLBT);
+    const { originNetwork, originTokenAddress, totalSupply } = require(finalPath);
 
     // Load provider
     const currentProvider = getProviderAdjustingMultiplierGas(upgradeParameters, ethers);

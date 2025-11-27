@@ -65,13 +65,13 @@ Update `upgrade_parameters.json` with the following values:
     "bridgeL2": "0x..",
     "gerL2": "0x..",
     "pathJsonInitLBT": "path/init.json",
-    "bridge_initiaizationParameters": {
+    "bridge_initParams": {
         "bridgeManager": "0x..",
         "proxiedTokensManagerAddress": "0x..",
         "emergencyBridgePauserAddress": "0x..",
         "emergencyBridgeUnpauserAddress": "0x.."
     },
-    "ger_initiaizationParameters": {
+    "ger_initParams": {
         "globalExitRootUpdater": "0x..",
         "globalExitRootRemover": "0x.."
     },
@@ -88,13 +88,13 @@ Update `upgrade_parameters.json` with the following values:
 
 - `bridgeL2`: Address of the bridge proxy on L2
 - `gerL2`: Address of the ger proxy on L2
-- `pathJsonInitLBT`: Path to JSON file with the local balance tree (to initialize the bridge)
-- `bridge_initiaizationParameters`:
+- `pathJsonInitLBT`: Path inside `agglayer-contracts` repository to JSON file with the local balance tree (to initialize the bridge). (Example: `./tools/getLBT/initializeLBT.json`)
+- `bridge_initParams`:
     - `bridgeManager`: Address of the bridge manager role
     - `proxiedTokensManagerAddress`: Address of the proxied tokens manager role
     - `emergencyBridgePauserAddress`: Address of the emergency bridge pauser role
     - `emergencyBridgeUnpauserAddress`: Address of the emergency bridge unpauser role
-- `ger_initiaizationParameters`:
+- `ger_initParams`:
     - `globalExitRootUpdater`: Address of the GER updater role
     - `globalExitRootRemover`: Address of the GER remover role
 
@@ -144,7 +144,7 @@ You’ll need to copy this file into the ./openzeppelin folder at your project r
 Once the manifest is correct, run the upgrade script to deploy new implementations and generate timelock operations:
 
 ```bash
-npx hardhat run ./upgrade/upgradeEtrogSovereign/upgradeEtrogSovereign.ts --network custom
+npx hardhat run ./upgrade/upgradeEtrogSovereign/upgradeEtrogToSovereign.ts --network custom
 ```
 
 > Note that the network must change depending on which network the upgrade is being performed on
