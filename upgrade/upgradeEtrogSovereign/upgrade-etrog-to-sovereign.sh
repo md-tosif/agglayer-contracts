@@ -31,6 +31,8 @@ done
 # --- Copy manifest ---
 mkdir -p ./.openzeppelin
 cp ./upgrade/upgradeEtrogSovereign/manifest-from-$TAG/* ./.openzeppelin/
+echo "✔ Copy manifest"
 
 # --- Upgrade script ---
 npx hardhat run ./upgrade/upgradeEtrogSovereign/upgradeEtrogToSovereign.ts --network custom
+echo "✔ Upgrade done!"

@@ -35,6 +35,7 @@ cd "$WORKDIR/agglayer-contracts"
 git checkout "$TAG"
 npm i
 npx hardhat compile
+echo "✔ git clone"
 
 FILE="hardhat.config.ts"
 # --- Update hardhat config with custom chain (if it doesn't exist) ---
@@ -57,18 +58,22 @@ if ! grep -Eq '^[[:space:]]*custom[[:space:]]*:[[:space:]]*{' "$FILE"; then
       { print $0 }
     ' "$FILE" > tmp && mv tmp "$FILE"
 
-    echo "Added custom network configuration to $FILE"
+    echo "✔ Added custom network configuration to $FILE"
 else
-    echo "Custom network configuration already exists in $FILE, skipping modification."
+    echo "✔ Custom network configuration already exists in $FILE, skipping modification."
 fi
 
 # --- Create .env for custom network ---
 cp "$ACTUAL_DIR/.env" ./.env
+echo "✔ copy .env"
 
 # --- Prepare manifest ---
 cp "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/force-import-old-contracts.ts" ./force-import-old-contracts.ts
 cp "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/upgrade_parameters.json" ./upgrade_parameters.json
 
 npx hardhat run --network custom ./force-import-old-contracts.ts
+echo "✔ force-import-old-contracts"
 
-cp -r ./.openzeppelin "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
+mkdir -p "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
+cp -r ./.openzeppelin/* "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
+echo "✔  copy openzeppelin"
