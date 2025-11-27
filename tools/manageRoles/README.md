@@ -58,6 +58,10 @@ Edit `manageRoles.json` with the following structure:
 - `STOP_EMERGENCY_ROLE` - Ability to stop emergency state
 - `EMERGENCY_COUNCIL_ROLE` - Ability to activate emergency state
 - `EMERGENCY_COUNCIL_ADMIN` - Manage emergency council
+- `TIMELOCK_ADMIN_ROLE` - Ability to manage timelock contract
+- `PROPOSER_ROLE` - Ability to propose timelock operations
+- `EXECUTOR_ROLE` - Ability to execute timelock operations
+- `CANCELLER_ROLE` - Ability to cancel timelock operations
 
 ## Usage
 
