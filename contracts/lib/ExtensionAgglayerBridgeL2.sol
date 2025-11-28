@@ -188,7 +188,7 @@ contract ExtensionAgglayerBridgeL2 is
         uint256,
         bool,
         bytes calldata
-    ) external override(AgglayerBridge, IAgglayerBridge) {
+    ) external pure override(AgglayerBridge, IAgglayerBridge) {
         revert NonSupportedFunction();
     }
 
@@ -207,7 +207,7 @@ contract ExtensionAgglayerBridgeL2 is
         address,
         uint256,
         bytes calldata
-    ) public override(AgglayerBridge, IAgglayerBridge) {
+    ) public pure override(AgglayerBridge, IAgglayerBridge) {
         revert NonSupportedFunction();
     }
 
@@ -226,7 +226,7 @@ contract ExtensionAgglayerBridgeL2 is
         address,
         uint256,
         bytes calldata
-    ) external override(AgglayerBridge, IAgglayerBridge) {
+    ) external pure override(AgglayerBridge, IAgglayerBridge) {
         revert NonSupportedFunction();
     }
 
@@ -236,21 +236,25 @@ contract ExtensionAgglayerBridgeL2 is
     function getTokenWrappedAddress(
         uint32,
         address
-    ) external view override(AgglayerBridge) returns (address) {
+    ) external pure override(AgglayerBridge) returns (address) {
         revert NonSupportedFunction();
     }
 
     /**
      * @notice Override activateEmergencyState to revert - not supported in initializer
      */
-    function activateEmergencyState() external override(AgglayerBridgeL2) {
+    function activateEmergencyState() external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
     /**
      * @notice Override deactivateEmergencyState to revert - not supported in initializer
      */
-    function deactivateEmergencyState() external override(AgglayerBridgeL2) {
+    function deactivateEmergencyState()
+        external
+        pure
+        override(AgglayerBridgeL2)
+    {
         revert NonSupportedFunction();
     }
 
@@ -259,7 +263,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function transferProxiedTokensManagerRole(
         address
-    ) external override(AgglayerBridge) {
+    ) external pure override(AgglayerBridge) {
         revert NonSupportedFunction();
     }
 
@@ -268,6 +272,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function acceptProxiedTokensManagerRole()
         external
+        pure
         override(AgglayerBridge)
     {
         revert NonSupportedFunction();
@@ -278,6 +283,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function updateGlobalExitRoot()
         external
+        pure
         override(AgglayerBridge, IAgglayerBridge)
     {
         revert NonSupportedFunction();
@@ -289,7 +295,7 @@ contract ExtensionAgglayerBridgeL2 is
     function isClaimed(
         uint32,
         uint32
-    ) public view override(AgglayerBridgeL2) returns (bool) {
+    ) public pure override(AgglayerBridgeL2) returns (bool) {
         revert NonSupportedFunction();
     }
 
@@ -298,7 +304,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function getProxiedTokensManager()
         external
-        view
+        pure
         override(AgglayerBridge, IAgglayerBridge)
         returns (address)
     {
@@ -310,7 +316,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function getWrappedTokenBridgeImplementation()
         external
-        view
+        pure
         override(AgglayerBridge, IAgglayerBridge)
         returns (address)
     {
@@ -324,7 +330,7 @@ contract ExtensionAgglayerBridgeL2 is
         address
     )
         external
-        view
+        pure
         override(AgglayerBridge, IAgglayerBridge)
         returns (bytes memory)
     {
@@ -336,7 +342,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function INIT_BYTECODE_TRANSPARENT_PROXY()
         public
-        view
+        pure
         override(AgglayerBridge)
         returns (bytes memory)
     {
@@ -349,7 +355,7 @@ contract ExtensionAgglayerBridgeL2 is
     function computeTokenProxyAddress(
         uint32,
         address
-    ) public view override(AgglayerBridge) returns (address) {
+    ) public pure override(AgglayerBridge) returns (address) {
         revert NonSupportedFunction();
     }
 
@@ -386,7 +392,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function getRoot()
         public
-        view
+        pure
         override(DepositContractBase)
         returns (bytes32)
     {
@@ -424,7 +430,7 @@ contract ExtensionAgglayerBridgeL2 is
         address[] memory,
         address[] memory,
         bool[] memory
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -433,7 +439,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function removeLegacySovereignTokenAddress(
         address
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -443,7 +449,7 @@ contract ExtensionAgglayerBridgeL2 is
     function setSovereignWETHAddress(
         address,
         bool
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -454,7 +460,7 @@ contract ExtensionAgglayerBridgeL2 is
         address,
         uint256,
         bytes calldata
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -463,7 +469,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function unsetMultipleClaims(
         uint256[] memory
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -472,7 +478,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function setMultipleClaims(
         uint256[] memory
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -484,7 +490,7 @@ contract ExtensionAgglayerBridgeL2 is
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata,
         bytes32,
         bytes32[_DEPOSIT_CONTRACT_TREE_DEPTH] calldata
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -494,7 +500,7 @@ contract ExtensionAgglayerBridgeL2 is
     function forwardLET(
         AgglayerBridgeL2.LeafData[] calldata,
         bytes32
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -503,7 +509,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function forceEmitDetailedClaimEvent(
         AgglayerBridgeL2.ClaimData[] calldata
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -514,7 +520,7 @@ contract ExtensionAgglayerBridgeL2 is
         uint32[] memory,
         address[] memory,
         uint256[] memory
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -525,14 +531,16 @@ contract ExtensionAgglayerBridgeL2 is
         uint32,
         address,
         bool
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
     /**
      * @notice Override setBridgeManager to revert - not supported in initializer
      */
-    function setBridgeManager(address) external override(AgglayerBridgeL2) {
+    function setBridgeManager(
+        address
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -541,7 +549,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function transferEmergencyBridgePauserRole(
         address
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -550,6 +558,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function acceptEmergencyBridgePauserRole()
         external
+        pure
         override(AgglayerBridgeL2)
     {
         revert NonSupportedFunction();
@@ -560,7 +569,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function transferEmergencyBridgeUnpauserRole(
         address
-    ) external override(AgglayerBridgeL2) {
+    ) external pure override(AgglayerBridgeL2) {
         revert NonSupportedFunction();
     }
 
@@ -569,6 +578,7 @@ contract ExtensionAgglayerBridgeL2 is
      */
     function acceptEmergencyBridgeUnpauserRole()
         external
+        pure
         override(AgglayerBridgeL2)
     {
         revert NonSupportedFunction();
