@@ -113,6 +113,14 @@ async function main() {
         objectInitialize.totalSupply.push(event.totalSupply);
     }
 
+    // get eth bridge contract
+    const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress);
+    const initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
+    const lbtETH = initEthBalance - ethBalance;
+    objectInitialize.originNetwork.push('0');
+    objectInitialize.originTokenAddress.push(ethers.ZeroAddress);
+    objectInitialize.totalSupply.push(lbtETH.toString());
+
     fs.writeFileSync(path.join(__dirname, `initializeLBT-${dateStr}.json`), JSON.stringify(objectInitialize, null, 2));
     logger.info(`File initializeLBT-${dateStr}.json created`);
 }
