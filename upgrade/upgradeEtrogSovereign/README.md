@@ -183,3 +183,7 @@ Run the shadow fork test:
 ```bash
 npx hardhat run ./upgrade/upgradeEtrogSovereign/test/shadowForkUpgrade.test.ts
 ```
+or
+```bash
+./upgrade/upgradeEtrogSovereign/test/shadow_fork_upgrade.sh
+```
