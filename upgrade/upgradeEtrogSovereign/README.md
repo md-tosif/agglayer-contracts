@@ -121,8 +121,9 @@ Update `upgrade_parameters.json` with the following values:
 
 Running the following command will:
 ```
-./upgrade/upgradeEtrogSovereign/upgrade-etrog-to-sovereign.sh --old-tag v4.0.0-fork.7
+./upgrade/upgradeEtrogSovereign/upgrade-etrog-to-sovereign.sh --old-tag v4.0.0-fork.7 --lbt-path ./tools/getLBT/initializeLBT.json
 ```
+> --lbt-path is optional, as it can be added directly in the JSON
 
 - Generate the required manifest using the tag `v4.0.0-fork.7` (you can replace this with any tag you need) to prepare the upgrade.
 - Create the manifest inside the folder: `upgrades/upgradeEtrogSovereign/manifest-from-*`.
