@@ -15,7 +15,7 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
     let bridgeContract: AgglayerBridgeL2FromEtrog;
     let gerContract: AgglayerGERL2;
 
-    const BRIDGE_VERSION = 'v1.2.0';
+    const BRIDGE_SOVEREIGN_VERSION = 'v1.2.0';
     const GER_VERSION = 'v1.0.0';
 
     let rollupManager: any;
@@ -103,7 +103,7 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
         // checks bridge
         expect(await bridgeContract.getProxiedTokensManager()).to.be.equal(proxiedTokensManager.address);
         expect(await bridgeContract.getWrappedTokenBridgeImplementation()).to.not.be.equal(ethers.ZeroAddress);
-        expect(await bridgeContract.version()).to.equal(BRIDGE_VERSION);
+        expect(await bridgeContract.version()).to.equal(BRIDGE_SOVEREIGN_VERSION);
         expect(await bridgeContract.globalExitRootManager()).to.equal(gerContract.target);
         expect(await bridgeContract.polygonRollupManager()).to.equal(rollupManager);
         expect(await bridgeContract.emergencyBridgePauser()).to.equal(emergencyBridgePauser.address);

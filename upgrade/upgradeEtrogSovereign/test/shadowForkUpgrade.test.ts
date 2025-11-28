@@ -23,7 +23,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 async function main() {
     // Assert upgrade version
-    const BRIDGE_VERSION = 'v1.1.0';
+    const BRIDGE_SOVEREIGN_VERSION = 'v1.2.0';
     const GER_VERSION = 'v1.0.0';
     const mandatoryParameters = ['timelockAdminAddress', 'rpc'];
     checkParams(upgradeParams.forkParams, mandatoryParameters);
@@ -141,7 +141,7 @@ async function main() {
     // Check bridge params after upgrade
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridgeL2');
     const bridgeContract = bridgeFactory.attach(upgradeParams.bridgeL2) as AgglayerBridgeL2;
-    expect(await bridgeContract.version()).to.equal(BRIDGE_VERSION);
+    expect(await bridgeContract.version()).to.equal(BRIDGE_SOVEREIGN_VERSION);
     expect(await bridgeContract.globalExitRootManager()).to.equal(upgradeParams.gerL2);
     expect(await bridgeContract.lastUpdatedDepositCount()).to.equal(bridgeLastUpdatedDepositCount);
     expect(await bridgeContract.polygonRollupManager()).to.equal(bridgeRollupManager);

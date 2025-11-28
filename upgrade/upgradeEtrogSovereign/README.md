@@ -181,5 +181,5 @@ After running the deployment script:
 Run the shadow fork test:
 
 ```bash
-npx hardhat run ./upgrade/upgradeEtrogSovereign/test/shallowForkUpgrade.test.ts
+npx hardhat run ./upgrade/upgradeEtrogSovereign/test/shadowForkUpgrade.test.ts
 ```
