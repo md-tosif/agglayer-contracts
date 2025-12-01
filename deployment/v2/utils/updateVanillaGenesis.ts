@@ -35,6 +35,11 @@ async function updateVanillaGenesis(genesis, chainID, initializeParams) {
     ];
     checkParams(initializeParams, mandatoryUpgradeParameters);
 
+    // Remove BYTECODE_STORER contract if present
+    genesis.genesis = genesis.genesis.filter(function (obj) {
+        return obj.contractName !== GENESIS_CONTRACT_NAMES.BYTECODE_STORER;
+    });
+
     // Load genesis on a zkEVMDB
     const poseidon = await getPoseidon();
     const { F } = poseidon;
