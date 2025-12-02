@@ -106,9 +106,7 @@ async function main() {
 
         const actionVerb = action === 'grant' ? 'granting' : 'revoking';
         const actionPreposition = action === 'grant' ? 'to' : 'from';
-        logger.info(
-            `Creating timelock tx for ${actionVerb} ${roleName} ${actionPreposition} ${account}...`,
-        );
+        logger.info(`Creating timelock tx for ${actionVerb} ${roleName} ${actionPreposition} ${account}...`);
 
         const operation = genOperation(
             target,
