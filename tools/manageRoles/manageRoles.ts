@@ -54,7 +54,7 @@ async function main() {
 
     // Load AgglayerTimelock (inherits from TimelockController which inherits from AccessControl)
     // AccessControl has methods to grant and revoke roles
-    const AgglayerManagerFactory = await ethers.getContractFactory('AgglayerTimelock');
+    const AgglayerTimelockFactory = await ethers.getContractFactory('AgglayerTimelock');
 
     const outputsJson = [] as any;
 
@@ -96,7 +96,7 @@ async function main() {
 
         const roleID = ethers.id(roleName);
         const functionName = action === 'grant' ? 'grantRole' : 'revokeRole';
-        const calldata = AgglayerManagerFactory.interface.encodeFunctionData(functionName, [roleID, account]);
+        const calldata = AgglayerTimelockFactory.interface.encodeFunctionData(functionName, [roleID, account]);
 
         outputJson.action = action;
         outputJson.roleName = roleName;
@@ -105,8 +105,9 @@ async function main() {
         outputJson.calldata = calldata;
 
         const actionVerb = action === 'grant' ? 'granting' : 'revoking';
+        const actionPreposition = action === 'grant' ? 'to' : 'from';
         logger.info(
-            `Creating timelock tx for ${actionVerb} ${roleName} ${action === 'grant' ? 'to' : 'from'} ${account}...`,
+            `Creating timelock tx for ${actionVerb} ${roleName} ${actionPreposition} ${account}...`,
         );
 
         const operation = genOperation(
@@ -165,23 +166,23 @@ async function main() {
                 const payloads = timelockTx?.args[i];
                 for (let j = 0; j < payloads.length; j++) {
                     const data = payloads[j];
-                    const decodedRollupManager = AgglayerManagerFactory.interface.parseTransaction({
+                    const parsedTransaction = AgglayerTimelockFactory.interface.parseTransaction({
                         data,
                     });
 
-                    const resultDecodeRollupManager = {} as any;
-                    resultDecodeRollupManager.signature = decodedRollupManager?.signature;
-                    resultDecodeRollupManager.selector = decodedRollupManager?.selector;
+                    const decodedOperation = {} as any;
+                    decodedOperation.signature = parsedTransaction?.signature;
+                    decodedOperation.selector = parsedTransaction?.selector;
 
-                    const paramsArrayData = decodedRollupManager?.fragment.inputs;
+                    const paramsArrayData = parsedTransaction?.fragment.inputs;
 
                     if (paramsArrayData) {
                         for (let n = 0; n < paramsArrayData.length; n++) {
                             const currentParamData = paramsArrayData[n];
-                            resultDecodeRollupManager[currentParamData.name] = decodedRollupManager?.args[n];
+                            decodedOperation[currentParamData.name] = parsedTransaction?.args[n];
                         }
                     }
-                    objectDecoded[`decodePayload_${j}`] = resultDecodeRollupManager;
+                    objectDecoded[`decodePayload_${j}`] = decodedOperation;
                 }
             }
         }
