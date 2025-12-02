@@ -1,5 +1,5 @@
 {
-    "agglayerManagerAddress": "0xYourAgglayerManagerAddress",
+    "target": "0xYourAgglayerManagerAddress",
     "timelockDelay": 3600,
     "roles": [
         {

@@ -8,6 +8,7 @@ import { ethers } from 'hardhat';
 import '../../deployment/helpers/utils';
 import { genOperation } from '../utils';
 import { logger } from '../../src/logger';
+import { checkParams } from '../../src/utils';
 
 import manageRolesParameters from './manageRoles.json';
 
@@ -21,16 +22,11 @@ async function main() {
      * Check parameters
      * Check that every necessary parameter is fulfilled
      */
-    const mandatoryParameters = ['timelockDelay', 'agglayerManagerAddress'];
+    const mandatoryParameters = ['timelockDelay', 'target'];
 
-    mandatoryParameters.forEach((parameterName: string) => {
-        const value = manageRolesParameters[parameterName as keyof typeof manageRolesParameters];
-        if (value === undefined || value === '') {
-            throw new Error(`Missing parameter: ${parameterName}`);
-        }
-    });
+    checkParams(manageRolesParameters, mandatoryParameters);
 
-    const { agglayerManagerAddress, timelockDelay } = manageRolesParameters;
+    const { target, timelockDelay } = manageRolesParameters;
     const salt = manageRolesParameters.timelockSalt || ethers.ZeroHash;
     const predecessor = ethers.ZeroHash;
 
@@ -56,8 +52,9 @@ async function main() {
     // load timelock
     const timelockContractFactory = await ethers.getContractFactory('PolygonZkEVMTimelock');
 
-    // Load Rollup manager
-    const AgglayerManagerFactory = await ethers.getContractFactory('AgglayerManager');
+    // Load AgglayerTimelock (inherits from TimelockController which inherits from AccessControl)
+    // AccessControl has methods to grant and revoke roles
+    const AgglayerManagerFactory = await ethers.getContractFactory('AgglayerTimelock');
 
     const outputsJson = [] as any;
 
@@ -98,22 +95,24 @@ async function main() {
         }
 
         const roleID = ethers.id(roleName);
+        const functionName = action === 'grant' ? 'grantRole' : 'revokeRole';
+        const calldata = AgglayerManagerFactory.interface.encodeFunctionData(functionName, [roleID, account]);
 
         outputJson.action = action;
         outputJson.roleName = roleName;
         outputJson.roleID = roleID;
         outputJson.account = account;
+        outputJson.calldata = calldata;
 
         const actionVerb = action === 'grant' ? 'granting' : 'revoking';
         logger.info(
             `Creating timelock tx for ${actionVerb} ${roleName} ${action === 'grant' ? 'to' : 'from'} ${account}...`,
         );
 
-        const functionName = action === 'grant' ? 'grantRole' : 'revokeRole';
         const operation = genOperation(
-            agglayerManagerAddress,
+            target,
             0, // value
-            AgglayerManagerFactory.interface.encodeFunctionData(functionName, [roleID, account]),
+            calldata,
             predecessor, // predecessor
             salt, // salt
         );

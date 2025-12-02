@@ -16,7 +16,7 @@ Edit `manageRoles.json` with the following structure:
 
 ```json
 {
-    "agglayerManagerAddress": "0xYourAgglayerManagerAddress",
+    "target": "0xYourAgglayerManagerAddress",
     "timelockDelay": 3600,
     "timelockSalt": "",
     "roles": [
@@ -36,7 +36,7 @@ Edit `manageRoles.json` with the following structure:
 
 ### Parameters
 
-- **agglayerManagerAddress**: Address of the AgglayerManager contract
+- **target**: Address of the target contract (e.g., AgglayerManager or AgglayerTimelock)
 - **timelockDelay**: Delay in seconds before the operation can be executed (after scheduling)
 - **timelockSalt**: Optional salt for the timelock operation (leave empty for default)
 - **roles**: Array of roles to manage, each containing:
@@ -88,7 +88,7 @@ The output file contains:
 ### Grant a Single Role
 ```json
 {
-    "agglayerManagerAddress": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
+    "target": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
     "timelockDelay": 60,
     "roles": [
         {
@@ -103,7 +103,7 @@ The output file contains:
 ### Grant Multiple Roles
 ```json
 {
-    "agglayerManagerAddress": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
+    "target": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
     "timelockDelay": 3600,
     "roles": [
         {
@@ -128,7 +128,7 @@ The output file contains:
 ### Revoke Multiple Roles
 ```json
 {
-    "agglayerManagerAddress": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
+    "target": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
     "timelockDelay": 3600,
     "roles": [
         {
@@ -148,7 +148,7 @@ The output file contains:
 ### Mixed Operations (Grant and Revoke in Same Batch)
 ```json
 {
-    "agglayerManagerAddress": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
+    "target": "0xE2EF6215aDc132Df6913C8DD16487aBF118d1764",
     "timelockDelay": 3600,
     "roles": [
         {
@@ -184,18 +184,18 @@ The output file contains:
 - **You can mix grant and revoke operations in the same batch** - each role entry has its own action
 - All operations in a batch share the same salt and predecessor
 - The timelock delay applies to the entire batch
-- Make sure the timelock has the appropriate role (DEFAULT_ADMIN_ROLE) on the AgglayerManager
+- Make sure the timelock has the appropriate role (DEFAULT_ADMIN_ROLE) on the target contract
 - When revoking roles, ensure the account currently has the role, otherwise the transaction will fail
 - When granting roles, ensure the account doesn't already have the role to avoid unnecessary operations
 
 ## Action Details
 
 ### Grant Action (`"action": "grant"`)
-- Calls `grantRole(bytes32 role, address account)` on the AgglayerManager
+- Calls `grantRole(bytes32 role, address account)` on the target contract
 - Grants the specified role to the account
 - Requires the caller (timelock) to have admin privileges for that role
 
 ### Revoke Action (`"action": "revoke"`)
-- Calls `revokeRole(bytes32 role, address account)` on the AgglayerManager
+- Calls `revokeRole(bytes32 role, address account)` on the target contract
 - Removes the specified role from the account
 - Requires the caller (timelock) to have admin privileges for that role
