@@ -2,6 +2,7 @@
 /* eslint-disable no-console, no-inner-declarations, no-undef, import/no-unresolved */
 import { expect } from 'chai';
 import path = require('path');
+import fs from 'fs';
 
 import * as dotenv from 'dotenv';
 import { ethers, upgrades } from 'hardhat';
@@ -142,7 +143,9 @@ async function main() {
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridgeL2');
     const bridgeContract = bridgeFactory.attach(upgradeParams.bridgeL2) as AgglayerBridgeL2;
     expect(await bridgeContract.version()).to.equal(BRIDGE_SOVEREIGN_VERSION);
-    expect(await bridgeContract.globalExitRootManager()).to.equal(upgradeParams.gerL2);
+    expect((await bridgeContract.globalExitRootManager()).toLocaleLowerCase()).to.equal(
+        upgradeParams.gerL2.toLocaleLowerCase(),
+    );
     expect(await bridgeContract.lastUpdatedDepositCount()).to.equal(bridgeLastUpdatedDepositCount);
     expect(await bridgeContract.polygonRollupManager()).to.equal(bridgeRollupManager);
     expect(await bridgeContract.gasTokenAddress()).to.equal(bridgeGasTokenAddress);
@@ -154,6 +157,21 @@ async function main() {
     expect(await bridgeContract.emergencyBridgeUnpauser()).to.equal(
         upgradeParams.bridge_initParams.emergencyBridgeUnpauserAddress,
     );
+
+    const pathInitLBT = upgradeParams.pathJsonInitLBT.replace('WTokens', 'initilaizeLBT');
+    if (await fs.existsSync(pathInitLBT)) {
+        // eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires
+        const { originNetwork, originTokenAddress, totalSupply } = require(pathInitLBT);
+        for (let i = 0; i < originTokenAddress.length; i++) {
+            const tokenInfoHash = ethers.solidityPackedKeccak256(originNetwork[i], originTokenAddress[i]);
+            const amount = await bridgeContract.localBalanceTree(tokenInfoHash);
+            expect(totalSupply[i]).to.be.equal(amount.toString());
+        }
+    } else {
+        logger.info(
+            'The LBT could not be checked because the initialize file is not located in the same directory as the WTokens-* file provided in the upgrade_params.',
+        );
+    }
 
     logger.info(`✓ Checked AgglayerBridgeL2 contract storage parameters`);
     logger.info('Finished shadow fork upgrade');

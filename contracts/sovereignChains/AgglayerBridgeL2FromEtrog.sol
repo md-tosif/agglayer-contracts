@@ -1,6 +1,7 @@
 pragma solidity 0.8.28;
 
 import "./AgglayerBridgeL2.sol";
+import {ITokenWrappedBridgeUpgradeable} from "../interfaces/ITokenWrappedBridgeUpgradeable.sol";
 
 // Contract created to perform the upgrade from the Etrog version to the AgglayerBridgeL2 version.
 contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
@@ -35,18 +36,16 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
      * @param _emergencyBridgePauser emergency bridge pauser address, allowed to be zero if the chain wants to disable the feature to stop the bridge
      * @param _emergencyBridgeUnpauser emergency bridge unpauser address, allowed to be zero if the chain wants to disable the feature to unpause the bridge
      * @param _proxiedTokensManager address of the proxied tokens manager
-     * @param originNetworkArray The origin network of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
-     * @param originTokenAddressArray The origin address of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
-     * @param amountArray The amount to set for the local balance tree leaf
+     * @param wrappedTokensAddresses array of wrapped tokens
+     * @param initSupply init bridge ETH amount (max = 2^128 - 1). This parameter is necessary because not all bridges have the same initial amount.
      */
     function initializeFromEtrog(
         address _bridgeManager,
         address _emergencyBridgePauser,
         address _emergencyBridgeUnpauser,
         address _proxiedTokensManager,
-        uint32[] memory originNetworkArray,
-        address[] memory originTokenAddressArray,
-        uint256[] memory amountArray
+        address[] memory wrappedTokensAddresses,
+        uint128 initSupply
     ) public virtual getInitializedVersion reinitializer(3) {
         // Checks that upgrade is being done from the contract initialized
         if (_initializerVersion == 0) {
@@ -86,7 +85,44 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         proxiedTokensManager = _proxiedTokensManager;
         emit AcceptProxiedTokensManagerRole(address(0), proxiedTokensManager);
 
-        // set local balance tree
+        _setLBTFromTokensAddress(wrappedTokensAddresses, initSupply);
+    }
+
+    /**
+     * @dev Builds origin network/address/amount arrays from token addresses (index 0 = native token) and sets the Local Balance Tree.
+     * @param wrappedTokensAddresses Array of wrapped-token contract addresses to include; internal arrays reserve index 0 for the native token, so wrapped-token data is mapped starting at index 1.
+     * @param initSupply Initial supply used to compute the native token amount when WETHToken is unset
+     */
+    function _setLBTFromTokensAddress(
+        address[] memory wrappedTokensAddresses,
+        uint256 initSupply
+    ) internal {
+        uint256 len = wrappedTokensAddresses.length + 1; // + 1 --> WETH token
+        uint32[] memory originNetworkArray = new uint32[](len);
+        address[] memory originTokenAddressArray = new address[](len);
+        uint256[] memory amountArray = new uint256[](len);
+
+        originNetworkArray[0] = 0;
+        originTokenAddressArray[0] = address(0);
+
+        if (address(WETHToken) == address(0)) {
+            uint256 balance = address(this).balance;
+            require(initSupply >= balance, "initSupply < ETH balance");
+            amountArray[0] = initSupply - balance;
+        } else {
+            amountArray[0] = ITokenWrappedBridgeUpgradeable(address(WETHToken))
+                .totalSupply();
+        }
+
+        for (uint256 i = 1; i < len; i++) {
+            address wrapped = wrappedTokensAddresses[i];
+            TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[wrapped];
+
+            originNetworkArray[i] = tokenInfo.originNetwork;
+            originTokenAddressArray[i] = tokenInfo.originTokenAddress;
+            amountArray[i] = ITokenWrappedBridgeUpgradeable(wrapped).totalSupply();
+        }
+
         _setLocalBalanceTree(
             originNetworkArray,
             originTokenAddressArray,

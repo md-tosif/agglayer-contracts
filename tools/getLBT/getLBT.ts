@@ -97,9 +97,10 @@ async function main() {
     );
 
     if (options?.printEvents) {
-        fs.writeFileSync(path.join(__dirname, `events-${dateStr}.json`), JSON.stringify(events, null, 2));
+        fs.writeFileSync(path.join(__dirname, `events.json`), JSON.stringify(events, null, 2));
     }
 
+    const tokenAddresses = [];
     const objectInitialize = {
         originNetwork: [],
         originTokenAddress: [],
@@ -108,18 +109,38 @@ async function main() {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const event of events) {
+        tokenAddresses.push(event.wrappedTokenAddress);
         objectInitialize.originNetwork.push(event.originNetwork);
         objectInitialize.originTokenAddress.push(event.originTokenAddress);
         objectInitialize.totalSupply.push(event.totalSupply);
     }
 
     // get eth bridge contract
-    const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress);
-    const initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
-    const lbtETH = initEthBalance - ethBalance;
-    objectInitialize.originNetwork.push('0');
-    objectInitialize.originTokenAddress.push(ethers.ZeroAddress);
-    objectInitialize.totalSupply.push(lbtETH.toString());
+    const weth = await contract.WETHToken();
+    const originNetwork = 0;
+    const originTokenAddress = ethers.ZeroAddress;
+    let amount;
+    if (weth === ethers.ZeroAddress) {
+        const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress);
+        const initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
+        amount = initEthBalance - ethBalance;
+    } else {
+        const contractToken = await ethers.getContractAt('TokenWrapped', weth);
+        amount = await contractToken.totalSupply();
+    }
+
+    if (options?.printTokens) {
+        const printObject = {
+            initSupply: amount.toString(),
+            tokenAddresses,
+        };
+        fs.writeFileSync(path.join(__dirname, `WTokens-${dateStr}.json`), JSON.stringify(printObject, null, 2));
+        logger.info(`File WTokens-${dateStr}.json created`);
+    }
+
+    objectInitialize.originNetwork.push(originNetwork);
+    objectInitialize.originTokenAddress.push(originTokenAddress);
+    objectInitialize.totalSupply.push(amount.toString());
 
     fs.writeFileSync(path.join(__dirname, `initializeLBT-${dateStr}.json`), JSON.stringify(objectInitialize, null, 2));
     logger.info(`File initializeLBT-${dateStr}.json created`);

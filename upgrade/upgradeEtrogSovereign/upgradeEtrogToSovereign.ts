@@ -57,7 +57,7 @@ async function main() {
 
     const finalPath = path.join(__dirname, `../../${pathJsonInitLBT}`);
     // eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires
-    const { originNetwork, originTokenAddress, totalSupply } = require(finalPath);
+    const { initSupply, tokenAddresses } = require(finalPath);
 
     // Load provider
     const currentProvider = getProviderAdjustingMultiplierGas(upgradeParameters, ethers);
@@ -112,15 +112,14 @@ async function main() {
             bridgeL2,
             impBridge,
             newBridgeFactory.interface.encodeFunctionData(
-                'initializeFromEtrog(address,address,address,address,uint32[],address[],uint256[])',
+                'initializeFromEtrog(address,address,address,address,address[],uint128)',
                 [
                     bridgeManager,
                     emergencyBridgePauserAddress,
                     emergencyBridgeUnpauserAddress,
                     proxiedTokensManagerAddress,
-                    originNetwork,
-                    originTokenAddress,
-                    totalSupply,
+                    tokenAddresses,
+                    initSupply,
                 ],
             ),
         ]), // data

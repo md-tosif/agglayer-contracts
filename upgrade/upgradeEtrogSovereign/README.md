@@ -44,13 +44,12 @@ cp ./upgrade/upgradeEtrogSovereign/upgrade_parameters.json.example ./upgrade/upg
 ```
 
 4. **Local Balance Tree file**
-You’ll need the path to a .json file containing the local balance tree in order to run the script and perform the upgrade.
-This JSON file must include three arrays with the LBT information, structured as follows:
+You’ll need the path to a .json file containing the list of wrapped tokens and initSupply at block 0 (only ETH) for bridge contract in order to run the script and perform the upgrade.T
+This JSON file must include the information structured as follows:
 ```
 {
-    "originNetwork": [ ... ],
-    "originTokenAddress": [ ... ],
-    "totalSupply": [ ... ]
+    "initSupply": "20000000",
+    "tokenAddresses": [ ... ],
 }
 ```
 
