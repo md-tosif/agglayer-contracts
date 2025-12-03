@@ -26,9 +26,9 @@ async function main() {
 
     checkParams(manageRolesParameters, mandatoryParameters);
 
-    const { target, timelockDelay } = manageRolesParameters;
-    const salt = manageRolesParameters.timelockSalt || ethers.ZeroHash;
-    const predecessor = ethers.ZeroHash;
+    if (!manageRolesParameters.roles || manageRolesParameters.roles.length === 0) {
+        throw new Error('No roles provided. Please provide at least one role in the roles array.');
+    }
 
     const supportedRoles = [
         'ADD_ROLLUP_TYPE_ROLE',
@@ -49,6 +49,29 @@ async function main() {
         'CANCELLER_ROLE',
     ];
 
+    // Validate all role entries before processing
+    const mandatoryParametersRole = ['action', 'roleName', 'account'];
+    for (let i = 0; i < manageRolesParameters.roles.length; i++) {
+        const roleEntry = manageRolesParameters.roles[i];
+
+        checkParams(roleEntry, mandatoryParametersRole);
+
+        const { action, roleName } = roleEntry;
+
+        if (action !== 'grant' && action !== 'revoke') {
+            throw new Error(`Invalid action for role ${i}: ${action}. Must be either 'grant' or 'revoke'.`);
+        }
+
+        if (!supportedRoles.includes(roleName)) {
+            throw new Error(`Role is not supported: ${roleName}. Supported roles are: ${supportedRoles.join(', ')}`);
+        }
+    }
+
+    // Start processing roles
+    const { target, timelockDelay } = manageRolesParameters;
+    const salt = manageRolesParameters.timelockSalt || ethers.ZeroHash;
+    const predecessor = ethers.ZeroHash;
+
     // load timelock
     const timelockContractFactory = await ethers.getContractFactory('PolygonZkEVMTimelock');
 
@@ -64,35 +87,12 @@ async function main() {
     operations.value = [];
     operations.data = [];
 
-    if (!manageRolesParameters.roles || manageRolesParameters.roles.length === 0) {
-        throw new Error('No roles provided. Please provide at least one role in the roles array.');
-    }
-
     logger.info(`Processing ${manageRolesParameters.roles.length} role operation(s)...`);
 
     for (let i = 0; i < manageRolesParameters.roles.length; i++) {
         const outputJson = {} as any;
         const roleEntry = manageRolesParameters.roles[i];
-
-        // Check mandatory parameters for each role
-        const mandatoryParametersRole = ['action', 'roleName', 'account'];
-        mandatoryParametersRole.forEach((parameterName: string) => {
-            const value = roleEntry[parameterName as keyof typeof roleEntry];
-            if (value === undefined || value === '') {
-                throw new Error(`Missing parameter in role ${i}: ${parameterName}`);
-            }
-        });
-
         const { action, roleName, account } = roleEntry;
-
-        // Validate action
-        if (action !== 'grant' && action !== 'revoke') {
-            throw new Error(`Invalid action for role ${i}: ${action}. Must be either 'grant' or 'revoke'.`);
-        }
-
-        if (!supportedRoles.includes(roleName)) {
-            throw new Error(`Role is not supported: ${roleName}. Supported roles are: ${supportedRoles.join(', ')}`);
-        }
 
         const roleID = ethers.id(roleName);
         const functionName = action === 'grant' ? 'grantRole' : 'revokeRole';
