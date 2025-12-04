@@ -127,8 +127,9 @@ async function main() {
         to: upgradeOutput.timelockContractAddress,
         data: upgradeOutput.executeData,
     };
-    await (await proposerRoleSigner.sendTransaction(txExecuteUpgrade)).wait();
+    const receiptTx = await (await proposerRoleSigner.sendTransaction(txExecuteUpgrade)).wait();
     logger.info(`✓ Sent execute transaction`);
+    const blockUpgrade = receiptTx?.blockNumber;
 
     // Check ger params after upgrade
     const agglayerGERL2Factory = await ethers.getContractFactory('AgglayerGERL2');
@@ -160,10 +161,7 @@ async function main() {
     );
 
     // WARNING: with changes in tokens wrappet totalSupply, this test may fail
-    logger.info(
-        'Because this is only an upgrade test, minor discrepancies may occur if balances changed between deployment and test execution (since the networks continue operating).',
-    );
-    const pathInitLBT = await getLBTFork(upgradeParams.bridgeL2);
+    const pathInitLBT = await getLBTFork(upgradeParams.bridgeL2, blockUpgrade);
     const initLBT = await fs.readFileSync(pathInitLBT, 'utf8');
     const { originNetwork, originTokenAddress, totalSupply } = JSON.parse(initLBT);
     for (let i = 0; i < originTokenAddress.length; i++) {
@@ -172,11 +170,7 @@ async function main() {
             [originNetwork[i], originTokenAddress[i]],
         );
         const amount = await bridgeContract.localBalanceTree(tokenInfoHash);
-        if (totalSupply[i] !== amount.toString()) {
-            logger.warn(
-                `⚠️ WARNING originTokenAddress: ${originTokenAddress}: ${totalSupply[i]} is not equal ${amount.toString()}`,
-            );
-        }
+        expect(totalSupply[i]).to.equal(amount.toString());
     }
     logger.info(`✓ Checked LBT parameters`);
 

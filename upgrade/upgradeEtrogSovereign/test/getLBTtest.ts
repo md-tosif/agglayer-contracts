@@ -3,7 +3,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { logger } from '../../../src/logger';
 
-export async function getLBTFork(bridgeAddress: string) {
+export async function getLBTFork(bridgeAddress: string, blockNumber?: number): Promise<string> {
     const rootDir = path.join(__dirname, '../../../');
     const getLBTDir = path.join(rootDir, 'tools', 'getLBT');
     const parametersPath = path.join(getLBTDir, 'parameters.json');
@@ -32,6 +32,7 @@ export async function getLBTFork(bridgeAddress: string) {
                 getEventsFromFile: false,
                 concurrencyLimit: 100,
                 outputPathLBT: outputFilePath,
+                blockNumber: blockNumber || 'latest',
             },
         };
 
@@ -40,7 +41,7 @@ export async function getLBTFork(bridgeAddress: string) {
 
         // run the getLBT tool with --network localhost
         // Using npx hardhat run tools/getLBT/getLBT.ts --network localhost
-        logger.info('Running getLBT tool with --network custom...');
+        logger.info(`Running getLBT tool with --network custom in block number ${blockNumber}...`);
         const cmd = 'npx';
         const args = ['hardhat', 'run', path.join(rootDir, 'tools', 'getLBT', 'getLBT.ts'), '--network', 'custom'];
         const result = spawnSync(cmd, args, { stdio: 'inherit', cwd: __dirname, shell: false });
@@ -57,7 +58,7 @@ export async function getLBTFork(bridgeAddress: string) {
         console.error('Error during getLBT test script:', err);
         process.exitCode = 1;
     } finally {
-        // Step 4: restore backup if needed
+        // restore backup if needed
         try {
             if (hadBackup && fs.existsSync(backupPath)) {
                 fs.copyFileSync(backupPath, parametersPath);

@@ -38,6 +38,9 @@ cp ./tools/getLBT/parameters.json.example ./tools/getLBT/parameters.json
         - `concurrencyLimit`: Maximum number of parallel RPC requests. Default: 10. Increase for faster fetching, decrease if you encounter network errors.
         - `printEvents`: boolean. If true, writes event data with totalSupply to `events-{timestamp}.json`.
         - `getEventsFromFile`: boolean. If true, reads events from events.json instead of fetching from the chain.
+        - `outputPathTokensArray` (optional): output tokens file path (in `agglayer-contracts`). Example: upgrade/upgradeEtrogSovereign/tokens.json.
+        - `outputPathLBT` (optional): output LBT file path (in `agglayer-contracts`). Example: upgrade/upgradeEtrogSovereign/LBT.json,
+        - `blockNumber` (optional): latest || block number for `totalSupply` information
 
 -  Run tool:
 ```

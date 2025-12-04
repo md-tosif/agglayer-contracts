@@ -25,7 +25,12 @@ async function main() {
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridge');
     const contract = bridgeFactory.attach(agglayerBridgeAddress) as AgglayerBridge;
 
-    const latest = await ethers.provider.getBlockNumber();
+    let blockNumber;
+    if (options?.blockNumber && options.blockNumber !== 'latest') {
+        blockNumber = parseInt(options.blockNumber, 10);
+    } else {
+        blockNumber = await ethers.provider.getBlockNumber();
+    }
 
     // //////////////////////////////
     //  Get events NewWrappedToken //
@@ -42,7 +47,7 @@ async function main() {
         events.push(...eventsJson);
     } else {
         logger.info(
-            `Events fetching from block 0 to ${latest} with blockRange ${blockRange} and concurrencyLimit ${concurrencyLimit}`,
+            `Events fetching from block 0 to ${blockNumber} with blockRange ${blockRange} and concurrencyLimit ${concurrencyLimit}`,
         );
 
         // Create event filter
@@ -53,7 +58,7 @@ async function main() {
             contract,
             newWrappedTokenFilter,
             blockRange,
-            latest,
+            blockNumber,
             concurrencyLimit,
             'NewWrappedToken events',
         );
@@ -89,7 +94,7 @@ async function main() {
         async (event) => {
             const { wrappedTokenAddress } = event;
             const contractToken = await ethers.getContractAt('TokenWrapped', wrappedTokenAddress);
-            const totalSupply = await contractToken.totalSupply();
+            const totalSupply = await contractToken.totalSupply({ blockTag: blockNumber });
             event.totalSupply = totalSupply.toString();
         },
         concurrencyLimit,
@@ -122,16 +127,16 @@ async function main() {
     let amount;
     let initEthBalance = 0n;
     if (weth === ethers.ZeroAddress) {
-        const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress);
+        const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress, blockNumber);
         initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
         amount = initEthBalance - ethBalance;
     } else {
         const contractToken = await ethers.getContractAt('TokenWrapped', weth);
-        amount = await contractToken.totalSupply();
+        amount = await contractToken.totalSupply({ blockTag: blockNumber });
         const gasTokenAddres = await contract.gasTokenAddress();
         const gasTokenNetwork = await contract.gasTokenNetwork();
         const contractGasToken = await ethers.getContractAt('TokenWrapped', gasTokenAddres);
-        const gasTokenAmount = await contractGasToken.totalSupply();
+        const gasTokenAmount = await contractGasToken.totalSupply({ blockTag: blockNumber });
         objectInitialize.originNetwork.push(gasTokenNetwork);
         objectInitialize.originTokenAddress.push(gasTokenAddres);
         objectInitialize.totalSupply.push(gasTokenAmount.toString());
