@@ -1,6 +1,6 @@
 pragma solidity 0.8.20;
 
-import "./PolygonZkEVMBridgeV2Pessimistic.sol";
+import "../previousVersions/pessimistic/PolygonZkEVMBridgeV2Pessimistic.sol";
 
 // Contract created to perform the upgrade from the Etrog version to the AgglayerBridgeL2 version.
 contract PolygonZkEVMBridgeV2PessimisticMock is

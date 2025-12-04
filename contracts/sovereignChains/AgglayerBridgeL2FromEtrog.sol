@@ -85,7 +85,7 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         proxiedTokensManager = _proxiedTokensManager;
         emit AcceptProxiedTokensManagerRole(address(0), proxiedTokensManager);
 
-        _setLBTFromTokensAddress(wrappedTokensAddresses, initNativeSupply);
+        _initializeLBT(wrappedTokensAddresses, initNativeSupply);
     }
 
     /**
@@ -93,11 +93,14 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
      * @param wrappedTokensAddresses Array of wrapped-token contract addresses to include; internal arrays reserve index 0 for the native token, so wrapped-token data is mapped starting at index 1.
      * @param initNativeSupply Initial supply used to compute the native token amount when WETHToken is unset
      */
-    function _setLBTFromTokensAddress(
+    function _initializeLBT(
         address[] memory wrappedTokensAddresses,
         uint256 initNativeSupply
     ) internal {
         uint256 amountWETH;
+        // If WETHToken is address(0), gas token will be ether
+        // The amount in LBT is computed as contract init amount - contract ETH balance
+        // else, we read WETH total supply
         if (address(WETHToken) == address(0)) {
             uint256 balance = address(this).balance;
             require(
@@ -108,9 +111,8 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         } else {
             amountWETH = ITokenWrappedBridgeUpgradeable(address(WETHToken))
                 .totalSupply();
-            uint256 gasTokenAmount = ITokenWrappedBridgeUpgradeable(
-                address(gasTokenAddress)
-            ).totalSupply();
+            // In the case where the gas token is not ether, we set gas token amount to contract balance
+            uint256 gasTokenAmount = address(this).balance;
             _setLocalBalanceTree(
                 gasTokenNetwork,
                 gasTokenAddress,
@@ -118,8 +120,10 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
             );
         }
 
+        // Set native token (ETH or WETH) amount
         _setLocalBalanceTree(0, address(0), amountWETH);
 
+        // Set all the other wrapped tokens amounts
         for (uint256 i = 0; i < wrappedTokensAddresses.length; i++) {
             address wrapped = wrappedTokensAddresses[i];
             TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[
