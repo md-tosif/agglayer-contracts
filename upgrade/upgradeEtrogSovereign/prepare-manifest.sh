@@ -76,4 +76,4 @@ echo "✔ force-import-old-contracts"
 
 mkdir -p "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
 cp -r ./.openzeppelin/* "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
-echo "✔  copy openzeppelin"
+echo "✔ copy openzeppelin"

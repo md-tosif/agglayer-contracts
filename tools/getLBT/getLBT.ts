@@ -120,18 +120,26 @@ async function main() {
     const originNetwork = 0;
     const originTokenAddress = ethers.ZeroAddress;
     let amount;
+    let initEthBalance = 0n;
     if (weth === ethers.ZeroAddress) {
         const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress);
-        const initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
+        initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
         amount = initEthBalance - ethBalance;
     } else {
         const contractToken = await ethers.getContractAt('TokenWrapped', weth);
         amount = await contractToken.totalSupply();
+        const gasTokenAddres = await contract.gasTokenAddress();
+        const gasTokenNetwork = await contract.gasTokenNetwork();
+        const contractGasToken = await ethers.getContractAt('TokenWrapped', gasTokenAddres);
+        const gasTokenAmount = await contractGasToken.totalSupply();
+        objectInitialize.originNetwork.push(gasTokenNetwork);
+        objectInitialize.originTokenAddress.push(gasTokenAddres);
+        objectInitialize.totalSupply.push(gasTokenAmount.toString());
     }
 
     if (options?.printTokens) {
         const printObject = {
-            initSupply: amount.toString(),
+            initNativeSupply: initEthBalance.toString(),
             tokenAddresses,
         };
         fs.writeFileSync(path.join(__dirname, `WTokens-${dateStr}.json`), JSON.stringify(printObject, null, 2));

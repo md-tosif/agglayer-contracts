@@ -37,7 +37,7 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
      * @param _emergencyBridgeUnpauser emergency bridge unpauser address, allowed to be zero if the chain wants to disable the feature to unpause the bridge
      * @param _proxiedTokensManager address of the proxied tokens manager
      * @param wrappedTokensAddresses array of wrapped tokens
-     * @param initSupply init bridge ETH amount (max = 2^128 - 1). This parameter is necessary because not all bridges have the same initial amount.
+     * @param initNativeSupply init bridge ETH amount (max = 2^128 - 1). This parameter is necessary because not all bridges have the same initial amount.
      */
     function initializeFromEtrog(
         address _bridgeManager,
@@ -45,7 +45,7 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         address _emergencyBridgeUnpauser,
         address _proxiedTokensManager,
         address[] memory wrappedTokensAddresses,
-        uint128 initSupply
+        uint128 initNativeSupply
     ) public virtual getInitializedVersion reinitializer(3) {
         // Checks that upgrade is being done from the contract initialized
         if (_initializerVersion == 0) {
@@ -85,48 +85,53 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         proxiedTokensManager = _proxiedTokensManager;
         emit AcceptProxiedTokensManagerRole(address(0), proxiedTokensManager);
 
-        _setLBTFromTokensAddress(wrappedTokensAddresses, initSupply);
+        _setLBTFromTokensAddress(wrappedTokensAddresses, initNativeSupply);
     }
 
     /**
      * @dev Builds origin network/address/amount arrays from token addresses (index 0 = native token) and sets the Local Balance Tree.
      * @param wrappedTokensAddresses Array of wrapped-token contract addresses to include; internal arrays reserve index 0 for the native token, so wrapped-token data is mapped starting at index 1.
-     * @param initSupply Initial supply used to compute the native token amount when WETHToken is unset
+     * @param initNativeSupply Initial supply used to compute the native token amount when WETHToken is unset
      */
     function _setLBTFromTokensAddress(
         address[] memory wrappedTokensAddresses,
-        uint256 initSupply
+        uint256 initNativeSupply
     ) internal {
-        uint256 len = wrappedTokensAddresses.length + 1; // + 1 --> WETH token
-        uint32[] memory originNetworkArray = new uint32[](len);
-        address[] memory originTokenAddressArray = new address[](len);
-        uint256[] memory amountArray = new uint256[](len);
-
-        originNetworkArray[0] = 0;
-        originTokenAddressArray[0] = address(0);
-
+        uint256 amountWETH;
         if (address(WETHToken) == address(0)) {
             uint256 balance = address(this).balance;
-            require(initSupply >= balance, "initSupply < ETH balance");
-            amountArray[0] = initSupply - balance;
+            require(
+                initNativeSupply >= balance,
+                "initNativeSupply < ETH balance"
+            );
+            amountWETH = initNativeSupply - balance;
         } else {
-            amountArray[0] = ITokenWrappedBridgeUpgradeable(address(WETHToken))
+            amountWETH = ITokenWrappedBridgeUpgradeable(address(WETHToken))
                 .totalSupply();
+            uint256 gasTokenAmount = ITokenWrappedBridgeUpgradeable(
+                address(gasTokenAddress)
+            ).totalSupply();
+            _setLocalBalanceTree(
+                gasTokenNetwork,
+                gasTokenAddress,
+                gasTokenAmount
+            );
         }
 
-        for (uint256 i = 1; i < len; i++) {
+        _setLocalBalanceTree(0, address(0), amountWETH);
+
+        for (uint256 i = 0; i < wrappedTokensAddresses.length; i++) {
             address wrapped = wrappedTokensAddresses[i];
-            TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[wrapped];
+            TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[
+                wrapped
+            ];
 
-            originNetworkArray[i] = tokenInfo.originNetwork;
-            originTokenAddressArray[i] = tokenInfo.originTokenAddress;
-            amountArray[i] = ITokenWrappedBridgeUpgradeable(wrapped).totalSupply();
+            uint32 originNetwork = tokenInfo.originNetwork;
+            address originTokenAddress = tokenInfo.originTokenAddress;
+            uint256 amount = ITokenWrappedBridgeUpgradeable(address(wrapped))
+                .totalSupply();
+
+            _setLocalBalanceTree(originNetwork, originTokenAddress, amount);
         }
-
-        _setLocalBalanceTree(
-            originNetworkArray,
-            originTokenAddressArray,
-            amountArray
-        );
     }
 }

@@ -56,8 +56,7 @@ async function main() {
     const { globalExitRootUpdater, globalExitRootRemover } = upgradeParameters.ger_initParams;
 
     const finalPath = path.join(__dirname, `../../${pathJsonInitLBT}`);
-    // eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires
-    const { initSupply, tokenAddresses } = require(finalPath);
+    const { initNativeSupply, tokenAddresses } = JSON.parse(fs.readFileSync(finalPath, 'utf8'));
 
     // Load provider
     const currentProvider = getProviderAdjustingMultiplierGas(upgradeParameters, ethers);
@@ -119,7 +118,7 @@ async function main() {
                     emergencyBridgeUnpauserAddress,
                     proxiedTokensManagerAddress,
                     tokenAddresses,
-                    initSupply,
+                    initNativeSupply,
                 ],
             ),
         ]), // data

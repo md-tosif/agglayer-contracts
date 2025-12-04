@@ -893,26 +893,6 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         address[] memory originTokenAddressArray,
         uint256[] memory amountArray
     ) external virtual onlyGlobalExitRootRemover ifEmergencyState {
-        _setLocalBalanceTree(
-            originNetworkArray,
-            originTokenAddressArray,
-            amountArray
-        );
-    }
-
-    /**
-     * @notice Set local balance tree leaves to specific amounts
-     * @dev Permissioned function by the GlobalExitRootRemover role
-     * @param originNetworkArray The origin network of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
-     * @param originTokenAddressArray The origin address of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
-     * @dev The key is generated as keccak256(abi.encodePacked(originNetwork, originTokenAddress))
-     * @param amountArray The amount to set for the local balance tree leaf
-     */
-    function _setLocalBalanceTree(
-        uint32[] memory originNetworkArray,
-        address[] memory originTokenAddressArray,
-        uint256[] memory amountArray
-    ) internal {
         if (
             originNetworkArray.length != originTokenAddressArray.length ||
             originNetworkArray.length != amountArray.length
@@ -921,28 +901,40 @@ contract AgglayerBridgeL2 is AgglayerBridge, IAgglayerBridgeL2 {
         }
 
         for (uint256 i = 0; i < originNetworkArray.length; i++) {
-            // Ensures that only tokens from other networks are updated in the Local Balance Tree.
-            if (originNetworkArray[i] == networkID) {
-                revert InvalidLBTLeaf();
-            }
-
-            // Compute token info hash
-            bytes32 tokenInfoHash = keccak256(
-                abi.encodePacked(
-                    originNetworkArray[i],
-                    originTokenAddressArray[i]
-                )
-            );
-            // Set the local balance tree
-            localBalanceTree[tokenInfoHash] = amountArray[i];
-
-            // Emit event
-            emit SetLocalBalanceTree(
+            _setLocalBalanceTree(
                 originNetworkArray[i],
                 originTokenAddressArray[i],
                 amountArray[i]
             );
         }
+    }
+
+    /**
+     * @notice Set local balance tree leaves to specific amounts
+     * @param originNetwork The origin network of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
+     * @param originTokenAddress The origin address of the token, involved in the tokenInfoHash to generate the key to be set at localBalanceTree
+     * @dev The key is generated as keccak256(abi.encodePacked(originNetwork, originTokenAddress))
+     * @param amount The amount to set for the local balance tree leaf
+     */
+    function _setLocalBalanceTree(
+        uint32 originNetwork,
+        address originTokenAddress,
+        uint256 amount
+    ) internal {
+        // Ensures that only tokens from other networks are updated in the Local Balance Tree.
+        if (originNetwork == networkID) {
+            revert InvalidLBTLeaf();
+        }
+
+        // Compute token info hash
+        bytes32 tokenInfoHash = keccak256(
+            abi.encodePacked(originNetwork, originTokenAddress)
+        );
+        // Set the local balance tree
+        localBalanceTree[tokenInfoHash] = amount;
+
+        // Emit event
+        emit SetLocalBalanceTree(originNetwork, originTokenAddress, amount);
     }
 
     /**

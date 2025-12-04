@@ -158,15 +158,20 @@ async function main() {
         upgradeParams.bridge_initParams.emergencyBridgeUnpauserAddress,
     );
 
-    const pathInitLBT = upgradeParams.pathJsonInitLBT.replace('WTokens', 'initilaizeLBT');
+    const pathInitLBT = upgradeParams.pathJsonInitLBT.replace('WTokens', 'initializeLBT');
     if (await fs.existsSync(pathInitLBT)) {
         // eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires
-        const { originNetwork, originTokenAddress, totalSupply } = require(pathInitLBT);
+        const initLBT = await fs.readFileSync(pathInitLBT, 'utf8');
+        const { originNetwork, originTokenAddress, totalSupply } = JSON.parse(initLBT);
         for (let i = 0; i < originTokenAddress.length; i++) {
-            const tokenInfoHash = ethers.solidityPackedKeccak256(originNetwork[i], originTokenAddress[i]);
+            const tokenInfoHash = ethers.solidityPackedKeccak256(
+                ['uint32', 'address'],
+                [originNetwork[i], originTokenAddress[i]],
+            );
             const amount = await bridgeContract.localBalanceTree(tokenInfoHash);
             expect(totalSupply[i]).to.be.equal(amount.toString());
         }
+        logger.info(`✓ Checked LBT parameters`);
     } else {
         logger.info(
             'The LBT could not be checked because the initialize file is not located in the same directory as the WTokens-* file provided in the upgrade_params.',

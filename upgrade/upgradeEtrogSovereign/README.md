@@ -44,11 +44,11 @@ cp ./upgrade/upgradeEtrogSovereign/upgrade_parameters.json.example ./upgrade/upg
 ```
 
 4. **Local Balance Tree file**
-You’ll need the path to a .json file containing the list of wrapped tokens and initSupply at block 0 (only ETH) for bridge contract in order to run the script and perform the upgrade.T
+You’ll need the path to a .json file containing the list of wrapped tokens and initNativeSupply at block 0 (only ETH) for bridge contract in order to run the script and perform the upgrade.T
 This JSON file must include the information structured as follows:
 ```
 {
-    "initSupply": "20000000",
+    "initNativeSupply": "20000000",
     "tokenAddresses": [ ... ],
 }
 ```
