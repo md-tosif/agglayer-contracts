@@ -4,6 +4,8 @@
         "blockRange": 1000,
         "printEvents": true,
         "getEventsFromFile": false,
-        "concurrencyLimit": 100
+        "concurrencyLimit": 100,
+        "outputPathTokensArray": "upgrade/upgradeEtrogSovereign/tokens.json",
+        "outputPathLBT": "upgrade/upgradeEtrogSovereign/LBT.json"
     }
 }

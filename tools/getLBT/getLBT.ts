@@ -142,16 +142,22 @@ async function main() {
             initNativeSupply: initEthBalance.toString(),
             tokenAddresses,
         };
-        fs.writeFileSync(path.join(__dirname, `WTokens-${dateStr}.json`), JSON.stringify(printObject, null, 2));
-        logger.info(`File WTokens-${dateStr}.json created`);
+        const writeTokensPath = options?.outputPathTokensArray
+            ? path.join(__dirname, `../../${options.outputPathTokensArray}`)
+            : path.join(__dirname, `WTokens-${dateStr}.json`);
+        fs.writeFileSync(writeTokensPath, JSON.stringify(printObject, null, 2));
+        logger.info(`File ${writeTokensPath} created`);
     }
 
     objectInitialize.originNetwork.push(originNetwork);
     objectInitialize.originTokenAddress.push(originTokenAddress);
     objectInitialize.totalSupply.push(amount.toString());
 
-    fs.writeFileSync(path.join(__dirname, `initializeLBT-${dateStr}.json`), JSON.stringify(objectInitialize, null, 2));
-    logger.info(`File initializeLBT-${dateStr}.json created`);
+    const writeLBTPath = options?.outputPathLBT
+        ? path.join(__dirname, `../../${options.outputPathLBT}`)
+        : path.join(__dirname, `initializeLBT-${dateStr}.json`);
+    fs.writeFileSync(writeLBTPath, JSON.stringify(objectInitialize, null, 2));
+    logger.info(`File ${writeLBTPath} created`);
 }
 
 main().catch((error) => {
