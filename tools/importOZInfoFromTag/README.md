@@ -13,18 +13,22 @@ When upgrading contracts like `PolygonZkEVMBridgeV2` and `PolygonZkEVMGlobalExit
 
 ## Files
 
-- `prepare-manifest.sh`: Main script that orchestrates the manifest generation
-- `force-import-old-contracts.ts`: Hardhat script that force imports the bridge and GER contracts
-- `upgrade_parameters.json`: Configuration with contract addresses to import
+- `import_oz_info_from_tag.sh`: Main script that orchestrates the manifest generation
+- `force_import_old_contracts.ts`: Hardhat script that force imports the bridge and GER contracts
+- `import_params.json`: Configuration with contract addresses to import
+- `import_params.json.example`: Example configuration file
 
 ## Configuration
 
-Update `upgrade_parameters.json` with the deployed contract addresses:
+Copy and update `import_params.json` with the deployed contract addresses:
+
+```bash
+cp ./tools/importOZInfoFromTag/import_params.json.example ./tools/importOZInfoFromTag/import_params.json
+```
 
 ```json
 {
-    "bridgeL2": "0x...",
-    "gerL2": "0x..."
+    "bridgeL2Address": "0x..."
 }
 ```
 
@@ -33,7 +37,7 @@ Update `upgrade_parameters.json` with the deployed contract addresses:
 Run from the project root:
 
 ```bash
-./tools/importOZInfoFromTag/prepare-manifest.sh --tag <git-tag> --url <rpc-url>
+./tools/importOZInfoFromTag/import_oz_info_from_tag.sh --tag <git-tag> --url <rpc-url>
 ```
 
 ### Parameters
@@ -44,7 +48,7 @@ Run from the project root:
 ### Example
 
 ```bash
-./tools/importOZInfoFromTag/prepare-manifest.sh --tag v4.0.0-fork.7 --url https://rpc.example.com
+./tools/importOZInfoFromTag/import_oz_info_from_tag.sh --tag v4.0.0-fork.7 --url https://rpc.example.com
 ```
 
 ## Output

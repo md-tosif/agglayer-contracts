@@ -7,17 +7,17 @@ Script to create schedule and execute transaction for upgrading bridge L2 and GE
 
 ## Files
 
-- `upgrade-etrog-to-sovereign.sh`: Bash script that runs prepare-manifest script + upgrade script
+- `upgrade_etrog_to_sovereign.sh`: Bash script that runs import manifest script + upgrade script
 - `upgradeEtrogToSovereign.ts`: Main upgrade script that deploys implementations and creates timelock operations
-
-Scripts in `tools/importOZInfoFromTag/`:
-
-- `prepare-manifest.sh`: Bash script to get manifest for upgrade
-- `force-import-old-contracts.ts`: Used inside prepare-manifest
-- `test/shadowForkUpgrade.test.ts`: Shadow fork test validating all contract upgrades
 - `upgrade_parameters.json`: Configuration parameters for the upgrade
 - `upgrade_parameters.json.example`: Example configuration file
 - `upgrade_output.json`: Generated output after running the upgrade script (created after execution)
+- `test/shadowForkUpgrade.test.ts`: Shadow fork test validating all contract upgrades
+
+Scripts in `tools/importOZInfoFromTag/`:
+
+- `import_oz_info_from_tag.sh`: Bash script to get manifest for upgrade
+- `force_import_old_contracts.ts`: Used inside import script
 
 ## Prerequisites
 
@@ -125,7 +125,7 @@ Update `upgrade_parameters.json` with the following values:
 Running the following command will:
 
 ```
-./upgrade/upgradeEtrogSovereign/upgrade-etrog-to-sovereign.sh --old-tag v4.0.0-fork.7 --url https://your_l2_rpc
+./upgrade/upgradeEtrogSovereign/upgrade_etrog_to_sovereign.sh --old-tag v4.0.0-fork.7 --url https://your_l2_rpc
 ```
 
 > `--url` is the L2 RPC URL for the target network
@@ -143,7 +143,7 @@ Running the following command will:
 This command will generate the manifest in the `upgrades/upgradeEtrogSovereign/manifest-from-*` folder:
 
 ```bash
-./tools/importOZInfoFromTag/prepare-manifest.sh --tag $TAG --url $RPC_URL
+./tools/importOZInfoFromTag/import_oz_info_from_tag.sh --tag $TAG --url $RPC_URL
 ```
 
 - `--tag`: Git tag of the agglayer-contracts repository to use

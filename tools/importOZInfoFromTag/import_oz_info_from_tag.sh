@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  prepare-manifest.sh \
+  import_oz_info_from_tag.sh \
     --tag <git-tag> \
     --url <rpc-url>
 EOF
@@ -68,11 +68,11 @@ else
 fi
 
 # --- Prepare manifest ---
-cp "$ACTUAL_DIR/tools/importOZInfoFromTag/force-import-old-contracts.ts" ./force-import-old-contracts.ts
-cp "$ACTUAL_DIR/tools/importOZInfoFromTag/upgrade_parameters.json" ./upgrade_parameters.json
+cp "$ACTUAL_DIR/tools/importOZInfoFromTag/force_import_old_contracts.ts" ./force_import_old_contracts.ts
+cp "$ACTUAL_DIR/tools/importOZInfoFromTag/import_params.json" ./import_params.json
 
-npx hardhat run --network importManifestNetwork ./force-import-old-contracts.ts
-echo "✔ force-import-old-contracts"
+npx hardhat run --network importManifestNetwork ./force_import_old_contracts.ts
+echo "✔ force_import_old_contracts"
 
 mkdir -p "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"
 cp -r ./.openzeppelin/* "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/manifest-from-$TAG"

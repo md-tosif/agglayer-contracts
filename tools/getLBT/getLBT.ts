@@ -7,8 +7,8 @@ import { checkParams } from '../../src/utils';
 import { fetchEventsInBatches, executeInBatches } from '../utils';
 import { AgglayerBridge } from '../../typechain-types';
 
-const DEFAULT_BLOCK_RANGE = 100000;
-const DEFAULT_CONCURRENCY_LIMIT = 10;
+const DEFAULT_BLOCK_RANGE = 1000;
+const DEFAULT_CONCURRENCY_LIMIT = 100;
 
 export interface LBTEntry {
     wrappedTokenAddress: string;
@@ -241,8 +241,10 @@ main().catch((error) => {
 });
 
 /* eslint-disable no-extend-native */
-Object.defineProperty(BigInt.prototype, 'toJSON', {
-    get() {
-        return () => String(this);
-    },
-});
+if (!Object.prototype.hasOwnProperty.call(BigInt.prototype, 'toJSON')) {
+    Object.defineProperty(BigInt.prototype, 'toJSON', {
+        get() {
+            return () => String(this);
+        },
+    });
+}
