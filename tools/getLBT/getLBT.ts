@@ -23,11 +23,14 @@ async function main() {
 
     // Get bridge instance
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridge');
-    const contract = bridgeFactory.attach(agglayerBridgeAddress) as AgglayerBridge;
+    const AgglayerBridge = bridgeFactory.attach(agglayerBridgeAddress) as AgglayerBridge;
 
     let blockNumber;
     if (options?.blockNumber && options.blockNumber !== 'latest') {
         blockNumber = parseInt(options.blockNumber, 10);
+        if (isNaN(blockNumber) || blockNumber < 0) {
+            throw new Error(`Invalid blockNumber: ${options.blockNumber}. Must be a non-negative number or "latest"`);
+        }
     } else {
         blockNumber = await ethers.provider.getBlockNumber();
     }
@@ -51,11 +54,11 @@ async function main() {
         );
 
         // Create event filter
-        const newWrappedTokenFilter = contract.filters.NewWrappedToken();
+        const newWrappedTokenFilter = AgglayerBridge.filters.NewWrappedToken();
 
         // Fetch events in parallel batches
         const allResults = await fetchEventsInBatches(
-            contract,
+            AgglayerBridge,
             newWrappedTokenFilter,
             blockRange,
             blockNumber,
@@ -106,45 +109,50 @@ async function main() {
     }
 
     const tokenAddresses = [];
-    const objectInitialize = {
-        originNetwork: [],
-        originTokenAddress: [],
-        totalSupply: [],
-    };
+    const LBTObject = [] as any;
 
     // eslint-disable-next-line no-restricted-syntax
     for (const event of events) {
         tokenAddresses.push(event.wrappedTokenAddress);
-        objectInitialize.originNetwork.push(event.originNetwork);
-        objectInitialize.originTokenAddress.push(event.originTokenAddress);
-        objectInitialize.totalSupply.push(event.totalSupply);
+        LBTObject.push({
+            wrappedTokenAddress: event.wrappedTokenAddress,
+            originNetwork: event.originNetwork,
+            originTokenAddress: event.originTokenAddress,
+            balance: event.totalSupply,
+        });
     }
 
-    // get eth bridge contract
-    const weth = await contract.WETHToken();
-    const originNetwork = 0;
-    const originTokenAddress = ethers.ZeroAddress;
-    let amount;
-    let initEthBalance = 0n;
-    if (weth === ethers.ZeroAddress) {
-        const ethBalance = await ethers.provider.getBalance(agglayerBridgeAddress, blockNumber);
-        initEthBalance = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
-        amount = initEthBalance - ethBalance;
-    } else {
-        const contractToken = await ethers.getContractAt('TokenWrapped', weth);
-        amount = await contractToken.totalSupply({ blockTag: blockNumber });
-        const gasTokenAddres = await contract.gasTokenAddress();
-        const gasTokenNetwork = await contract.gasTokenNetwork();
-        const contractGasToken = await ethers.getContractAt('TokenWrapped', gasTokenAddres);
-        const gasTokenAmount = await contractGasToken.totalSupply({ blockTag: blockNumber });
-        objectInitialize.originNetwork.push(gasTokenNetwork);
-        objectInitialize.originTokenAddress.push(gasTokenAddres);
-        objectInitialize.totalSupply.push(gasTokenAmount.toString());
+    // Get initial native supply
+    const initNativeSupply = await ethers.provider.getBalance(agglayerBridgeAddress, 0);
+    const currentNativeSupply = await ethers.provider.getBalance(agglayerBridgeAddress, blockNumber);
+    const currentNativeUnlocked = initNativeSupply - currentNativeSupply;
+
+    // Add native supply to LBT object
+    LBTObject.push({
+        wrappedTokenAddress: ethers.ZeroAddress,
+        originNetwork: await AgglayerBridge.gasTokenNetwork(),
+        originTokenAddress: await AgglayerBridge.gasTokenAddress(),
+        balance: currentNativeUnlocked.toString(),
+    });
+
+    // Get WETH token address, this only works if the networks has a gas token
+    const weth = await AgglayerBridge.WETHToken();
+    if (weth !== ethers.ZeroAddress) {
+        // Get WETH total supply
+        const wethContract = await ethers.getContractAt('TokenWrapped', weth);
+        const wethTotalSupply = await wethContract.totalSupply({ blockTag: blockNumber });
+
+        LBTObject.push({
+            wrappedTokenAddress: weth,
+            originNetwork: 0, // ether
+            originTokenAddress: ethers.ZeroAddress, // ether
+            balance: wethTotalSupply.toString(),
+        });
     }
 
     if (options?.printTokens) {
         const printObject = {
-            initNativeSupply: initEthBalance.toString(),
+            initNativeSupply: initNativeSupply.toString(),
             tokenAddresses,
         };
         const writeTokensPath = options?.outputPathTokensArray
@@ -154,18 +162,22 @@ async function main() {
         logger.info(`File ${writeTokensPath} created`);
     }
 
-    objectInitialize.originNetwork.push(originNetwork);
-    objectInitialize.originTokenAddress.push(originTokenAddress);
-    objectInitialize.totalSupply.push(amount.toString());
-
     const writeLBTPath = options?.outputPathLBT
         ? path.join(__dirname, `../../${options.outputPathLBT}`)
         : path.join(__dirname, `initializeLBT-${dateStr}.json`);
-    fs.writeFileSync(writeLBTPath, JSON.stringify(objectInitialize, null, 2));
+
+    fs.writeFileSync(writeLBTPath, JSON.stringify(LBTObject, null, 2));
     logger.info(`File ${writeLBTPath} created`);
 }
 
 main().catch((error) => {
     console.error(error);
     process.exit(1);
+});
+
+/* eslint-disable no-extend-native */
+Object.defineProperty(BigInt.prototype, 'toJSON', {
+    get() {
+        return () => String(this);
+    },
 });

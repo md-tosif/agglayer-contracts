@@ -3,7 +3,14 @@ pragma solidity 0.8.28;
 import "./AgglayerBridgeL2.sol";
 import {ITokenWrappedBridgeUpgradeable} from "../interfaces/ITokenWrappedBridgeUpgradeable.sol";
 
-// Contract created to perform the upgrade from the Etrog version to the AgglayerBridgeL2 version.
+/**
+ * @title AgglayerBridgeL2FromEtrog
+ * @notice Upgrade contract for migrating from the Etrog bridge implementation to AgglayerBridgeL2.
+ *         This contract provides a specialized initialization function (`initializeFromEtrog`) that
+ *         preserves existing bridge state while setting up new parameters required by AgglayerBridgeL2,
+ *         including bridge manager, emergency roles, proxied tokens manager, and Local Balance Tree (LBT) initialization.
+ *         The standard `initialize` function is disabled to prevent accidental re-initialization.
+ */
 contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
     /**
      * @dev Thrown when one of the initialization parameters that must be 0 has already been initialized
@@ -36,8 +43,8 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
      * @param _emergencyBridgePauser emergency bridge pauser address, allowed to be zero if the chain wants to disable the feature to stop the bridge
      * @param _emergencyBridgeUnpauser emergency bridge unpauser address, allowed to be zero if the chain wants to disable the feature to unpause the bridge
      * @param _proxiedTokensManager address of the proxied tokens manager
-     * @param wrappedTokensAddresses array of wrapped tokens
-     * @param initNativeSupply init bridge ETH amount (max = 2^128 - 1). This parameter is necessary because not all bridges have the same initial amount.
+     * @param wrappedTokensAddresses array of wrapped tokens addresses to be included in the LBT
+     * @param initNativeSupply initial native supply used to compute the native token amount when WETHToken is set
      */
     function initializeFromEtrog(
         address _bridgeManager,
@@ -89,53 +96,48 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
     }
 
     /**
-     * @dev Builds origin network/address/amount arrays from token addresses (index 0 = native token) and sets the Local Balance Tree.
-     * @param wrappedTokensAddresses Array of wrapped-token contract addresses to include; internal arrays reserve index 0 for the native token, so wrapped-token data is mapped starting at index 1.
-     * @param initNativeSupply Initial supply used to compute the native token amount when WETHToken is unset
+     * @dev Initializes the Local Balance Tree (LBT) providing the wrapped tokens amounts
+     * @param wrappedTokensAddresses array of wrapped tokens addresses
+     * @param initNativeSupply initial native supply used to compute the native token amount when WETHToken is set
+     * @notice If some tokens are not included (e.g are deployed just before the upgrade of this contract), they will be added later using the `setLocalBalanceTree` function.
+     * This is treat as an edge case and in any case, the bridge will be functional but too much restrictive until conrrectly initialized.
      */
     function _initializeLBT(
         address[] memory wrappedTokensAddresses,
         uint256 initNativeSupply
     ) internal {
-        uint256 amountWETH;
-        // If WETHToken is address(0), gas token will be ether
-        // The amount in LBT is computed as contract init amount - contract ETH balance
-        // else, we read WETH total supply
-        if (address(WETHToken) == address(0)) {
-            uint256 balance = address(this).balance;
-            require(
-                initNativeSupply >= balance,
-                "initNativeSupply < ETH balance"
-            );
-            amountWETH = initNativeSupply - balance;
-        } else {
-            amountWETH = ITokenWrappedBridgeUpgradeable(address(WETHToken))
+        // Set native token (ether or custom gas token)
+        uint256 nativeGasTokenNetworkBalance = initNativeSupply - address(this).balance;
+        _setLocalBalanceTree(gasTokenNetwork, gasTokenAddress, nativeGasTokenNetworkBalance);
+
+        // If WETHToken exists, set WETH aswell
+        if (address(WETHToken) != address(0)) {
+            uint256 wethAmount = ITokenWrappedBridgeUpgradeable(address(WETHToken))
                 .totalSupply();
-            // In the case where the gas token is not ether, we set gas token amount to contract balance
-            uint256 gasTokenAmount = address(this).balance;
+
             _setLocalBalanceTree(
-                gasTokenNetwork,
-                gasTokenAddress,
-                gasTokenAmount
+                0, // originNetwork is 0 for ether
+                address(0), // originTokenAddress is 0 for ether
+                wethAmount
             );
         }
 
-        // Set native token (ETH or WETH) amount
-        _setLocalBalanceTree(0, address(0), amountWETH);
-
-        // Set all the other wrapped tokens amounts
-        for (uint256 i = 0; i < wrappedTokensAddresses.length; i++) {
-            address wrapped = wrappedTokensAddresses[i];
+        // Set all wrapped tokens
+        for (uint256 i = 0; i < wrappedTokensAddresses.length; ++i) {
+            address currentWrappedTokenAddress = wrappedTokensAddresses[i];
             TokenInformation memory tokenInfo = wrappedTokenToTokenInfo[
-                wrapped
+                currentWrappedTokenAddress
             ];
 
-            uint32 originNetwork = tokenInfo.originNetwork;
-            address originTokenAddress = tokenInfo.originTokenAddress;
-            uint256 amount = ITokenWrappedBridgeUpgradeable(address(wrapped))
+            // Check if the token exists
+            if (tokenInfo.originTokenAddress == address(0)) {
+                revert TokenNotMapped();
+            }
+
+            uint256 amount = ITokenWrappedBridgeUpgradeable(currentWrappedTokenAddress)
                 .totalSupply();
 
-            _setLocalBalanceTree(originNetwork, originTokenAddress, amount);
+            _setLocalBalanceTree(tokenInfo.originNetwork, tokenInfo.originTokenAddress, amount);
         }
     }
 }
