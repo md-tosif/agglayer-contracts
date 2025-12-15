@@ -45,6 +45,19 @@ async function main() {
     const deployer = await getDeployerFromParameters(currentProvider, upgradeParameters, ethers);
     logger.info(`Deploying implementation with: ${deployer.address}`);
 
+    // Force import hardhat manifest if requested
+    const forceImport = (upgradeParameters as any).forceImport || false;
+    if (forceImport) {
+        logger.info('Force import hardhat manifest');
+        // As this contract is deployed in the genesis of a L2 network, no open zeppelin network file is created, we need to force import it
+        const bridgeFactory = await ethers.getContractFactory('BridgeL2SovereignChainV1010', deployer);
+        await upgrades.forceImport(bridgeL2Address, bridgeFactory, {
+            constructorArgs: [],
+            kind: 'transparent',
+        });
+        logger.info('Force import completed');
+    }
+
     // get proxy admin and timelock
     logger.info('Get proxy admin information');
     // Get proxy admin

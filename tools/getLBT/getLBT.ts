@@ -53,6 +53,7 @@ export async function getLBTData(
     let blockNumber: number;
     if (options?.blockNumber && options.blockNumber !== 'latest') {
         blockNumber = options.blockNumber;
+        // eslint-disable-next-line no-restricted-globals
         if (isNaN(blockNumber) || blockNumber < 0) {
             throw new Error(`Invalid blockNumber: ${options.blockNumber}. Must be a non-negative number or "latest"`);
         }

@@ -1,3 +1,4 @@
 {
-    "bridgeL2Address": "0x.."
+    "bridgeL2Address": "0x..",
+    "forceImport": false
 }
