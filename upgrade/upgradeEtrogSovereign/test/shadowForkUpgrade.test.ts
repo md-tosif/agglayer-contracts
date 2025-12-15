@@ -160,17 +160,52 @@ async function main() {
         upgradeParams.bridge_initParams.emergencyBridgeUnpauserAddress,
     );
 
-    // WARNING: with changes in tokens wrappet totalSupply, this test may fail
-    const pathInitLBT = await getLBTFork(upgradeParams.bridgeL2, blockUpgrade);
-    const initLBT = await fs.readFileSync(pathInitLBT, 'utf8');
-    const { originNetwork, originTokenAddress, totalSupply } = JSON.parse(initLBT);
-    for (let i = 0; i < originTokenAddress.length; i++) {
+    // WARNING: with changes in tokens wrapped totalSupply, this test may fail
+    // Generate both tokens.json and LBT.json for verification
+    const { tokensPath, lbtPath } = await getLBTFork(upgradeParams.bridgeL2, blockUpgrade);
+
+    // Read tokens.json (used for initialization) - paths are relative to project root
+    const tokensData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../', tokensPath), 'utf8'));
+    if (!tokensData.initNativeSupply || !tokensData.tokenAddresses) {
+        throw new Error('Invalid tokens.json format. Expected object with initNativeSupply and tokenAddresses fields.');
+    }
+
+    // Read LBT.json (full balance tree with all details) - paths are relative to project root
+    const lbtData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../', lbtPath), 'utf8'));
+    if (!Array.isArray(lbtData)) {
+        throw new Error('Invalid LBT.json format. Expected array of objects.');
+    }
+
+    // Create a map of wrappedTokenAddress -> LBT entry for quick lookup
+    // Include all entries including native token (ZeroAddress) as it IS in the LBT tree
+    const lbtMap = new Map<string, { originNetwork: string; originTokenAddress: string; balance: string }>();
+    for (const entry of lbtData) {
+        lbtMap.set(entry.wrappedTokenAddress.toLowerCase(), {
+            originNetwork: entry.originNetwork,
+            originTokenAddress: entry.originTokenAddress,
+            balance: entry.balance,
+        });
+    }
+
+    // Verify that all wrappedTokenAddresses from tokens.json exist in LBT.json
+    const { tokenAddresses } = tokensData;
+    logger.info(`Verifying LBT for ${tokenAddresses.length} wrapped tokens...`);
+
+    for (const wrappedTokenAddress of tokenAddresses) {
+        const wrappedTokenLower = wrappedTokenAddress.toLowerCase();
+        const lbtEntry = lbtMap.get(wrappedTokenLower);
+
+        if (!lbtEntry) {
+            throw new Error(`Wrapped token ${wrappedTokenAddress} from tokens.json not found in LBT.json`);
+        }
+
+        // Verify balance in local balance tree matches LBT.json
         const tokenInfoHash = ethers.solidityPackedKeccak256(
             ['uint32', 'address'],
-            [originNetwork[i], originTokenAddress[i]],
+            [lbtEntry.originNetwork, lbtEntry.originTokenAddress],
         );
-        const amount = await bridgeContract.localBalanceTree(tokenInfoHash);
-        expect(totalSupply[i]).to.equal(amount.toString());
+        const lbtBalance = await bridgeContract.localBalanceTree(tokenInfoHash);
+        expect(lbtEntry.balance).to.equal(lbtBalance.toString());
     }
     logger.info(`✓ Checked LBT parameters`);
 

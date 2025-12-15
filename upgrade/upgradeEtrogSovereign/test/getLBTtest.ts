@@ -3,14 +3,19 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { logger } from '../../../src/logger';
 
-export async function getLBTFork(bridgeAddress: string, blockNumber?: number): Promise<string> {
+export async function getLBTFork(
+    bridgeAddress: string,
+    blockNumber?: number,
+): Promise<{ tokensPath: string; lbtPath: string }> {
     const rootDir = path.join(__dirname, '../../../');
     const getLBTDir = path.join(rootDir, 'tools', 'getLBT');
     const parametersPath = path.join(getLBTDir, 'parameters.json');
     const backupPath = path.join(getLBTDir, 'parameters.json.bak');
 
     // Directory where we want the getLBT output to be placed: this test directory
-    const outputFilePath = './upgrade/upgradeEtrogSovereign/test/LBT.json';
+    // Path is relative to project root (getLBT.ts resolves it from tools/getLBT directory)
+    const tokensFilePath = 'upgrade/upgradeEtrogSovereign/test/tokens.json';
+    const lbtFilePath = 'upgrade/upgradeEtrogSovereign/test/LBT.json';
 
     let hadBackup = false;
 
@@ -22,22 +27,28 @@ export async function getLBTFork(bridgeAddress: string, blockNumber?: number): P
             logger.info('Backed up existing parameters.json -> parameters.json.bak');
         }
 
-        // set parameters for this test
+        // set parameters for this test - generate both tokens.json and LBT.json
         const params = {
             agglayerBridgeAddress: bridgeAddress,
             options: {
                 blockRange: 1000,
                 printEvents: false,
-                printTokens: false,
+                printTokens: true,
                 getEventsFromFile: false,
                 concurrencyLimit: 100,
-                outputPathLBT: outputFilePath,
+                outputPathTokensArray: tokensFilePath,
+                outputPathLBT: lbtFilePath,
                 blockNumber: blockNumber || 'latest',
             },
         };
 
         fs.writeFileSync(parametersPath, JSON.stringify(params, null, 2));
-        logger.info('Wrote temporary parameters.json with outputPathLBT =', outputFilePath);
+        logger.info(
+            'Wrote temporary parameters.json with outputPathTokensArray =',
+            tokensFilePath,
+            'and outputPathLBT =',
+            lbtFilePath,
+        );
 
         // run the getLBT tool with --network localhost
         // Using npx hardhat run tools/getLBT/getLBT.ts --network localhost
@@ -74,5 +85,5 @@ export async function getLBTFork(bridgeAddress: string, blockNumber?: number): P
             process.exitCode = 2;
         }
     }
-    return outputFilePath;
+    return { tokensPath: tokensFilePath, lbtPath: lbtFilePath };
 }
