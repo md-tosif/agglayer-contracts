@@ -9,8 +9,11 @@ Script to create schedule and execute transaction for upgrading bridge L2 and GE
 
 - `upgrade-etrog-to-sovereign.sh`: Bash script that runs prepare-manifest script + upgrade script
 - `upgradeEtrogToSovereign.ts`: Main upgrade script that deploys implementations and creates timelock operations
+
+Scripts in `tools/importOZInfoFromTag/`:
+
 - `prepare-manifest.sh`: Bash script to get manifest for upgrade
-- `force-import-old-contracts.th`: Used inside prepare-manifest
+- `force-import-old-contracts.ts`: Used inside prepare-manifest
 - `test/shadowForkUpgrade.test.ts`: Shadow fork test validating all contract upgrades
 - `upgrade_parameters.json`: Configuration parameters for the upgrade
 - `upgrade_parameters.json.example`: Example configuration file
@@ -65,8 +68,7 @@ Update `upgrade_parameters.json` with the following values:
 
 ```json
 {
-    "bridgeL2": "0x..",
-    "gerL2": "0x..",
+    "bridgeL2Address": "0x..",
     "pathJsonInitLBT": "path/init.json",
     "bridge_initParams": {
         "bridgeManager": "0x..",
@@ -89,8 +91,7 @@ Update `upgrade_parameters.json` with the following values:
 
 #### Mandatory Parameters
 
-- `bridgeL2`: Address of the bridge proxy on L2
-- `gerL2`: Address of the ger proxy on L2
+- `bridgeL2Address`: Address of the bridge proxy on L2 (GER address is derived automatically from the bridge contract)
 - `pathJsonInitLBT`: Path inside `agglayer-contracts` repository to `tokens.json` file with the list of wrapped tokens and `initNativeSupply` (to initialize the bridge). (Example: `./upgrade/upgradeEtrogSovereign/tokens.json` or `./tools/getLBT/WTokens-*.json`)
 - `bridge_initParams`:
     - `bridgeManager`: Address of the bridge manager role
@@ -142,7 +143,7 @@ Running the following command will:
 This command will generate the manifest in the `upgrades/upgradeEtrogSovereign/manifest-from-*` folder:
 
 ```bash
-./upgrade/upgradeEtrogSovereign/prepare-manifest.sh --tag $TAG --url $RPC_URL
+./tools/importOZInfoFromTag/prepare-manifest.sh --tag $TAG --url $RPC_URL
 ```
 
 - `--tag`: Git tag of the agglayer-contracts repository to use

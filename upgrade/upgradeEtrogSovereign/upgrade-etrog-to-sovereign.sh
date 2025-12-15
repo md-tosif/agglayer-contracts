@@ -32,7 +32,7 @@ done
 [[ -n "$URL" ]] || { echo "Missing --url"; usage; exit 1; }
 
 # --- Prepare manifest ---
-./upgrade/upgradeEtrogSovereign/prepare-manifest.sh \
+./tools/importOZInfoFromTag/prepare-manifest.sh \
   --tag $TAG \
   --url $URL
 

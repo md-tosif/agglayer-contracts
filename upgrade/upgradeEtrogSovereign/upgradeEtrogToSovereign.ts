@@ -37,8 +37,7 @@ async function main() {
      * Check that every necessary parameter is fulfilled
      */
     const mandatoryUpgradeParameters = [
-        'bridgeL2',
-        'gerL2',
+        'bridgeL2Address',
         'pathJsonInitLBT',
         'bridge_initParams.bridgeManager',
         'bridge_initParams.proxiedTokensManagerAddress',
@@ -49,8 +48,8 @@ async function main() {
     ];
     checkParams(upgradeParameters, mandatoryUpgradeParameters);
 
-    const salt = upgradeParameters.timelockSalt || ethers.ZeroHash;
-    const { bridgeL2, gerL2, pathJsonInitLBT } = upgradeParameters;
+    const salt = (upgradeParameters as any).timelockSalt || ethers.ZeroHash;
+    const { bridgeL2Address, pathJsonInitLBT } = upgradeParameters as any;
     const { bridgeManager, proxiedTokensManagerAddress, emergencyBridgePauserAddress, emergencyBridgeUnpauserAddress } =
         upgradeParameters.bridge_initParams;
     const { globalExitRootUpdater, globalExitRootRemover } = upgradeParameters.ger_initParams;
@@ -79,9 +78,24 @@ async function main() {
     // Get proxy admin
     const proxyAdmin = await upgrades.admin.getInstance();
 
+    const newBridgeFactory = await ethers.getContractFactory(NEW_BRIDGE_L2, deployer);
+
+    // get GER from bridgeL2
+    const bridgeL2Contract = await newBridgeFactory.attach(bridgeL2Address);
+    const gerL2Address = await (bridgeL2Contract as any).globalExitRootManager();
+
+    // Assert correct version: check that BASE_INIT_BYTECODE_WRAPPED_TOKEN does not revert on bridge
+    try {
+        await (bridgeL2Contract as any).BASE_INIT_BYTECODE_WRAPPED_TOKEN();
+    } catch (e: any) {
+        throw new Error(
+            `Bridge contract does not have BASE_INIT_BYTECODE_WRAPPED_TOKEN. This upgrade requires AgglayerBridgeL2 etrog version. Error: ${e.message}`,
+        );
+    }
+
     // Assert correct admin
-    expect(await upgrades.erc1967.getAdminAddress(gerL2 as string)).to.be.equal(proxyAdmin.target);
-    expect(await upgrades.erc1967.getAdminAddress(bridgeL2 as string)).to.be.equal(proxyAdmin.target);
+    expect(await upgrades.erc1967.getAdminAddress(gerL2Address)).to.be.equal(proxyAdmin.target);
+    expect(await upgrades.erc1967.getAdminAddress(bridgeL2Address as string)).to.be.equal(proxyAdmin.target);
 
     const timelockAddress = await proxyAdmin.owner();
 
@@ -89,11 +103,10 @@ async function main() {
     const timelockContractFactory = await ethers.getContractFactory('PolygonZkEVMTimelock', deployer);
     const timelockContract = (await timelockContractFactory.attach(timelockAddress)) as TimelockController;
     // take params delay, or minimum timelock delay
-    const timelockDelay = upgradeParameters.timelockDelay || (await timelockContract.getMinDelay());
+    const timelockDelay = (upgradeParameters as any).timelockDelay || (await timelockContract.getMinDelay());
 
     // Upgrade AgglayerBridge -> AgglayerBridgeL2FromEtrog
-    const newBridgeFactory = await ethers.getContractFactory(NEW_BRIDGE_L2, deployer);
-    const impBridge = await upgrades.prepareUpgrade(bridgeL2, newBridgeFactory, {
+    const impBridge = await upgrades.prepareUpgrade(bridgeL2Address, newBridgeFactory, {
         unsafeAllow: ['constructor', 'missing-initializer', 'missing-initializer-call'],
     });
 
@@ -102,9 +115,9 @@ async function main() {
 
     // Upgrade AgglayerGER --> AgglayerGERL2
     const newGerFactory = await ethers.getContractFactory(NEW_GER_L2, deployer);
-    const impGER = await upgrades.prepareUpgrade(gerL2, newGerFactory, {
+    const impGER = await upgrades.prepareUpgrade(gerL2Address, newGerFactory, {
         unsafeAllow: ['constructor', 'missing-initializer', 'missing-initializer-call'],
-        constructorArgs: [bridgeL2],
+        constructorArgs: [bridgeL2Address],
     });
 
     logger.info(`Polygon sovereign GER implementation deployed at: ${impGER}`);
@@ -117,7 +130,7 @@ async function main() {
         proxyAdmin.target,
         0, // value
         proxyAdmin.interface.encodeFunctionData('upgradeAndCall', [
-            bridgeL2,
+            bridgeL2Address,
             impBridge,
             newBridgeFactory.interface.encodeFunctionData(
                 'initializeFromEtrog(address,address,address,address,address[],uint128)',
@@ -139,7 +152,7 @@ async function main() {
         proxyAdmin.target,
         0, // value
         proxyAdmin.interface.encodeFunctionData('upgradeAndCall', [
-            gerL2,
+            gerL2Address,
             impGER,
             newGerFactory.interface.encodeFunctionData('initialize(address,address)', [
                 globalExitRootUpdater,
@@ -188,8 +201,8 @@ async function main() {
             emergencyBridgeUnpauserAddress,
             globalExitRootUpdater,
             globalExitRootRemover,
-            bridgeL2,
-            gerL2,
+            bridgeL2Address,
+            gerL2Address,
         },
     };
 

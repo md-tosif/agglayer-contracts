@@ -68,8 +68,8 @@ else
 fi
 
 # --- Prepare manifest ---
-cp "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/force-import-old-contracts.ts" ./force-import-old-contracts.ts
-cp "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/upgrade_parameters.json" ./upgrade_parameters.json
+cp "$ACTUAL_DIR/tools/importOZInfoFromTag/force-import-old-contracts.ts" ./force-import-old-contracts.ts
+cp "$ACTUAL_DIR/tools/importOZInfoFromTag/upgrade_parameters.json" ./upgrade_parameters.json
 
 npx hardhat run --network importManifestNetwork ./force-import-old-contracts.ts
 echo "✔ force-import-old-contracts"

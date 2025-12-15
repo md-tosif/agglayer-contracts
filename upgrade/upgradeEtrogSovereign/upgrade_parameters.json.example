@@ -1,6 +1,5 @@
 {
-    "bridgeL2": "0x..",
-    "gerL2": "0x..",
+    "bridgeL2Address": "0x..",
     "pathJsonInitLBT": "./upgrade/upgradeEtrogSovereign/tokens.json",
     "bridge_initParams": {
         "bridgeManager": "0x..",
