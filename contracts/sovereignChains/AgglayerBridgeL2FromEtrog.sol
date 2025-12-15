@@ -111,13 +111,20 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
         // Set native token (ether or custom gas token)
         // Note: This will revert with arithmetic underflow if initNativeSupply < address(this).balance
         // This is intentional behavior to prevent incorrect initialization
-        uint256 nativeGasTokenNetworkBalance = initNativeSupply - address(this).balance;
-        _setLocalBalanceTree(gasTokenNetwork, gasTokenAddress, nativeGasTokenNetworkBalance);
+        uint256 nativeGasTokenNetworkBalance = initNativeSupply -
+            address(this).balance;
+
+        _setLocalBalanceTree(
+            gasTokenNetwork,
+            gasTokenAddress,
+            nativeGasTokenNetworkBalance
+        );
 
         // If WETHToken exists, set WETH aswell
         if (address(WETHToken) != address(0)) {
-            uint256 wethAmount = ITokenWrappedBridgeUpgradeable(address(WETHToken))
-                .totalSupply();
+            uint256 wethAmount = ITokenWrappedBridgeUpgradeable(
+                address(WETHToken)
+            ).totalSupply();
 
             _setLocalBalanceTree(
                 0, // originNetwork is 0 for ether
@@ -138,10 +145,15 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
                 revert TokenNotMapped();
             }
 
-            uint256 amount = ITokenWrappedBridgeUpgradeable(currentWrappedTokenAddress)
-                .totalSupply();
+            uint256 amount = ITokenWrappedBridgeUpgradeable(
+                currentWrappedTokenAddress
+            ).totalSupply();
 
-            _setLocalBalanceTree(tokenInfo.originNetwork, tokenInfo.originTokenAddress, amount);
+            _setLocalBalanceTree(
+                tokenInfo.originNetwork,
+                tokenInfo.originTokenAddress,
+                amount
+            );
         }
     }
 }
