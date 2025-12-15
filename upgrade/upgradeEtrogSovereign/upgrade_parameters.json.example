@@ -1,6 +1,6 @@
 {
+    "unsafeMode": false,
     "bridgeL2Address": "0x..",
-    "pathJsonInitLBT": "./upgrade/upgradeEtrogSovereign/tokens.json",
     "bridge_initParams": {
         "bridgeManager": "0x..",
         "proxiedTokensManagerAddress": "0x..",
@@ -11,6 +11,7 @@
         "globalExitRootUpdater": "0x..",
         "globalExitRootRemover": "0x.."
     },
+    "pathTokensJson": "",
     "forkParams": {
         "rpc": "rpc url",
         "timelockAdminAddress": "0x.."
