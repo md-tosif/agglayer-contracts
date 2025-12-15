@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0
+
 pragma solidity 0.8.28;
 
 import "./AgglayerBridgeL2.sol";
@@ -100,13 +102,15 @@ contract AgglayerBridgeL2FromEtrog is AgglayerBridgeL2 {
      * @param wrappedTokensAddresses array of wrapped tokens addresses
      * @param initNativeSupply initial native supply used to compute the native token amount when WETHToken is set
      * @notice If some tokens are not included (e.g are deployed just before the upgrade of this contract), they will be added later using the `setLocalBalanceTree` function.
-     * This is treat as an edge case and in any case, the bridge will be functional but too much restrictive until conrrectly initialized.
+     * This is treated as an edge case and in any case, the bridge will be functional but too much restrictive until correctly initialized.
      */
     function _initializeLBT(
         address[] memory wrappedTokensAddresses,
         uint256 initNativeSupply
     ) internal {
         // Set native token (ether or custom gas token)
+        // Note: This will revert with arithmetic underflow if initNativeSupply < address(this).balance
+        // This is intentional behavior to prevent incorrect initialization
         uint256 nativeGasTokenNetworkBalance = initNativeSupply - address(this).balance;
         _setLocalBalanceTree(gasTokenNetwork, gasTokenAddress, nativeGasTokenNetworkBalance);
 
