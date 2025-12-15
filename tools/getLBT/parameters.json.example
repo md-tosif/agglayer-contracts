@@ -6,8 +6,6 @@
         "getEventsFromFile": false,
         "concurrencyLimit": 100,
         "printTokens": true,
-        "outputPathTokensArray": "upgrade/upgradeEtrogSovereign/tokens.json",
-        "outputPathLBT": "upgrade/upgradeEtrogSovereign/LBT.json",
         "blockNumber": "latest",
     }
 }

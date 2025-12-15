@@ -47,9 +47,6 @@ Update `parameters.json` with your settings:
         "concurrencyLimit": 100,
         "printEvents": true,
         "printTokens": true,
-        "getEventsFromFile": false,
-        "outputPathTokensArray": "upgrade/upgradeEtrogSovereign/tokens.json",
-        "outputPathLBT": "upgrade/upgradeEtrogSovereign/LBT.json",
         "blockNumber": "latest"
     }
 }
@@ -57,17 +54,14 @@ Update `parameters.json` with your settings:
 
 #### Parameters Description
 
-| Parameter                       | Required | Description                                                                                                          |
-| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
-| `agglayerBridgeAddress`         | Yes      | Bridge contract address (AgglayerBridge)                                                                             |
-| `options.blockRange`            | No       | Number of blocks per query batch. Default: `100000`                                                                  |
-| `options.concurrencyLimit`      | No       | Maximum parallel RPC requests. Default: `10`. Increase for faster fetching, decrease if you encounter network errors |
-| `options.printEvents`           | No       | If `true`, writes event data with totalSupply to `events.json`                                                       |
-| `options.printTokens`           | No       | If `true`, writes token addresses array to a separate file (for bridge upgrade)                                      |
-| `options.getEventsFromFile`     | No       | If `true`, reads events from `events.json` instead of fetching from chain                                            |
-| `options.outputPathTokensArray` | No       | Custom output path for tokens file (relative to repo root). Example: `upgrade/upgradeEtrogSovereign/tokens.json`     |
-| `options.outputPathLBT`         | No       | Custom output path for LBT file (relative to repo root). Example: `upgrade/upgradeEtrogSovereign/LBT.json`           |
-| `options.blockNumber`           | No       | Block number for `totalSupply` query. Use `"latest"` or a specific block number                                      |
+| Parameter                  | Required | Description                                                                                                          |
+| -------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `agglayerBridgeAddress`    | Yes      | Bridge contract address (AgglayerBridge)                                                                             |
+| `options.blockRange`       | No       | Number of blocks per query batch. Default: `100000`                                                                  |
+| `options.concurrencyLimit` | No       | Maximum parallel RPC requests. Default: `10`. Increase for faster fetching, decrease if you encounter network errors |
+| `options.printEvents`      | No       | If `true`, writes event data with totalSupply to `events.json`                                                       |
+| `options.printTokens`      | No       | If `true`, writes token addresses array to `WTokens-{date}.json`                                                     |
+| `options.blockNumber`      | No       | Block number for `totalSupply` query. Use `"latest"` or a specific block number                                      |
 
 ### 5. Run the script
 
@@ -77,9 +71,53 @@ npx hardhat run ./tools/getLBT/getLBT.ts --network <network>
 
 ---
 
+## Programmatic Usage
+
+The script exports a `getLBTData` function that can be used in other scripts:
+
+```typescript
+import { getLBTData, GetLBTResult, LBTEntry } from '../tools/getLBT/getLBT';
+
+const result: GetLBTResult = await getLBTData(ethers.provider, bridgeAddress, {
+    blockNumber: 12345678, // optional: specific block or 'latest'
+    blockRange: 100000, // optional: blocks per query batch
+    concurrencyLimit: 10, // optional: max parallel RPC requests
+});
+
+// Access the results
+console.log(result.LBTObject); // Array of LBT entries
+console.log(result.initNativeSupply); // Initial native supply at block 0
+console.log(result.tokenAddresses); // Array of wrapped token addresses
+```
+
+### Exported Interfaces
+
+```typescript
+interface LBTEntry {
+    wrappedTokenAddress: string;
+    originNetwork: string | number;
+    originTokenAddress: string;
+    balance: string;
+}
+
+interface GetLBTOptions {
+    blockNumber?: number | 'latest';
+    blockRange?: number;
+    concurrencyLimit?: number;
+}
+
+interface GetLBTResult {
+    LBTObject: LBTEntry[];
+    initNativeSupply: string;
+    tokenAddresses: string[];
+}
+```
+
+---
+
 ## Output Files
 
-### LBT File (`initializeLBT-{date}.json` or custom path)
+### LBT File (`initializeLBT-{date}.json`)
 
 Contains the complete LBT initialization data including all wrapped tokens, native token, and WETH:
 
@@ -100,7 +138,7 @@ Contains the complete LBT initialization data including all wrapped tokens, nati
 ]
 ```
 
-### Tokens File (`WTokens-{date}.json` or custom path)
+### Tokens File (`WTokens-{date}.json`)
 
 Generated when `printTokens: true`. Contains token addresses for bridge upgrade:
 
@@ -118,7 +156,6 @@ Generated when `printEvents: true`. Contains raw event data with totalSupply for
 ```json
 [
     {
-        "blockNumber": "12345678",
         "originNetwork": "0",
         "originTokenAddress": "0x...",
         "wrappedTokenAddress": "0x...",
