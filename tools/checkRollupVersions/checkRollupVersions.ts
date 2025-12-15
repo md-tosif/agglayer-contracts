@@ -1,5 +1,5 @@
-/* eslint-disable no-await-in-loop, no-use-before-define, no-lonely-if */
-/* eslint-disable no-console, no-inner-declarations, no-undef, import/no-unresolved */
+/* eslint-disable no-await-in-loop, no-use-before-define, no-lonely-if, no-restricted-syntax, no-continue */
+/* eslint-disable no-console, no-inner-declarations, no-undef, import/no-unresolved, no-promise-executor-return */
 import * as dotenv from 'dotenv';
 import path = require('path');
 import fs = require('fs');
@@ -88,10 +88,8 @@ async function getBridgeVersion(
 
     try {
         // First, check if claimedGlobalIndexHashChain exists
-        let hasClaimedHash = false;
         try {
             await bridgeContract.claimedGlobalIndexHashChain();
-            hasClaimedHash = true;
         } catch (e) {
             // Doesn't exist - likely v4.0.0-fork.7 (etrog)
             // Double check that BRIDGE_VERSION and BRIDGE_SOVEREIGN_VERSION don't work
@@ -428,9 +426,9 @@ async function main() {
     );
 
     for (const result of results) {
-        const name = result.name.length > 20 ? result.name.substring(0, 17) + '...' : result.name;
+        const name = result.name.length > 20 ? `${result.name.substring(0, 17)}...` : result.name;
         const providerURL =
-            result.providerURL.length > 30 ? result.providerURL.substring(0, 27) + '...' : result.providerURL;
+            result.providerURL.length > 30 ? `${result.providerURL.substring(0, 27)}...` : result.providerURL;
         console.log(
             `${result.rollupID.toString().padEnd(9)} | ${name.padEnd(20)} | ${result.providerStatus.padEnd(15)} | ${providerURL.padEnd(30)} | ${result.version.padEnd(7)} | ${result.bridgeVersion.padEnd(14)} | ${result.bridgeSovereignVersion.padEnd(24)}`,
         );
@@ -537,7 +535,7 @@ async function main() {
     const outputPath = path.join(__dirname, './rollupVersions.json');
     const outputData = {
         rollups: results,
-        versionAnalysis: versionAnalysis,
+        versionAnalysis,
     };
     fs.writeFileSync(outputPath, JSON.stringify(outputData, null, 2));
     console.log(`\nResults written to: ${outputPath}`);

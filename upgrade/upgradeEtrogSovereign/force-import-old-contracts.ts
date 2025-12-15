@@ -27,28 +27,15 @@ async function main() {
     const { bridgeL2, gerL2 } = upgradeParameters;
     // Load provider
     const currentProvider = ethers.provider;
-    // Load deployer
-
-    let deployer;
-    if (process.env.DEPLOYER_PRIVATE_KEY) {
-        deployer = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, currentProvider);
-    } else if (process.env.MNEMONIC) {
-        deployer = ethers.HDNodeWallet.fromMnemonic(
-            ethers.Mnemonic.fromPhrase(process.env.MNEMONIC),
-            "m/44'/60'/0'/0/0",
-        ).connect(currentProvider);
-    } else {
-        [deployer] = await ethers.getSigners();
-    }
 
     // Force import hardhat manifest
     // As this contract is deployed in the genesis of a L2 network, no open zeppelin network file is created, we need to force import it
-    const oldBridgeFactory = await ethers.getContractFactory(OLD_BRIDGE_L2, deployer);
+    const oldBridgeFactory = await ethers.getContractFactory(OLD_BRIDGE_L2, currentProvider);
     await upgrades.forceImport(bridgeL2, oldBridgeFactory, {
         constructorArgs: [],
         kind: 'transparent',
     });
-    const oldGerFactory = await ethers.getContractFactory(OLD_GER_L2, deployer);
+    const oldGerFactory = await ethers.getContractFactory(OLD_GER_L2, currentProvider);
     await upgrades.forceImport(gerL2, oldGerFactory, {
         constructorArgs: [bridgeL2],
         kind: 'transparent',

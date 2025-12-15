@@ -35,7 +35,6 @@ cp .env.example .env
 Fill `.env` with your credentials:
 
 - `DEPLOYER_PRIVATE_KEY` - Private key for deployment account
-- `CUSTOM_PROVIDER` - L2 `rpc-url` for upgrade
 
 3. **Copy configuration files**
 
@@ -125,10 +124,10 @@ Update `upgrade_parameters.json` with the following values:
 Running the following command will:
 
 ```
-./upgrade/upgradeEtrogSovereign/upgrade-etrog-to-sovereign.sh --old-tag v4.0.0-fork.7 --lbt-path ./upgrade/upgradeEtrogSovereign/tokens.json
+./upgrade/upgradeEtrogSovereign/upgrade-etrog-to-sovereign.sh --old-tag v4.0.0-fork.7 --url https://your_l2_rpc
 ```
 
-> --lbt-path is optional, as it can be added directly in the JSON
+> `--url` is the L2 RPC URL for the target network
 
 - Generate the required manifest using the tag `v4.0.0-fork.7` (you can replace this with any tag you need) to prepare the upgrade.
 - Create the manifest inside the folder: `upgrades/upgradeEtrogSovereign/manifest-from-*`.
@@ -143,10 +142,13 @@ Running the following command will:
 This command will generate the manifest in the `upgrades/upgradeEtrogSovereign/manifest-from-*` folder:
 
 ```bash
-./upgrade/upgradeEtrogSovereign/prepare-manifest.sh --tag $TAG
+./upgrade/upgradeEtrogSovereign/prepare-manifest.sh --tag $TAG --url $RPC_URL
 ```
 
-You’ll need to copy this file into the ./openzeppelin folder at your project root.
+- `--tag`: Git tag of the agglayer-contracts repository to use
+- `--url`: L2 RPC URL for the target network
+
+You'll need to copy this file into the ./openzeppelin folder at your project root.
 
 ### 2. Deploy Implementations
 

@@ -2,6 +2,7 @@
 /* eslint-disable no-plusplus, no-await-in-loop */
 import { expect } from 'chai';
 import { ethers, upgrades } from 'hardhat';
+import { MTBridge, mtBridgeUtils } from '@0xpolygonhermez/zkevm-commonjs';
 import {
     PolygonZkEVMBridgeV2Pessimistic,
     AgglayerBridgeL2FromEtrog,
@@ -10,14 +11,9 @@ import {
     TokenWrapped,
     ERC20PermitMock,
 } from '../../typechain-types';
-import {
-    computeWrappedTokenProxyAddress,
-    computeGlobalIndex,
-    calculateGlobalExitRoot,
-} from './helpers/helpers-sovereign-bridge';
-import { MTBridge, mtBridgeUtils } from '@0xpolygonhermez/zkevm-commonjs';
+import { computeGlobalIndex, calculateGlobalExitRoot } from './helpers/helpers-sovereign-bridge';
 
-const { getLeafValue, verifyMerkleProof } = mtBridgeUtils;
+const { getLeafValue } = mtBridgeUtils;
 const MerkleTreeBridge = MTBridge;
 
 describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog', () => {
@@ -41,7 +37,6 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
     let beneficiary: any;
 
     const networkID = 1;
-    const originNetwork = 0; // Mainnet
     const LEAF_TYPE_ASSET = 0;
 
     // Helper function to upgrade and initialize bridge
@@ -153,7 +148,7 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
         const blockTimestamp = BigInt((await ethers.provider.getBlock('latest'))!.timestamp);
         // Only set if not already set (to avoid overwriting previous claims)
         const currentValue = await ethers.provider.getStorage(ger.target, gerMapSlot);
-        if (currentValue === ethers.ZeroHash || currentValue === '0x' + '0'.repeat(64)) {
+        if (currentValue === ethers.ZeroHash || currentValue === `0x${'0'.repeat(64)}`) {
             await ethers.provider.send('hardhat_setStorageAt', [
                 ger.target,
                 gerMapSlot,
@@ -871,7 +866,7 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
 
             // Create wrapped tokens via claims
             // Use different local indices to avoid conflicts
-            const wrappedToken1Address = await createWrappedTokenViaClaim(
+            await createWrappedTokenViaClaim(
                 bridgeOldContract,
                 gerOldContract,
                 claimOriginNetwork1,
@@ -894,7 +889,7 @@ describe('PolygonZkEVMBridgeV2Pessimistic upgrade -> AgglayerBridgeL2FromEtrog',
             // The wrapped token should be created by the claim
             expect(storedWrappedToken1).to.not.equal(ethers.ZeroAddress);
 
-            const wrappedToken2Address = await createWrappedTokenViaClaim(
+            await createWrappedTokenViaClaim(
                 bridgeOldContract,
                 gerOldContract,
                 claimOriginNetwork2,

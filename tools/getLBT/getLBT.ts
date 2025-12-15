@@ -23,11 +23,12 @@ async function main() {
 
     // Get bridge instance
     const bridgeFactory = await ethers.getContractFactory('AgglayerBridge');
-    const AgglayerBridge = bridgeFactory.attach(agglayerBridgeAddress) as AgglayerBridge;
+    const AgglayerBridgeContract = bridgeFactory.attach(agglayerBridgeAddress) as AgglayerBridge;
 
     let blockNumber;
     if (options?.blockNumber && options.blockNumber !== 'latest') {
         blockNumber = parseInt(options.blockNumber, 10);
+        // eslint-disable-next-line no-restricted-globals
         if (isNaN(blockNumber) || blockNumber < 0) {
             throw new Error(`Invalid blockNumber: ${options.blockNumber}. Must be a non-negative number or "latest"`);
         }
@@ -54,11 +55,11 @@ async function main() {
         );
 
         // Create event filter
-        const newWrappedTokenFilter = AgglayerBridge.filters.NewWrappedToken();
+        const newWrappedTokenFilter = AgglayerBridgeContract.filters.NewWrappedToken();
 
         // Fetch events in parallel batches
         const allResults = await fetchEventsInBatches(
-            AgglayerBridge,
+            AgglayerBridgeContract,
             newWrappedTokenFilter,
             blockRange,
             blockNumber,
@@ -130,13 +131,13 @@ async function main() {
     // Add native supply to LBT object
     LBTObject.push({
         wrappedTokenAddress: ethers.ZeroAddress,
-        originNetwork: await AgglayerBridge.gasTokenNetwork(),
-        originTokenAddress: await AgglayerBridge.gasTokenAddress(),
+        originNetwork: await AgglayerBridgeContract.gasTokenNetwork(),
+        originTokenAddress: await AgglayerBridgeContract.gasTokenAddress(),
         balance: currentNativeUnlocked.toString(),
     });
 
     // Get WETH token address, this only works if the networks has a gas token
-    const weth = await AgglayerBridge.WETHToken();
+    const weth = await AgglayerBridgeContract.WETHToken();
     if (weth !== ethers.ZeroAddress) {
         // Get WETH total supply
         const wethContract = await ethers.getContractAt('TokenWrapped', weth);

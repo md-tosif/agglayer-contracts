@@ -6,16 +6,19 @@ usage() {
 Usage:
   prepare-manifest.sh \
     --tag <git-tag> \
+    --url <rpc-url>
 EOF
 }
 
 # --- Long flag parsing ---
 ACTUAL_DIR=$(pwd)
 TAG=""
+URL=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --tag)           TAG="${2:-}"; shift 2 ;;
+    --url)           URL="${2:-}"; shift 2 ;;
     -h|--help)       usage; exit 0 ;;
     *) echo "Unknown flag: $1"; usage; exit 1 ;;
   esac
@@ -23,6 +26,7 @@ done
 
 # --- Validation ---
 [[ -n "$TAG" ]] || { echo "Missing --tag"; usage; exit 1; }
+[[ -n "$URL" ]] || { echo "Missing --url"; usage; exit 1; }
 
 # --- Temporary workspace + cleanup ---
 WORKDIR="$(mktemp -d -t agglayer-contracts-XXXXXX)"
@@ -40,10 +44,10 @@ echo "✔ git clone"
 FILE="hardhat.config.ts"
 # --- Update hardhat config with custom chain (if it doesn't exist) ---
 if ! grep -Eq '^[[:space:]]*custom[[:space:]]*:[[:space:]]*{' "$FILE"; then
-    awk '
+    awk -v url="$URL" '
       /sepolia:/ && !done {
         print "        custom: {";
-        print "            url: process.env.CUSTOM_PROVIDER ? process.env.CUSTOM_PROVIDER : '\''http://127.0.0.1:8545'\'',";
+        print "            url: '\''" url "'\'',";
         print "            accounts: {";
         print "                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,";
         print "                path: \"m/44'\''/60'\''/0'\''/0\",";
@@ -58,14 +62,10 @@ if ! grep -Eq '^[[:space:]]*custom[[:space:]]*:[[:space:]]*{' "$FILE"; then
       { print $0 }
     ' "$FILE" > tmp && mv tmp "$FILE"
 
-    echo "✔ Added custom network configuration to $FILE"
+    echo "✔ Added custom network configuration with url: $URL"
 else
     echo "✔ Custom network configuration already exists in $FILE, skipping modification."
 fi
-
-# --- Create .env for custom network ---
-cp "$ACTUAL_DIR/.env" ./.env
-echo "✔ copy .env"
 
 # --- Prepare manifest ---
 cp "$ACTUAL_DIR/upgrade/upgradeEtrogSovereign/force-import-old-contracts.ts" ./force-import-old-contracts.ts
