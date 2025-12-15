@@ -29,3 +29,6 @@ docker/deploymentOutput
 .DS_Store
 
 *upgrade_output.json
+manifest-from-*
+LBT.json
+tokens.json
