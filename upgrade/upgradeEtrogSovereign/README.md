@@ -5,6 +5,32 @@ Script to create schedule and execute transaction for upgrading bridge L2 and GE
 - `PolygonZkEVMBridgeV2` (Etrog) --> `AgglayerBridgeL2`
 - `PolygonZkEVMGlobalExitRootL2` (Etrog) --> `AgglayerGERL2`
 
+## Quick Start
+
+1. **Create your environment file**
+
+```bash
+cp .env.example .env
+```
+
+Fill with `DEPLOYER_PRIVATE_KEY` or `MNEMONIC`, and set `CUSTOM_PROVIDER` to your L2 RPC URL.
+
+2. **Copy and configure parameters**
+
+```bash
+cp ./upgrade/upgradeEtrogSovereign/upgrade_parameters.json.example ./upgrade/upgradeEtrogSovereign/upgrade_parameters.json
+```
+
+Fill in all addresses in `upgrade_parameters.json`. Leave `pathTokensJson` empty (tokens will be fetched automatically).
+
+3. **Run the upgrade script**
+
+```bash
+./upgrade/upgradeEtrogSovereign/upgrade_etrog_to_sovereign.sh --old-tag v4.0.0-fork.7 --url https://your_l2_rpc
+```
+
+---
+
 ## Files
 
 - `upgrade_etrog_to_sovereign.sh`: Bash script that runs import manifest script + upgrade script
