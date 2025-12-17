@@ -32,7 +32,7 @@ async function main() {
     const GER_VERSION = 'v1.0.0';
     const mandatoryParameters = ['timelockAdminAddress', 'rpc'];
     checkParams(upgradeParams.forkParams, mandatoryParameters);
-    const rpc = upgradeParams.forkParams.rpc;
+    const { rpc } = upgradeParams.forkParams;
 
     // hard fork
     logger.info(`Shadow forking ${rpc}`);
@@ -44,7 +44,6 @@ async function main() {
     }
 
     logger.info(`Shadow forked block number: ${await ethers.provider.getBlockNumber()}`);
-    const forkedBlock = await ethers.provider.getBlockNumber();
 
     const bridgeImplAddress = upgradeOutput.bridgeImplementationAddress;
     const gerImplAddress = upgradeOutput.GERImplementationAddress;
@@ -56,8 +55,8 @@ async function main() {
     expect(gerImpCode.length).to.be.greaterThan(2);
 
     // Check timelock contract
-    const bridgeL2Address = upgradeOutput.inputs.bridgeL2Address;
-    const gerL2Address = upgradeOutput.inputs.gerL2Address;
+    const { bridgeL2Address } = upgradeOutput.inputs;
+    const { gerL2Address } = upgradeOutput.inputs;
     const proxyAdminAddress = await upgrades.erc1967.getAdminAddress(bridgeL2Address);
     const proxyAdminFactory = await ethers.getContractFactory(
         '@openzeppelin/contracts4/proxy/transparent/ProxyAdmin.sol:ProxyAdmin',
@@ -118,9 +117,8 @@ async function main() {
         to: upgradeOutput.timelockContractAddress,
         data: upgradeOutput.executeData,
     };
-    const receiptTx = await (await proposerRoleSigner.sendTransaction(txExecuteUpgrade)).wait();
+    await (await proposerRoleSigner.sendTransaction(txExecuteUpgrade)).wait();
     logger.info(`✓ Sent execute transaction`);
-    const blockUpgrade = receiptTx?.blockNumber;
 
     // Check ger params after upgrade
     const agglayerGERL2Factory = await ethers.getContractFactory('AgglayerGERL2');

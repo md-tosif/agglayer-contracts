@@ -39,7 +39,7 @@ async function main() {
     logger.info(`Shadow forked block number: ${await ethers.provider.getBlockNumber()}`);
 
     // Check timelock contract
-    const bridgeL2Address = upgradeOutput.inputs.bridgeL2Address;
+    const { bridgeL2Address } = upgradeOutput.inputs;
     const proxyAdminAddress = await upgrades.erc1967.getAdminAddress(bridgeL2Address);
     const proxyAdminFactory = await ethers.getContractFactory(
         '@openzeppelin/contracts4/proxy/transparent/ProxyAdmin.sol:ProxyAdmin',
