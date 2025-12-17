@@ -1,0 +1,327 @@
+{
+  "rollups": [
+    {
+      "rollupID": 1,
+      "name": "polygon zkEVM",
+      "providerStatus": "Works",
+      "providerURL": "https://zkevm-rpc.com/",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 2,
+      "name": "Astar zkEVM",
+      "providerStatus": "Does not work",
+      "providerURL": "https://rpc-zkevm.astar.network",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 3,
+      "name": "X Layer",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.xlayer.tech",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 4,
+      "name": "oev-network",
+      "providerStatus": "Does not work",
+      "providerURL": "https://oev-network-sequencer.eu-north-2.gateway.fm",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 5,
+      "name": "gpt-mainnet",
+      "providerStatus": "Does not work",
+      "providerURL": "https://sequencer.gptprotocol.io/",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 6,
+      "name": "witnesschain",
+      "providerStatus": "Does not work",
+      "providerURL": "https://witnesschain-sequencer.eu-north-2.gateway.fm/",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 7,
+      "name": "prism",
+      "providerStatus": "Works",
+      "providerURL": "https://prism-sequencer.eu-north-2.gateway.fm/",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 8,
+      "name": "pay-chain",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.wirexpaychain.com",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 9,
+      "name": "silicon-zk",
+      "providerStatus": "Does not work",
+      "providerURL": "https://silicon-zk-sequencer.eu-north-2.gateway.fm/",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 10,
+      "name": "silicon-zk",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.silicon.network",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 11,
+      "name": "haust-network",
+      "providerStatus": "Works",
+      "providerURL": "https://haust-network-sequencer.eu-north-2.gateway.fm/",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 12,
+      "name": "haust-network",
+      "providerStatus": "Works",
+      "providerURL": "https://haust-network-sequencer.eu-north-2.gateway.fm/",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 13,
+      "name": "Ternoa",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc-mainnet.zkevm.ternoa.network",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 14,
+      "name": "Z Chain",
+      "providerStatus": "Works",
+      "providerURL": "https://z-chain-rpc.eu-north-2.gateway.fm",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 15,
+      "name": "Pentagon Games",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.pentagon.games",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 16,
+      "name": "Pentagon Games",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.pentagon.games",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 17,
+      "name": "Okto",
+      "providerStatus": "Does not work",
+      "providerURL": "https://okto-sequencer.ap-south-1.gateway.fm",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 18,
+      "name": "Billions Network",
+      "providerStatus": "Works",
+      "providerURL": "https://billions-sequencer.eu-north-2.gateway.fm",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 19,
+      "name": "Okto",
+      "providerStatus": "Does not work",
+      "providerURL": "https://okto-sequencer.eu-north-2.gateway.fm",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 20,
+      "name": "katana",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc.katanarpc.com",
+      "version": "v11",
+      "bridgeVersion": "al-v0.3.1",
+      "bridgeSovereignVersion": "v10.1.2",
+      "implementationBytecodeHash": "0xafd9b9c5ea4513b16f37b993207aa599f0c415452118f0dc7562b49b913edc01"
+    },
+    {
+      "rollupID": 21,
+      "name": "forknet",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc-forknet.t.conduit.xyz",
+      "version": "v11",
+      "bridgeVersion": "al-v0.3.1",
+      "bridgeSovereignVersion": "v10.1.2",
+      "implementationBytecodeHash": "0x2a0e5291762a701981c77472a861e040583d8f9a0f0f8355b460f88d76a2e20f"
+    },
+    {
+      "rollupID": 22,
+      "name": "forknet",
+      "providerStatus": "Works",
+      "providerURL": "https://rpc-forknet.t.conduit.xyz",
+      "version": "v11",
+      "bridgeVersion": "al-v0.3.1",
+      "bridgeSovereignVersion": "v10.1.2",
+      "implementationBytecodeHash": "0x2a0e5291762a701981c77472a861e040583d8f9a0f0f8355b460f88d76a2e20f"
+    },
+    {
+      "rollupID": 23,
+      "name": "Haust Network",
+      "providerStatus": "Works",
+      "providerURL": "https://haust-network-sequencer.eu-north-2.gateway.fm",
+      "version": "etrog",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A",
+      "implementationBytecodeHash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344"
+    },
+    {
+      "rollupID": 24,
+      "name": "Sentient",
+      "providerStatus": "Does not work",
+      "providerURL": "https://sentient-sequencer.eu-north-2.gateway.fm",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 25,
+      "name": "Canvas Connect",
+      "providerStatus": "Does not work",
+      "providerURL": "https://canvas-connect-sequencer.eu-north-2.gateway.fm",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    },
+    {
+      "rollupID": 26,
+      "name": "test-125",
+      "providerStatus": "Does not work",
+      "providerURL": "https://rpc-test-125.t.conduit.xyz",
+      "version": "Provider does not work",
+      "bridgeVersion": "N/A",
+      "bridgeSovereignVersion": "N/A"
+    }
+  ],
+  "versionAnalysis": [
+    {
+      "version": "etrog",
+      "totalRollups": 13,
+      "hashGroups": [
+        {
+          "hash": "0x3341bfda123bb7c89f472eab751a8f6d631dd98fffe0464e9022f2454e3e1344",
+          "rollupIDs": [
+            1,
+            3,
+            7,
+            8,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            18,
+            23
+          ],
+          "names": [
+            "polygon zkEVM",
+            "X Layer",
+            "prism",
+            "pay-chain",
+            "silicon-zk",
+            "haust-network",
+            "haust-network",
+            "Ternoa",
+            "Z Chain",
+            "Pentagon Games",
+            "Pentagon Games",
+            "Billions Network",
+            "Haust Network"
+          ],
+          "count": 13
+        }
+      ],
+      "allShareSameBytecode": true
+    },
+    {
+      "version": "v11",
+      "totalRollups": 3,
+      "hashGroups": [
+        {
+          "hash": "0xafd9b9c5ea4513b16f37b993207aa599f0c415452118f0dc7562b49b913edc01",
+          "rollupIDs": [
+            20
+          ],
+          "names": [
+            "katana"
+          ],
+          "count": 1
+        },
+        {
+          "hash": "0x2a0e5291762a701981c77472a861e040583d8f9a0f0f8355b460f88d76a2e20f",
+          "rollupIDs": [
+            21,
+            22
+          ],
+          "names": [
+            "forknet",
+            "forknet"
+          ],
+          "count": 2
+        }
+      ],
+      "allShareSameBytecode": false,
+      "warning": "Not all v11 rollups share the same bytecode!"
+    }
+  ]
+}
