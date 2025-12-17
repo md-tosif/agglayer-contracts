@@ -236,10 +236,13 @@ async function main() {
     logger.info(`File ${writeLBTPath} created`);
 }
 
-main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-});
+// Only run main() when this file is executed directly, not when imported
+if (require.main === module) {
+    main().catch((error) => {
+        console.error(error);
+        process.exit(1);
+    });
+}
 
 /* eslint-disable no-extend-native */
 if (!Object.prototype.hasOwnProperty.call(BigInt.prototype, 'toJSON')) {
