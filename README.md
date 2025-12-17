@@ -152,3 +152,5 @@ Default configuration in the `justfile` only formats the contracts in the script
 ```shell
 just fmt
 ```
+------
+License: This codebase is licensed under the GNU Affero General Public License (AGPL).  See: [LICENSE](./LICENSE).
