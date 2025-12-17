@@ -73,7 +73,7 @@ async function main() {
     const newBridgeFactory = await ethers.getContractFactory('AgglayerBridgeL2', deployer);
 
     // load AgglayerBridgeL2 and check the versions to check if this upgrade is appropriate
-    const bridgeL2 = await ethers.getContractAt('AgglayerBridgeL2', bridgeL2Address);
+    const bridgeL2 = (await newBridgeFactory.attach(bridgeL2Address)) as any;
     const allowedVersions = ['v1.0.0', 'v1.1.0', 'v1.2.0'];
     let bridgeL2Version: string;
     try {
@@ -86,7 +86,10 @@ async function main() {
     } catch (e: any) {
         // version() doesn't exist, check BRIDGE_SOVEREIGN_VERSION instead
         try {
-            bridgeL2Version = await (bridgeL2 as any).BRIDGE_SOVEREIGN_VERSION();
+            const oldBridgeFactory = await ethers.getContractFactory('BridgeL2SovereignChainV1010', deployer);
+            const oldBridgeL2Contract = (await oldBridgeFactory.attach(bridgeL2Address)) as any;
+
+            bridgeL2Version = await oldBridgeL2Contract.BRIDGE_SOVEREIGN_VERSION();
             if (bridgeL2Version !== 'v10.1.2') {
                 throw new Error(`BRIDGE_SOVEREIGN_VERSION returned '${bridgeL2Version}', expected 'v10.1.2'`);
             }

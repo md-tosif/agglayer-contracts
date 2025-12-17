@@ -10,6 +10,7 @@ Script to create schedule and execute transaction for upgrading bridge L2 to sov
 - `upgrade_parameters.json`: Configuration parameters for the upgrade
 - `upgrade_parameters.json.example`: Example configuration file
 - `upgrade_output.json`: Generated output after running the upgrade script (created after execution)
+- `test/shadowForkUpgrade.test.ts`: Fork test to validate the upgrade on a forked network before mainnet execution
 
 ## Prerequisites
 
@@ -117,6 +118,65 @@ After running the deployment script:
     # Send transaction to timelock contract
     ```
 
-### 3. Validate Upgrade
+### 3. Validate Upgrade (Fork Test)
 
-After executing the upgrade, verify that the bridge contract has been successfully upgraded to the new implementation.
+Before executing on mainnet, you can validate the upgrade using a shadow fork test. This simulates the full upgrade process on a forked network.
+
+#### Fork Test Configuration
+
+Add `forkParams` to your `upgrade_parameters.json`:
+
+```json
+{
+    "bridgeL2Address": "0x..",
+    "forceImport": false,
+    "unsafeMode": true,
+    "forkParams": {
+        "rpc": "https://your-l2-rpc-endpoint.com",
+        "timelockAdminAddress": "0x..."
+    }
+}
+```
+
+**Fork Parameters:**
+
+- `rpc`: RPC endpoint of the network to fork
+- `timelockAdminAddress`: Address with `PROPOSER_ROLE` and `EXECUTOR_ROLE` on the timelock contract
+
+#### Running the Fork Test
+
+```bash
+npx hardhat run ./upgrade/upgradeSovereignBridge/test/shadowForkUpgrade.test.ts
+```
+
+#### What the Fork Test Does
+
+1. Forks the network at the block where the implementation was deployed
+2. Verifies the timelock configuration and roles
+3. Impersonates the timelock admin account
+4. Sends the schedule transaction
+5. Fast-forwards time to bypass the timelock delay
+6. Sends the execute transaction
+7. Validates the bridge version upgraded correctly
+8. Verifies storage values are preserved after upgrade
+
+#### Expected Output
+
+```
+Shadow forking https://your-l2-rpc-endpoint.com
+Shadow forked block number: <block_number>
+✓ Proxy admin owner matches timelock address from upgrade output
+✓ Proposer/executor timelock role address: 0x...
+✓ Funded proposer account 0x...
+Bridge version before upgrade: <current_version>
+✓ Retrieved storage values before upgrade
+✓ Sent schedule transaction
+✓ Increased time by <delay> seconds to bypass timelock delay
+✓ Sent execute transaction
+  Transaction hash: 0x...
+  Block number: <block_number>
+✓ Bridge version after upgrade: <new_version>
+============================================================
+Shadow fork upgrade test completed successfully!
+============================================================
+```
