@@ -1,4 +1,38 @@
 
+## [v12.2.1] - 2025-12-18
+
+### ✨ New Features
+- contracts/sovereignChains/AgglayerBridgeL2.sol: v1.1.0 -> v1.2.0
+- New tooling package (v12.2.1)
+
+### 📜 Changelog (PRs)
+[PR #533](https://github.com/agglayer/agglayer-contracts/pull/533) - upgrade script etrog -> sovereign
+[PR #579](https://github.com/agglayer/agglayer-contracts/pull/579) - Feature/improve tool manage roles
+[PR #569](https://github.com/agglayer/agglayer-contracts/pull/569) - script push docker all release
+[PR #568](https://github.com/agglayer/agglayer-contracts/pull/568) - Feature/emit detailed events
+[PR #573](https://github.com/agglayer/agglayer-contracts/pull/573) - test(foundry): fix Foundry test base
+[PR #548](https://github.com/agglayer/agglayer-contracts/pull/548) - feat: obsolete rollup type script
+[PR #572](https://github.com/agglayer/agglayer-contracts/pull/572) - Remove old unused tests
+[PR #566](https://github.com/agglayer/agglayer-contracts/pull/566) - support previous genesis-base versions
+[PR #545](https://github.com/agglayer/agglayer-contracts/pull/545) - compare genesis tool
+[PR #564](https://github.com/agglayer/agglayer-contracts/pull/564) - Cleanup upgrade to v2
+[PR #562](https://github.com/agglayer/agglayer-contracts/pull/562) - Cleanup old testnets
+[PR #561](https://github.com/agglayer/agglayer-contracts/pull/561) - Remove boilerplate code in tests using common consts
+[PR #547](https://github.com/agglayer/agglayer-contracts/pull/547) - feat: add Foundry support and add minimum testing framework
+[PR #550](https://github.com/agglayer/agglayer-contracts/pull/550) - add tests tools
+[PR #485](https://github.com/agglayer/agglayer-contracts/pull/485) - add test claim reentrancy
+[PR #559](https://github.com/agglayer/agglayer-contracts/pull/559) - deployOutpost: delete not used example params
+[PR #558](https://github.com/agglayer/agglayer-contracts/pull/558) - fix: deploy aggoracle committee
+[PR #557](https://github.com/agglayer/agglayer-contracts/pull/557) - minor fixes
+[PR #554](https://github.com/agglayer/agglayer-contracts/pull/554) - add script upgrade gerL2 etrog to sovereign
+[PR #555](https://github.com/agglayer/agglayer-contracts/pull/555) - add spearbits audit
+[PR #508](https://github.com/agglayer/agglayer-contracts/pull/508) - Feature/ongoing v0.3.0
+[PR #551](https://github.com/agglayer/agglayer-contracts/pull/551) - Update CHANGELOG.md v12.1.2
+[PR #549](https://github.com/agglayer/agglayer-contracts/pull/549) - add final report v0.3.5
+[PR #468](https://github.com/agglayer/agglayer-contracts/pull/468) - minor changes on LICENSE
+
+---
+
 ## [v12.1.2] - 2025-10-14
 
 ### 🚨 Breaking Changes
