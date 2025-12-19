@@ -1,31 +1,25 @@
-# agglayer-contracts
+# Agglayer smart contracts
 
-Smart contract implementation which will be used by the polygon zkevm
+Agglayer smart contracts implementation
 
-[![Main CI](https://github.com/0xPolygonHermez/zkevm-contracts/actions/workflows/main.yml/badge.svg)](https://github.com/0xPolygonHermez/zkevm-contracts/actions/workflows/main.yml)
+[![Main CI](https://github.com/agglayer/agglayer-contracts/actions/workflows/main.yml/badge.svg)](https://github.com/agglayer/agglayer-contracts/actions/workflows/main.yml)
 
-## Mainnet Contracts:
+## Mainnet Contracts
 
-| Contract Name                | Address                                                                                                               |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| PolygonRollupManager         | [0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2](https://etherscan.io/address/0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2) |
-| PolygonZkEVMBridgeV2         | [0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe](https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe) |
-| PolygonZkEVMGlobalExitRootV2 | [0x580bda1e7A0CFAe92Fa7F6c20A3794F169CE3CFb](https://etherscan.io/address/0x580bda1e7A0CFAe92Fa7F6c20A3794F169CE3CFb) |
-| FflonkVerifier               | [0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9](https://etherscan.io/address/0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9) |
-| PolygonZkEVMDeployer         | [0xCB19eDdE626906eB1EE52357a27F62dd519608C2](https://etherscan.io/address/0xCB19eDdE626906eB1EE52357a27F62dd519608C2) |
-| PolygonZkEVMTimelock         | [0xEf1462451C30Ea7aD8555386226059Fe837CA4EF](https://etherscan.io/address/0xEf1462451C30Ea7aD8555386226059Fe837CA4EF) |
+| Contract Name        | Address                                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| AgglayerManager      | [0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2](https://etherscan.io/address/0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2) |
+| AgglayerBridge       | [0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe](https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe) |
+| AgglayerGER          | [0x580bda1e7A0CFAe92Fa7F6c20A3794F169CE3CFb](https://etherscan.io/address/0x580bda1e7A0CFAe92Fa7F6c20A3794F169CE3CFb) |
+| AgglayerGateway      | [0x046Bb8bb98Db4ceCbB2929542686B74b516274b3](https://etherscan.io/address/0x046Bb8bb98Db4ceCbB2929542686B74b516274b3) |
+| AgglayerTimelock<sup>*</sup> | [0xEf1462451C30Ea7aD8555386226059Fe837CA4EF](https://etherscan.io/address/0xEf1462451C30Ea7aD8555386226059Fe837CA4EF) |
 
-## zkEVM Contracts:
-
-| Contract Name        | Address                                                                                                                        |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| PolygonZkEVMBridgeV2 | [0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe](https://zkevm.polygonscan.com/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe) |
-| PolygonZkEVMTimelock | [0xBBa0935Fa93Eb23de7990b47F0D96a8f75766d13](https://zkevm.polygonscan.com/address/0xBBa0935Fa93Eb23de7990b47F0D96a8f75766d13) |
+<sup>*</sup> Current SC name in the repository. Originally deployed as `PolygonZkEVMTimelock` as it is shown in etherscan
 
 ## Requirements
 
--   node version: 16.x
--   npm version: 7.x
+-  node version: 16.x
+-  npm version: 7.x
 
 ## Install repo
 
@@ -42,30 +36,17 @@ npm run test
 ## Deploy on hardhat
 
 ```
-npm run deploy:ZkEVM:hardhat
+npm run deploy:v2:localhost
 ```
 
-## Build dockers
+## Docker images
+Check [here](https://github.com/agglayer/agglayer-contracts/pkgs/container/agglayer-contracts) all available docker images.
 
-```
-npm run docker:contracts
-```
-
-Or if using new docker-compose version
-
-```
-npm run dockerv2:contracts
-```
-
-A new docker `hermeznetwork/geth-zkevm-contracts` will be created
-This docker will contain a geth node with the deployed contracts
-The deployment output can be found in: `docker/deploymentOutput/deploy_output.json`
-To run the docker you can use: `docker run -p 8545:8545 hermeznetwork/geth-zkevm-contracts`
+See the following [README](docker/README.md) for more details about docker image generation.
 
 ## Note
 
 In order to test, the following private keys are being used. These keys are not meant to be used in any production environment:
-
 -   private key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
     -   address:`0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266`
 -   private key: `0xdfd01798f92667dbf91df722434e8fbe96af0211d4d1b82bbbbc8f1def7a814f`
@@ -83,11 +64,11 @@ The smartcontract used to verify a proof, it's a generated contract from zkEVM R
 git config --local core.hooksPath .githooks/
 ```
 
-## Foundry
+# Foundry
 
 A convenient justfile is provided to run common tasks using [Just](https://just.systems/man/en/introduction.html).
 
-### Prerequisites
+## Prerequisites
 
 - Install [Foundry](https://getfoundry.sh/)
 - Install Just (optional, but recommended) - see [here](https://just.systems/man/en/packages.html)
@@ -121,31 +102,31 @@ Smart contracts compiled with Foundry produce different bytecode than those comp
 
  **For all production deployments and upgrades, use Hardhat-compiled artifacts exclusively.**
 
-### Install dependencies
+## Install dependencies
 
 ```shell
 just install
 ```
 
-### Compilation
+## Compilation
 
 ```shell
 just build
 ```
 
-### Run Tests
+## Run Tests
 
 ```shell
 just test
 ```
 
-### Show coverage
+## Show coverage
 
 ```shell
 just coverage
 ```
 
-### Format code
+## Format code
 
 Default configuration in the `justfile` only formats the contracts in the script and test folders to avoid formatting the main contracts folder which is managed by Hardhat.
 
