@@ -7,7 +7,7 @@ import { utils } from 'ffjavascript';
 import * as dotenv from 'dotenv';
 import { ethers, upgrades } from 'hardhat';
 import { logger } from '../../src/logger';
-import { PolygonRollupManager } from '../../typechain-types';
+import { AgglayerManager } from '../../typechain-types';
 import { genTimelockOperation, verifyContractEtherscan, decodeScheduleData } from '../utils';
 import { checkParams, getProviderAdjustingMultiplierGas, getDeployerFromParameters, getGitInfo } from '../../src/utils';
 import * as upgradeParameters from './upgrade_parameters.json';
@@ -15,6 +15,9 @@ import * as upgradeParameters from './upgrade_parameters.json';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const pathOutputJson = path.join(__dirname, './upgrade_output.json');
+
+// CRITICAL TOOL
+const CRITICAL_TOOL = true;
 
 async function main() {
     /*
@@ -51,8 +54,8 @@ async function main() {
 
     // prepare upgrades
     // Upgrade to rollup manager v0.3.1
-    const rollupManagerFactory = await ethers.getContractFactory('PolygonRollupManager', deployer);
-    const rollupManagerContract = (await rollupManagerFactory.attach(rollupManagerAddress)) as PolygonRollupManager;
+    const rollupManagerFactory = await ethers.getContractFactory('AgglayerManager', deployer);
+    const rollupManagerContract = (await rollupManagerFactory.attach(rollupManagerAddress)) as AgglayerManager;
 
     const globalExitRootManagerAddress = await rollupManagerContract.globalExitRootManager();
     const polAddress = await rollupManagerContract.pol();
@@ -118,7 +121,7 @@ async function main() {
     const blockNumber = await ethers.provider.getBlockNumber();
     const outputJson = {
         tagSCPreviousVersion,
-        gitInfo: getGitInfo(),
+        gitInfo: getGitInfo(CRITICAL_TOOL),
         scheduleData,
         executeData,
         timelockContractAddress: timelockAddress,

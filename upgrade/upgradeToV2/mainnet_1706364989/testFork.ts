@@ -6,11 +6,26 @@ import path = require('path');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 import { time, reset, setBalance, setStorageAt } from '@nomicfoundation/hardhat-network-helpers';
-import { PolygonRollupManager, PolygonZkEVMTimelock } from '../../../typechain-types';
+import { AgglayerManager, PolygonZkEVMTimelock } from '../../../typechain-types';
 
 import deployParameters from './deploy_parameters_mainnet.json';
 import deployOutputParameters from './deploy_output_mainnet.json';
 import upgradeOutput from './upgrade_output.json';
+import {
+    DEFAULT_ADMIN_ROLE,
+    ADD_ROLLUP_TYPE_ROLE,
+    OBSOLETE_ROLLUP_TYPE_ROLE,
+    CREATE_ROLLUP_ROLE,
+    ADD_EXISTING_ROLLUP_ROLE,
+    UPDATE_ROLLUP_ROLE,
+    TRUSTED_AGGREGATOR_ROLE,
+    TRUSTED_AGGREGATOR_ROLE_ADMIN,
+    TWEAK_PARAMETERS_ROLE,
+    SET_FEE_ROLE,
+    STOP_EMERGENCY_ROLE,
+    EMERGENCY_COUNCIL_ROLE,
+    EMERGENCY_COUNCIL_ADMIN,
+} from '../../../src/constants';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -64,10 +79,10 @@ async function main() {
 
     await (await multisigSigner.sendTransaction(txUpgrade)).wait();
 
-    const RollupMangerFactory = await ethers.getContractFactory('PolygonRollupManager');
+    const RollupMangerFactory = await ethers.getContractFactory('AgglayerManager');
     const rollupManager = (await RollupMangerFactory.attach(
         deployOutputParameters.polygonZkEVMAddress,
-    )) as PolygonRollupManager;
+    )) as AgglayerManager;
 
     expect(await rollupManager.rollupCount()).to.be.equal(1);
 
@@ -161,19 +176,6 @@ async function main() {
     console.log('Updated zkevm Succedd');
 
     // roles
-    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
-    const ADD_ROLLUP_TYPE_ROLE = ethers.id('ADD_ROLLUP_TYPE_ROLE');
-    const OBSOLETE_ROLLUP_TYPE_ROLE = ethers.id('OBSOLETE_ROLLUP_TYPE_ROLE');
-    const CREATE_ROLLUP_ROLE = ethers.id('CREATE_ROLLUP_ROLE');
-    const ADD_EXISTING_ROLLUP_ROLE = ethers.id('ADD_EXISTING_ROLLUP_ROLE');
-    const UPDATE_ROLLUP_ROLE = ethers.id('UPDATE_ROLLUP_ROLE');
-    const TRUSTED_AGGREGATOR_ROLE = ethers.id('TRUSTED_AGGREGATOR_ROLE');
-    const TRUSTED_AGGREGATOR_ROLE_ADMIN = ethers.id('TRUSTED_AGGREGATOR_ROLE_ADMIN');
-    const TWEAK_PARAMETERS_ROLE = ethers.id('TWEAK_PARAMETERS_ROLE');
-    const SET_FEE_ROLE = ethers.id('SET_FEE_ROLE');
-    const STOP_EMERGENCY_ROLE = ethers.id('STOP_EMERGENCY_ROLE');
-    const EMERGENCY_COUNCIL_ROLE = ethers.id('EMERGENCY_COUNCIL_ROLE');
-    const EMERGENCY_COUNCIL_ADMIN = ethers.id('EMERGENCY_COUNCIL_ADMIN');
 
     expect(await rollupManager.globalExitRootManager()).to.be.equal(
         deployOutputParameters.polygonZkEVMGlobalExitRootAddress,

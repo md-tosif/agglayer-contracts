@@ -30,6 +30,8 @@ const config: HardhatUserConfig = {
             '@openzeppelin/contracts4/token/ERC20/presets/ERC20PresetFixedSupply.sol',
             '@openzeppelin/contracts4/proxy/transparent/ProxyAdmin.sol',
             '@openzeppelin/contracts4/proxy/transparent/TransparentUpgradeableProxy.sol',
+            '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
+            '@openzeppelin/contracts/governance/TimelockController.sol',
         ], // ,
         // keep: true
     },
@@ -94,7 +96,7 @@ const config: HardhatUserConfig = {
         ],
         overrides: {
             // Set all contracts on L2 to use 'evmVersion: Shangai' to be compatible with clients not supporting Cancun opcodes
-            'contracts/v2/utils/ClaimCompressor.sol': {
+            'contracts/periphery/ClaimCompressor.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -125,17 +127,17 @@ const config: HardhatUserConfig = {
                     evmVersion: 'shanghai',
                 }, // try yul optimizer
             },
-            'contracts/v2/PolygonZkEVMBridgeV2.sol': {
+            'contracts/AgglayerBridge.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 500, // should have same runs than BridgeL2SovereignChain
+                        runs: 100,
                     },
                     evmVersion: 'shanghai',
                 },
             },
-            'contracts/v2/lib/BytecodeStorer.sol': {
+            'contracts/lib/BytecodeStorer.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -145,17 +147,27 @@ const config: HardhatUserConfig = {
                     evmVersion: 'shanghai',
                 },
             },
-            'contracts/v2/sovereignChains/BridgeL2SovereignChain.sol': {
+            'contracts/sovereignChains/AgglayerBridgeL2.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 500, // should have same runs than PolygonZkEVMBridgeV2
+                        runs: 9, // should have same runs than AgglayerBridge
                     },
                     evmVersion: 'shanghai',
                 }, // try yul optimizer
             },
-            'contracts/PolygonZkEVMGlobalExitRootL2.sol': {
+            'contracts/sovereignChains/AgglayerBridgeL2FromEtrog.sol': {
+                version: '0.8.28',
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 9, // should have same runs than AgglayerBridge
+                    },
+                    evmVersion: 'shanghai',
+                }, // try yul optimizer
+            },
+            'contracts/LegacyAgglayerGERL2.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -165,7 +177,7 @@ const config: HardhatUserConfig = {
                     evmVersion: 'shanghai',
                 }, // try yul optimizer
             },
-            'contracts/v2/sovereignChains/GlobalExitRootManagerL2SovereignChain.sol': {
+            'contracts/sovereignChains/AgglayerGERL2.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -176,7 +188,7 @@ const config: HardhatUserConfig = {
                 }, // try yul optimizer
             },
             // low runs to avoid bytecode max size
-            'contracts/v2/PolygonRollupManager.sol': {
+            'contracts/AgglayerManager.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -187,18 +199,18 @@ const config: HardhatUserConfig = {
                 }, // try yul optimizer
             },
             // low runs to avoid bytecode max size
-            'contracts/v2/newDeployments/PolygonRollupManagerNotUpgraded.sol': {
+            'contracts/newDeployments/AgglayerManagerNotUpgraded.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 100, // Should have the same optimizations as PolygonTransparentProxy
+                        runs: 10, // Should have the same optimizations as PolygonTransparentProxy
                     },
                     evmVersion: 'cancun',
                 }, // try yul optimizer
             },
             // low runs to avoid bytecode max size
-            'contracts/v2/mocks/PolygonRollupManagerMock.sol': {
+            'contracts/mocks/AgglayerManagerMock.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -209,7 +221,7 @@ const config: HardhatUserConfig = {
                 }, // try yul optimizer
             },
             // Should have the same optimizations than the RollupManager to verify
-            'contracts/v2/lib/PolygonTransparentProxy.sol': {
+            'contracts/lib/PolygonTransparentProxy.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
@@ -219,26 +231,52 @@ const config: HardhatUserConfig = {
                     evmVersion: 'cancun',
                 }, // try yul optimizer
             },
-            'contracts/v2/lib/TokenWrappedBridgeUpgradeable.sol': {
+            'contracts/lib/TokenWrappedBridgeUpgradeable.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 500,
+                        runs: 100,
                     },
-                    evmVersion: 'shanghai', // Same evm version than BridgeL2SovereignChain
+                    evmVersion: 'shanghai', // Same evm version than AgglayerBridgeL2
                 },
             },
-            'contracts/v2/lib/TokenWrappedTransparentProxy.sol': {
+            'contracts/lib/TokenWrappedTransparentProxy.sol': {
                 version: '0.8.28',
                 settings: {
                     optimizer: {
                         enabled: true,
                         runs: 999999,
                     },
-                    evmVersion: 'shanghai', // Same evm version than BridgeL2SovereignChain
+                    evmVersion: 'shanghai', // Same evm version than AgglayerBridgeL2
                     metadata: { bytecodeHash: 'none' }, // Get always same bytecode
                 }, // try yul optimizer
+            },
+            'contracts/lib/BridgeLib.sol': {
+                version: '0.8.28',
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 100, // Should have the same optimizations than the AgglayerBridge/L2 to verify
+                    },
+                    evmVersion: 'shanghai',
+                }, // try yul optimizer
+            },
+            'contracts/aggchains/AggchainFEP.sol': {
+                version: '0.8.28',
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 1000,
+                    },
+                    evmVersion: 'cancun',
+                },
+            },
+            'contracts/mocks/BridgeMessageReceiverMock.sol': {
+                version: '0.8.28',
+                settings: {
+                    viaIR: true,
+                },
             },
         },
     },
@@ -247,39 +285,6 @@ const config: HardhatUserConfig = {
             url: process.env.MAINNET_PROVIDER
                 ? process.env.MAINNET_PROVIDER
                 : `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
-        },
-        ropsten: {
-            url: process.env.ROPSTEN_PROVIDER
-                ? process.env.ROPSTEN_PROVIDER
-                : `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
-        },
-        goerli: {
-            url: process.env.GOERLI_PROVIDER
-                ? process.env.GOERLI_PROVIDER
-                : `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
-        },
-        rinkeby: {
-            url: process.env.RINKEBY_PROVIDER
-                ? process.env.RINKEBY_PROVIDER
-                : `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             accounts: {
                 mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
                 path: "m/44'/60'/0'/0",
@@ -386,7 +391,6 @@ const config: HardhatUserConfig = {
         apiKey: {
             polygonZKEVMTestnet: `${process.env.ETHERSCAN_ZKEVM_API_KEY}`,
             polygonZKEVMMainnet: `${process.env.ETHERSCAN_ZKEVM_API_KEY}`,
-            goerli: `${process.env.ETHERSCAN_API_KEY}`,
             sepolia: `${process.env.ETHERSCAN_API_KEY}`,
             mainnet: `${process.env.ETHERSCAN_API_KEY}`,
             zkevmDevnet: `${process.env.ETHERSCAN_API_KEY}`,
