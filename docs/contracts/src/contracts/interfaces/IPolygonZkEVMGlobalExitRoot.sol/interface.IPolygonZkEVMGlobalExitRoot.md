@@ -1,8 +1,8 @@
 # IPolygonZkEVMGlobalExitRoot
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/112a010b7c8b14335e5fe1a9bffc11bd2459df05/contracts/interfaces/IPolygonZkEVMGlobalExitRoot.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/interfaces/IPolygonZkEVMGlobalExitRoot.sol)
 
 **Inherits:**
-[IBasePolygonZkEVMGlobalExitRoot](/contracts/interfaces/IBasePolygonZkEVMGlobalExitRoot.sol/interface.IBasePolygonZkEVMGlobalExitRoot.md)
+[IBaseLegacyAgglayerGER](/contracts/interfaces/IBaseLegacyAgglayerGER.sol/interface.IBaseLegacyAgglayerGER.md)
 
 
 ## Functions

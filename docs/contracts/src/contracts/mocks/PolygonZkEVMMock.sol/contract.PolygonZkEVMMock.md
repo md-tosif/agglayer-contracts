@@ -1,8 +1,8 @@
 # PolygonZkEVMMock
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/112a010b7c8b14335e5fe1a9bffc11bd2459df05/contracts/mocks/PolygonZkEVMMock.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/mocks/PolygonZkEVMMock.sol)
 
 **Inherits:**
-[PolygonZkEVM](/contracts/PolygonZkEVM.sol/contract.PolygonZkEVM.md)
+[PolygonZkEVM](/contracts/previousVersions/PolygonZkEVM.sol/contract.PolygonZkEVM.md)
 
 Contract responsible for managing the state and the updates of the L2 network
 There will be sequencer, which are able to send transactions. That transactions will be stored in the contract.
