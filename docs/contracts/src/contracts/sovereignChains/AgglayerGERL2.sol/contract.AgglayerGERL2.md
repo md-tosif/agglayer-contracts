@@ -1,5 +1,5 @@
 # AgglayerGERL2
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/sovereignChains/AgglayerGERL2.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/c0e111af46ac2964bd5177034698d7e5e691f362/contracts/sovereignChains/AgglayerGERL2.sol)
 
 **Inherits:**
 [LegacyAgglayerGERL2](/contracts/LegacyAgglayerGERL2.sol/contract.LegacyAgglayerGERL2.md), [IAgglayerGERL2](/contracts/interfaces/IAgglayerGERL2.sol/interface.IAgglayerGERL2.md), Initializable, [IVersion](/contracts/interfaces/IVersion.sol/interface.IVersion.md)

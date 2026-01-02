@@ -1,5 +1,5 @@
 # BridgeL2SovereignChainPessimistic
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/previousVersions/pessimistic/BridgeL2SovereignChainPessimistic.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/c0e111af46ac2964bd5177034698d7e5e691f362/contracts/previousVersions/pessimistic/BridgeL2SovereignChainPessimistic.sol)
 
 **Inherits:**
 [PolygonZkEVMBridgeV2Pessimistic](/contracts/previousVersions/pessimistic/PolygonZkEVMBridgeV2Pessimistic.sol/contract.PolygonZkEVMBridgeV2Pessimistic.md), [IBridgeL2SovereignChainsPessimistic](/contracts/previousVersions/pessimistic/IBridgeL2SovereignChainsPessimistic.sol/interface.IBridgeL2SovereignChainsPessimistic.md)

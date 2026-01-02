@@ -1,5 +1,5 @@
 # GlobalExitRootManagerL2SovereignChainPessimistic
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/previousVersions/pessimistic/GlobalExitRootManagerL2SovereignChainPessimistic.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/c0e111af46ac2964bd5177034698d7e5e691f362/contracts/previousVersions/pessimistic/GlobalExitRootManagerL2SovereignChainPessimistic.sol)
 
 **Inherits:**
 [PolygonZkEVMGlobalExitRootL2Pessimistic](/contracts/previousVersions/pessimistic/PolygonZkEVMGlobalExitRootL2Pessimistic.sol/contract.PolygonZkEVMGlobalExitRootL2Pessimistic.md), Initializable

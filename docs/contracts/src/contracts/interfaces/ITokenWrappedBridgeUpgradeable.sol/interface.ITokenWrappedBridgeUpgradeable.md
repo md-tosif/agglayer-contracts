@@ -1,5 +1,5 @@
 # ITokenWrappedBridgeUpgradeable
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/interfaces/ITokenWrappedBridgeUpgradeable.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/c0e111af46ac2964bd5177034698d7e5e691f362/contracts/interfaces/ITokenWrappedBridgeUpgradeable.sol)
 
 **Inherits:**
 IERC20, IERC20Metadata, IERC20Permit

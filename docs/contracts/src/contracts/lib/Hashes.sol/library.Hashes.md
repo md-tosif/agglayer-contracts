@@ -1,5 +1,5 @@
 # Hashes
-[Git Source](https://github.com/agglayer/agglayer-contracts/blob/97cad9ab107727514c9d0cc64270f595a4c37f2c/contracts/lib/Hashes.sol)
+[Git Source](https://github.com/agglayer/agglayer-contracts/blob/c0e111af46ac2964bd5177034698d7e5e691f362/contracts/lib/Hashes.sol)
 
 This code is a copy from OpenZeppelin Contracts v5.1.0 (utils/cryptography/Hashes.sol) with a minor change:
 function visibility is modified from 'private' to 'internal' so it can be used in other contracts.
