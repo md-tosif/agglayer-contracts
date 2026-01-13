@@ -955,7 +955,7 @@ async function verifyBridgeContract(deployConfig: any, outputJson: any) {
     logger.info(`✅ Emergency bridge unpauser: ${emergencyBridgeUnpauser}`);
 
     // Verify proxied tokens manager (should be timelock)
-    const proxiedTokensManager = await bridge.proxiedTokensManager();
+    const proxiedTokensManager = await bridge.getProxiedTokensManager();
     if (proxiedTokensManager.toLowerCase() !== outputJson.timelockAddress.toLowerCase()) {
         throw new Error(
             `Proxied tokens manager mismatch. Expected: ${outputJson.timelockAddress}, Got: ${proxiedTokensManager}`,
