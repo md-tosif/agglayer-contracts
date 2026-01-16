@@ -243,7 +243,8 @@ async function main() {
         .includes(signerAddress.toLowerCase());
 
     if (!isOwner) {
-        logger.warn('⚠️  WARNING: This address is not a Safe owner!');
+        logger.error('⚠️  WARNING: This address is not a Safe owner!');
+        process.exit(1);
     }
     logger.info('');
 
