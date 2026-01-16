@@ -9,8 +9,10 @@ import '@typechain/hardhat';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-verify';
+import '@nomicfoundation/hardhat-ledger';
 
 const DEFAULT_MNEMONIC = 'test test test test test test test test test test test junk';
+const LEDGER_ACCOUNT = process.env.LEDGER_ACCOUNT ? [process.env.LEDGER_ACCOUNT] : undefined;
 
 /*
  * You need to export an object to set up your config
@@ -314,23 +316,31 @@ const config: HardhatUserConfig = {
         },
         custom: {
             url: process.env.CUSTOM_PROVIDER ? process.env.CUSTOM_PROVIDER : 'http://127.0.0.1:8545',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...(LEDGER_ACCOUNT
+                ? { ledgerAccounts: LEDGER_ACCOUNT }
+                : {
+                      accounts: {
+                          mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
+                          path: "m/44'/60'/0'/0",
+                          initialIndex: 0,
+                          count: 20,
+                      },
+                  }),
         },
         hardhat: {
             initialDate: '0',
             allowUnlimitedContractSize: true,
             initialBaseFeePerGas: 0,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...(LEDGER_ACCOUNT
+                ? { ledgerAccounts: LEDGER_ACCOUNT }
+                : {
+                      accounts: {
+                          mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
+                          path: "m/44'/60'/0'/0",
+                          initialIndex: 0,
+                          count: 20,
+                      },
+                  }),
             chains: {
                 747474: {
                     hardforkHistory: {
@@ -355,21 +365,29 @@ const config: HardhatUserConfig = {
         },
         polygonZKEVMMainnet: {
             url: 'https://zkevm-rpc.com',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...(LEDGER_ACCOUNT
+                ? { ledgerAccounts: LEDGER_ACCOUNT }
+                : {
+                      accounts: {
+                          mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
+                          path: "m/44'/60'/0'/0",
+                          initialIndex: 0,
+                          count: 20,
+                      },
+                  }),
         },
         zkevmDevnet: {
             url: 'http://123:123:123:123:123',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...(LEDGER_ACCOUNT
+                ? { ledgerAccounts: LEDGER_ACCOUNT }
+                : {
+                      accounts: {
+                          mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
+                          path: "m/44'/60'/0'/0",
+                          initialIndex: 0,
+                          count: 20,
+                      },
+                  }),
         },
         opSepolia: {
             url: 'https://sepolia.optimism.io',
