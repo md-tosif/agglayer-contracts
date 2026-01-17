@@ -1,0 +1,164 @@
+/* eslint-disable no-console */
+import { ethers, config } from 'hardhat';
+import { HttpNetworkConfig } from 'hardhat/types';
+
+// ============== CONFIGURATION ==============
+// Networks from hardhat.config.ts
+const NETWORK_1 = 'sepolia';
+const NETWORK_2 = 'zkevmDevnet';
+
+// Safe Proxy Factory (same address on all networks)
+const PROXY_FACTORY_ADDRESS = '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2';
+
+// Safe Singleton (GnosisSafe 1.3.0 - same address on all networks)
+const SAFE_SINGLETON_ADDRESS = '0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552';
+
+// Fallback Handler (CompatibilityFallbackHandler 1.3.0 - optional, set to ZeroAddress if not needed)
+const FALLBACK_HANDLER_ADDRESS = '0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4';
+
+// Safe configuration
+const OWNERS = [
+    "0x..."
+];
+
+const THRESHOLD = 0; // Number of signatures required
+
+// Salt nonce for deterministic address (same salt = same address on both networks)
+const SALT_NONCE = 0;
+// ============================================
+
+// ABI for the contracts
+const PROXY_FACTORY_ABI = [
+    'function createProxyWithNonce(address _singleton, bytes memory initializer, uint256 saltNonce) public returns (address proxy)',
+    'event ProxyCreation(address proxy, address singleton)',
+];
+
+const SAFE_ABI = [
+    'function setup(address[] calldata _owners, uint256 _threshold, address to, bytes calldata data, address fallbackHandler, address paymentToken, uint256 payment, address payable paymentReceiver) external',
+];
+
+async function deploySafe(networkName: string, signer: any): Promise<string> {
+    console.log(`\n--- Deploying Safe on ${networkName} ---`);
+    console.log(`Deployer: ${await signer.getAddress()}`);
+
+    // Create contract instances
+    const proxyFactory = new ethers.Contract(PROXY_FACTORY_ADDRESS, PROXY_FACTORY_ABI, signer);
+    const safeInterface = new ethers.Interface(SAFE_ABI);
+
+    // Encode the setup call (initializer)
+    const initializer = safeInterface.encodeFunctionData('setup', [
+        OWNERS, // _owners
+        THRESHOLD, // _threshold
+        ethers.ZeroAddress, // to (no delegate call)
+        '0x', // data (no delegate call)
+        FALLBACK_HANDLER_ADDRESS, // fallbackHandler
+        ethers.ZeroAddress, // paymentToken (ETH)
+        0, // payment
+        ethers.ZeroAddress, // paymentReceiver
+    ]);
+
+    console.log(`Owners: ${OWNERS.join(', ')}`);
+    console.log(`Threshold: ${THRESHOLD}`);
+    console.log(`Salt nonce: ${SALT_NONCE}`);
+
+    // Deploy the Safe
+    console.log('\nSending createProxyWithNonce transaction...');
+    const tx = await proxyFactory.createProxyWithNonce(SAFE_SINGLETON_ADDRESS, initializer, SALT_NONCE);
+
+    console.log(`Tx hash: ${tx.hash}`);
+    console.log('Waiting for confirmation...');
+
+    const receipt = await tx.wait();
+
+    // Get the deployed Safe address from the event
+    const proxyCreationEvent = receipt.logs.find(
+        (log: any) => log.topics[0] === ethers.id('ProxyCreation(address,address)'),
+    );
+
+    let safeAddress: string;
+    if (proxyCreationEvent) {
+        const decoded = ethers.AbiCoder.defaultAbiCoder().decode(['address', 'address'], proxyCreationEvent.data);
+        safeAddress = decoded[0];
+    } else {
+        // Fallback: calculate the address
+        safeAddress = 'Could not decode from event';
+    }
+
+    console.log(`\n✓ Safe deployed at: ${safeAddress}`);
+    console.log(`  Block: ${receipt.blockNumber}`);
+
+    return safeAddress;
+}
+
+function getWalletForNetwork(networkConfig: HttpNetworkConfig, provider: any) {
+    // Try private key from env first
+    if (process.env.DEPLOYER_PRIVATE_KEY) {
+        return new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, provider);
+    }
+
+    // Try mnemonic from network config or env
+    const accounts = networkConfig.accounts as any;
+    const mnemonic = accounts?.mnemonic || process.env.MNEMONIC;
+    if (mnemonic) {
+        return ethers.Wallet.fromPhrase(mnemonic).connect(provider);
+    }
+
+    // Try array of private keys
+    if (Array.isArray(accounts) && accounts.length > 0) {
+        return new ethers.Wallet(accounts[0], provider);
+    }
+
+    throw new Error('No private key or mnemonic found. Set DEPLOYER_PRIVATE_KEY or MNEMONIC env var.');
+}
+
+async function main() {
+    console.log('='.repeat(60));
+    console.log('Deploy Safe on Multiple Networks');
+    console.log('='.repeat(60));
+
+    // Validate configuration
+    if (OWNERS.length === 0 || OWNERS.some((o) => o === '0x...')) {
+        throw new Error('Please configure OWNERS array with valid addresses');
+    }
+    if (THRESHOLD < 1 || THRESHOLD > OWNERS.length) {
+        throw new Error(`Threshold must be between 1 and ${OWNERS.length}`);
+    }
+
+    // Get network configs
+    const network1Config = config.networks[NETWORK_1] as HttpNetworkConfig;
+    const network2Config = config.networks[NETWORK_2] as HttpNetworkConfig;
+
+    if (!network1Config?.url) {
+        throw new Error(`Network "${NETWORK_1}" not found in hardhat.config.ts or has no URL`);
+    }
+    if (!network2Config?.url) {
+        throw new Error(`Network "${NETWORK_2}" not found in hardhat.config.ts or has no URL`);
+    }
+
+    // Create providers and wallets
+    const provider1 = new ethers.JsonRpcProvider(network1Config.url);
+    const provider2 = new ethers.JsonRpcProvider(network2Config.url);
+
+    const wallet1 = getWalletForNetwork(network1Config, provider1);
+    const wallet2 = getWalletForNetwork(network2Config, provider2);
+
+    // Deploy on network 1
+    const safeAddress1 = await deploySafe(NETWORK_1, wallet1);
+
+    // Deploy on network 2
+    console.log('\n' + '='.repeat(60));
+    const safeAddress2 = await deploySafe(NETWORK_2, wallet2);
+
+    // Summary
+    console.log('\n' + '='.repeat(60));
+    console.log('DEPLOYMENT SUMMARY');
+    console.log('='.repeat(60));
+    console.log(`${NETWORK_1}: ${safeAddress1}`);
+    console.log(`${NETWORK_2}: ${safeAddress2}`);
+    console.log(`Addresses match: ${safeAddress1.toLowerCase() === safeAddress2.toLowerCase() ? '✓ YES' : '✗ NO'}`);
+}
+
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});
