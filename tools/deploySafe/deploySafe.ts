@@ -3,9 +3,8 @@ import { ethers, config } from 'hardhat';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 // ============== CONFIGURATION ==============
-// Networks from hardhat.config.ts
-const NETWORK_1 = 'sepolia';
-const NETWORK_2 = 'zkevmDevnet';
+// Networks from hardhat.config.ts (add or remove networks as needed)
+const NETWORKS = ['sepolia', 'zkevmDevnet'];
 
 // Safe Proxy Factory (same address on all networks)
 const PROXY_FACTORY_ADDRESS = '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2';
@@ -18,10 +17,10 @@ const FALLBACK_HANDLER_ADDRESS = '0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4';
 
 // Safe configuration
 const OWNERS = [
-    "0x..."
+    ""
 ];
 
-const THRESHOLD = 0; // Number of signatures required
+const THRESHOLD = 1; // Number of signatures required
 
 // Salt nonce for deterministic address (same salt = same address on both networks)
 const SALT_NONCE = 0;
@@ -124,38 +123,48 @@ async function main() {
         throw new Error(`Threshold must be between 1 and ${OWNERS.length}`);
     }
 
-    // Get network configs
-    const network1Config = config.networks[NETWORK_1] as HttpNetworkConfig;
-    const network2Config = config.networks[NETWORK_2] as HttpNetworkConfig;
-
-    if (!network1Config?.url) {
-        throw new Error(`Network "${NETWORK_1}" not found in hardhat.config.ts or has no URL`);
-    }
-    if (!network2Config?.url) {
-        throw new Error(`Network "${NETWORK_2}" not found in hardhat.config.ts or has no URL`);
+    // Validate networks
+    if (NETWORKS.length === 0) {
+        throw new Error('Please configure at least one network in NETWORKS array');
     }
 
-    // Create providers and wallets
-    const provider1 = new ethers.JsonRpcProvider(network1Config.url);
-    const provider2 = new ethers.JsonRpcProvider(network2Config.url);
+    // Deploy on each network
+    const deployedAddresses: { network: string; address: string }[] = [];
 
-    const wallet1 = getWalletForNetwork(network1Config, provider1);
-    const wallet2 = getWalletForNetwork(network2Config, provider2);
+    for (let i = 0; i < NETWORKS.length; i++) {
+        const networkName = NETWORKS[i];
+        const networkConfig = config.networks[networkName] as HttpNetworkConfig;
 
-    // Deploy on network 1
-    const safeAddress1 = await deploySafe(NETWORK_1, wallet1);
+        if (!networkConfig?.url) {
+            throw new Error(`Network "${networkName}" not found in hardhat.config.ts or has no URL`);
+        }
 
-    // Deploy on network 2
-    console.log('\n' + '='.repeat(60));
-    const safeAddress2 = await deploySafe(NETWORK_2, wallet2);
+        const provider = new ethers.JsonRpcProvider(networkConfig.url);
+        const wallet = getWalletForNetwork(networkConfig, provider);
+
+        if (i > 0) {
+            console.log('\n' + '='.repeat(60));
+        }
+
+        const safeAddress = await deploySafe(networkName, wallet);
+        deployedAddresses.push({ network: networkName, address: safeAddress });
+    }
 
     // Summary
     console.log('\n' + '='.repeat(60));
     console.log('DEPLOYMENT SUMMARY');
     console.log('='.repeat(60));
-    console.log(`${NETWORK_1}: ${safeAddress1}`);
-    console.log(`${NETWORK_2}: ${safeAddress2}`);
-    console.log(`Addresses match: ${safeAddress1.toLowerCase() === safeAddress2.toLowerCase() ? '✓ YES' : '✗ NO'}`);
+
+    for (const { network, address } of deployedAddresses) {
+        console.log(`${network}: ${address}`);
+    }
+
+    // Check if all addresses match (only if more than one network)
+    if (deployedAddresses.length > 1) {
+        const firstAddress = deployedAddresses[0].address.toLowerCase();
+        const allMatch = deployedAddresses.every((d) => d.address.toLowerCase() === firstAddress);
+        console.log(`Addresses match: ${allMatch ? '✓ YES' : '✗ NO'}`);
+    }
 }
 
 main().catch((error) => {
