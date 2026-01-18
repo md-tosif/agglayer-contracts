@@ -15,7 +15,6 @@
  */
 /* eslint-disable import/no-unresolved */
 import path = require('path');
-import fs = require('fs');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
@@ -23,11 +22,11 @@ import { checkParams } from '../../src/utils';
 import {
     SAFE_ABI,
     MULTI_SEND_CALL_ONLY_ADDRESS,
+    SENTINEL_ADDRESS,
     MetaTransaction,
     TransactionData,
     buildSafeTransaction,
     calculateSafeTxHash,
-    findPrevOwner,
     encodeAddOwner,
     encodeRemoveOwner,
     encodeChangeThreshold,
@@ -181,9 +180,30 @@ async function main() {
     let runningOwnerCount = currentOwners.length;
     let runningThreshold = currentThreshold;
 
+    // Build a local linked list to track state changes during batch
+    // Safe's linked list: SENTINEL → owner[0] → owner[1] → ... → owner[n-1] → SENTINEL
+    // We simulate it as an array and track removals to compute correct prevOwner
+    let simulatedOwners = [...currentOwners];
+
+    // Helper to find prevOwner in our simulated state
+    const findPrevOwnerLocal = (ownerToRemove: string): string => {
+        const index = simulatedOwners.findIndex(
+            (o) => o.toLowerCase() === ownerToRemove.toLowerCase(),
+        );
+        if (index === -1) {
+            throw new Error(`Cannot find ${ownerToRemove} in simulated owner list`);
+        }
+        // First owner points to sentinel
+        if (index === 0) {
+            return SENTINEL_ADDRESS;
+        }
+        return simulatedOwners[index - 1];
+    };
+
     // Step 1: Remove owners
     for (const owner of ownersToRemove) {
-        const prevOwner = await findPrevOwner(safeAddress, owner);
+        // Find prevOwner using our LOCAL simulated state (not on-chain)
+        const prevOwner = findPrevOwnerLocal(owner);
 
         // Threshold must be <= remaining owners after removal
         const newCount = runningOwnerCount - 1;
@@ -194,6 +214,11 @@ async function main() {
             description: `Remove owner ${owner}`,
             tx: { to: safeAddress, value: 0, data },
         });
+
+        // Update our simulated state: remove this owner from the list
+        simulatedOwners = simulatedOwners.filter(
+            (o) => o.toLowerCase() !== owner.toLowerCase(),
+        );
 
         runningOwnerCount = newCount;
         runningThreshold = tempThreshold;

@@ -30,11 +30,8 @@ tools/safeMultisig/
 ### 1. Setup
 
 ```bash
-# Copy example parameters
+# Copy example parameters adn edit them
 cp tools/safeMultisig/parameters.json.example tools/safeMultisig/parameters.json
-
-# Edit with your configuration
-nano tools/safeMultisig/parameters.json
 ```
 
 ### 2. Prepare a Transaction
