@@ -68,14 +68,20 @@ export interface SafeSignature {
     data: string;
 }
 
-export interface SignedTransactionData {
+export interface TransactionData {
+    safeAddress: string;
     safeTx: SafeTransaction;
     signatures: SafeSignature[];
     txHash: string;
     chainId: number;
     description?: string;
     parameters?: any;
+    operations?: string[];
+    createdAt: string;
 }
+
+// Backwards compatibility alias
+export type SignedTransactionData = TransactionData;
 
 export interface MetaTransaction {
     to: string;
@@ -181,9 +187,9 @@ export function calculateSafeTxHash(
 }
 
 /**
- * Loads signed transactions from a JSON file
+ * Loads transactions from a JSON file
  */
-export function loadSignedTransactions(filePath: string): SignedTransactionData[] {
+export function loadTransactions(filePath: string): TransactionData[] {
     if (!fs.existsSync(filePath)) {
         return [];
     }
@@ -191,11 +197,35 @@ export function loadSignedTransactions(filePath: string): SignedTransactionData[
 }
 
 /**
- * Saves signed transactions to a JSON file
+ * Saves transactions to a JSON file
  */
-export function saveSignedTransactions(filePath: string, transactions: SignedTransactionData[]): void {
+export function saveTransactions(filePath: string, transactions: TransactionData[]): void {
     fs.writeFileSync(filePath, JSON.stringify(transactions, null, 2));
 }
+
+/**
+ * Finds a transaction by txHash
+ */
+export function findTransactionByHash(transactions: TransactionData[], txHash: string): TransactionData | undefined {
+    return transactions.find((tx) => tx.txHash === txHash);
+}
+
+/**
+ * Adds or updates a transaction in the list
+ */
+export function upsertTransaction(transactions: TransactionData[], transaction: TransactionData): TransactionData[] {
+    const existingIndex = transactions.findIndex((tx) => tx.txHash === transaction.txHash);
+    if (existingIndex >= 0) {
+        transactions[existingIndex] = transaction;
+    } else {
+        transactions.push(transaction);
+    }
+    return transactions;
+}
+
+// Backwards compatibility aliases
+export const loadSignedTransactions = loadTransactions;
+export const saveSignedTransactions = saveTransactions;
 
 /*//////////////////////////////////////////////////////////////
                         OWNER MANAGEMENT

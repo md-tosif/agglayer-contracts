@@ -21,11 +21,11 @@ import {
     EIP712_SAFE_TX_TYPE,
     SAFE_ABI,
     SafeSignature,
-    SignedTransactionData,
+    TransactionData,
     normalizeSignatureV,
     calculateSafeTxHash,
-    loadSignedTransactions,
-    saveSignedTransactions,
+    loadTransactions,
+    saveTransactions,
 } from './safeUtils';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -34,8 +34,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
                             CONSTANTS
 //////////////////////////////////////////////////////////////*/
 
-const PREPARED_TX_PATH = path.join(__dirname, './preparedTransaction.json');
-const SIGNATURES_PATH = path.join(__dirname, './signedTransactions.json');
+const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
 /*//////////////////////////////////////////////////////////////
                             MAIN
@@ -43,23 +42,38 @@ const SIGNATURES_PATH = path.join(__dirname, './signedTransactions.json');
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
-    // LOAD PREPARED TRANSACTION
+    // LOAD TRANSACTION
     // ═══════════════════════════════════════════════════════════
 
-    if (!fs.existsSync(PREPARED_TX_PATH)) {
+    if (!fs.existsSync(TRANSACTIONS_PATH)) {
         throw new Error(
-            `No prepared transaction found.\nExpected: ${PREPARED_TX_PATH}\n\nRun one of these first:\n` +
+            `No transactions found.\nExpected: ${TRANSACTIONS_PATH}\n\nRun one of these first:\n` +
             `  - prepareTransaction.ts (for arbitrary transactions)\n` +
             `  - manageOwners.ts (for owner management)`,
         );
     }
 
-    const preparedData = JSON.parse(fs.readFileSync(PREPARED_TX_PATH, 'utf8'));
+    const transactions: TransactionData[] = loadTransactions(TRANSACTIONS_PATH);
+
+    if (transactions.length === 0) {
+        throw new Error('Transactions file is empty.');
+    }
+
+    // Select transaction to sign (default: latest)
+    const txIndex = process.env.TX_INDEX
+        ? parseInt(process.env.TX_INDEX, 10)
+        : transactions.length - 1;
+
+    if (txIndex >= transactions.length || txIndex < 0) {
+        throw new Error(`Invalid TX_INDEX: ${txIndex}. Available: 0-${transactions.length - 1}`);
+    }
+
+    const transaction = transactions[txIndex];
 
     const mandatoryFields = ['safeAddress', 'safeTx'];
-    checkParams(preparedData, mandatoryFields, true);
+    checkParams(transaction, mandatoryFields, true);
 
-    const { safeAddress, safeTx, description } = preparedData;
+    const { safeAddress, safeTx, description } = transaction;
 
     // ═══════════════════════════════════════════════════════════
     // DISPLAY CONFIGURATION
@@ -174,49 +188,30 @@ async function main() {
     // SAVE SIGNATURE
     // ═══════════════════════════════════════════════════════════
 
-    // Load existing signatures
-    let signedTransactions: SignedTransactionData[] = loadSignedTransactions(SIGNATURES_PATH);
-
-    // Find or create transaction entry
-    const existingIndex = signedTransactions.findIndex((tx) => tx.txHash === txHash);
     const safeSignature: SafeSignature = { signer: signerAddress, data: signature };
 
-    if (existingIndex >= 0) {
-        // Check for duplicate
-        const alreadySigned = signedTransactions[existingIndex].signatures.some(
-            (s) => s.signer.toLowerCase() === signerAddress.toLowerCase(),
-        );
+    // Check for duplicate signature
+    const alreadySigned = transaction.signatures.some(
+        (s) => s.signer.toLowerCase() === signerAddress.toLowerCase(),
+    );
 
-        if (alreadySigned) {
-            logger.warn('⚠️  You have already signed this transaction!');
-            logger.info('');
-            return;
-        }
-
-        signedTransactions[existingIndex].signatures.push(safeSignature);
-    } else {
-        signedTransactions.push({
-            safeTx,
-            signatures: [safeSignature],
-            txHash,
-            chainId: Number(chainId),
-            description,
-            parameters: preparedData.parameters,
-        });
+    if (alreadySigned) {
+        logger.warn('⚠️  You have already signed this transaction!');
+        logger.info('');
+        return;
     }
 
-    // Save
-    saveSignedTransactions(SIGNATURES_PATH, signedTransactions);
+    // Add signature to the transaction
+    transaction.signatures.push(safeSignature);
+
+    // Save back to the same file
+    saveTransactions(TRANSACTIONS_PATH, transactions);
 
     // ═══════════════════════════════════════════════════════════
     // SUMMARY
     // ═══════════════════════════════════════════════════════════
 
-    const currentTx = existingIndex >= 0
-        ? signedTransactions[existingIndex]
-        : signedTransactions[signedTransactions.length - 1];
-
-    const sigCount = currentTx.signatures.length;
+    const sigCount = transaction.signatures.length;
     const thresholdNum = Number(threshold);
 
     logger.info('╔══════════════════════════════════════════════════════════╗');
@@ -226,7 +221,7 @@ async function main() {
     logger.info(`Progress: ${sigCount}/${thresholdNum} signatures`);
     logger.info('');
     logger.info('Signers:');
-    currentTx.signatures.forEach((s, i) => logger.info(`  [${i + 1}] ${s.signer}`));
+    transaction.signatures.forEach((s, i) => logger.info(`  [${i + 1}] ${s.signer}`));
     logger.info('');
 
     if (sigCount >= thresholdNum) {
@@ -236,7 +231,7 @@ async function main() {
         logger.info(`⏳ Need ${thresholdNum - sigCount} more signature(s)`);
     }
     logger.info('');
-    logger.info(`Output: ${SIGNATURES_PATH}`);
+    logger.info(`Output: ${TRANSACTIONS_PATH}`);
 }
 
 main().catch((e) => {

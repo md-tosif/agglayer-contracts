@@ -20,9 +20,9 @@ import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
 import {
     SAFE_ABI,
-    SignedTransactionData,
+    TransactionData,
     buildSignatureBytes,
-    loadSignedTransactions,
+    loadTransactions,
 } from './safeUtils';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -31,8 +31,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
                             CONSTANTS
 //////////////////////////////////////////////////////////////*/
 
-const PREPARED_TX_PATH = path.join(__dirname, './preparedTransaction.json');
-const SIGNATURES_PATH = path.join(__dirname, './signedTransactions.json');
+const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
 /*//////////////////////////////////////////////////////////////
                             MAIN
@@ -40,46 +39,38 @@ const SIGNATURES_PATH = path.join(__dirname, './signedTransactions.json');
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
-    // LOAD SIGNED TRANSACTION
+    // LOAD TRANSACTION
     // ═══════════════════════════════════════════════════════════
 
-    if (!fs.existsSync(SIGNATURES_PATH)) {
+    if (!fs.existsSync(TRANSACTIONS_PATH)) {
         throw new Error(
-            `No signatures found.\nExpected: ${SIGNATURES_PATH}\n\n` +
+            `No transactions found.\nExpected: ${TRANSACTIONS_PATH}\n\n` +
             `First prepare and sign a transaction using:\n` +
             `  1. prepareTransaction.ts or manageOwners.ts\n` +
             `  2. signSafeTransaction.ts`,
         );
     }
 
-    const signedTransactions: SignedTransactionData[] = loadSignedTransactions(SIGNATURES_PATH);
+    const transactions: TransactionData[] = loadTransactions(TRANSACTIONS_PATH);
 
-    if (signedTransactions.length === 0) {
-        throw new Error('Signatures file is empty.');
+    if (transactions.length === 0) {
+        throw new Error('Transactions file is empty.');
     }
 
     // Select transaction to execute
     const txIndex = process.env.TX_INDEX
         ? parseInt(process.env.TX_INDEX, 10)
-        : signedTransactions.length - 1;
+        : transactions.length - 1;
 
-    if (txIndex >= signedTransactions.length || txIndex < 0) {
-        throw new Error(`Invalid TX_INDEX: ${txIndex}. Available: 0-${signedTransactions.length - 1}`);
+    if (txIndex >= transactions.length || txIndex < 0) {
+        throw new Error(`Invalid TX_INDEX: ${txIndex}. Available: 0-${transactions.length - 1}`);
     }
 
-    const tx = signedTransactions[txIndex];
+    const tx = transactions[txIndex];
+    const { safeAddress } = tx;
 
-    // Get safe address from prepared transaction or parameters
-    let safeAddress: string;
-    if (fs.existsSync(PREPARED_TX_PATH)) {
-        const preparedData = JSON.parse(fs.readFileSync(PREPARED_TX_PATH, 'utf8'));
-        safeAddress = preparedData.safeAddress;
-    } else if (tx.parameters?.safeAddress) {
-        safeAddress = tx.parameters.safeAddress;
-    } else {
-        throw new Error(
-            'Cannot determine Safe address. Either keep preparedTransaction.json or include safeAddress in parameters.',
-        );
+    if (!safeAddress) {
+        throw new Error('Transaction is missing safeAddress.');
     }
 
     // ═══════════════════════════════════════════════════════════

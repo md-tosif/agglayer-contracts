@@ -21,8 +21,7 @@ tools/safeMultisig/
 ├── prepareTransaction.ts     # Prepare arbitrary transactions
 ├── parameters.json           # Your configuration (create from .example)
 ├── parameters.json.example   # Example configuration
-├── preparedTransaction.json  # Output: prepared transaction (auto-generated)
-├── signedTransactions.json   # Output: collected signatures (auto-generated)
+├── transactions.json         # Output: transactions and signatures (auto-generated)
 └── README.md                 # This file
 ```
 
@@ -137,9 +136,10 @@ Signs a prepared transaction using EIP-712 typed data.
 
 **Environment Variables:**
 - `SIGNER_INDEX`: Index of signer in hardhat config (default: 0)
+- `TX_INDEX`: Index of transaction to sign (default: latest)
 
 **Output:**
-- Signatures are appended to `signedTransactions.json`
+- Signatures are added to the transaction in `transactions.json`
 - Shows progress toward threshold
 
 ### Execute Transaction (`executeSafeTransaction.ts`)
@@ -249,7 +249,7 @@ npx hardhat run tools/safeMultisig/prepareTransaction.ts --network mainnet
 EIP712_SAFE_TX_TYPE, SAFE_ABI, SENTINEL_ADDRESS, MULTI_SEND_CALL_ONLY_ADDRESS
 
 // Types
-SafeTransaction, SafeSignature, SignedTransactionData, MetaTransaction
+SafeTransaction, SafeSignature, TransactionData, MetaTransaction
 
 // Transaction building
 buildSafeTransaction(params)
@@ -269,6 +269,8 @@ encodeChangeThreshold(threshold)
 encodeMultiSendCallOnly(transactions)
 
 // File operations
-loadSignedTransactions(filePath)
-saveSignedTransactions(filePath, transactions)
+loadTransactions(filePath)
+saveTransactions(filePath, transactions)
+findTransactionByHash(transactions, txHash)
+upsertTransaction(transactions, transaction)
 ```

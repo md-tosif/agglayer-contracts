@@ -24,6 +24,7 @@ import {
     SAFE_ABI,
     MULTI_SEND_CALL_ONLY_ADDRESS,
     MetaTransaction,
+    TransactionData,
     buildSafeTransaction,
     calculateSafeTxHash,
     findPrevOwner,
@@ -31,6 +32,9 @@ import {
     encodeRemoveOwner,
     encodeChangeThreshold,
     encodeMultiSendCallOnly,
+    loadTransactions,
+    saveTransactions,
+    upsertTransaction,
 } from './safeUtils';
 
 import parameters from './parameters.json';
@@ -41,7 +45,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
                             CONSTANTS
 //////////////////////////////////////////////////////////////*/
 
-const OUTPUT_PATH = path.join(__dirname, './preparedTransaction.json');
+const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
 /*//////////////////////////////////////////////////////////////
                             MAIN
@@ -271,12 +275,13 @@ async function main() {
     logger.info('');
 
     // ═══════════════════════════════════════════════════════════
-    // SAVE PREPARED TRANSACTION
+    // SAVE TRANSACTION
     // ═══════════════════════════════════════════════════════════
 
-    const preparedData = {
+    const transactionData: TransactionData = {
         safeAddress,
         safeTx,
+        signatures: [],
         txHash,
         chainId: Number(chainId),
         description,
@@ -294,7 +299,10 @@ async function main() {
         createdAt: new Date().toISOString(),
     };
 
-    fs.writeFileSync(OUTPUT_PATH, JSON.stringify(preparedData, null, 2));
+    // Load existing transactions and add/update this one
+    let transactions = loadTransactions(TRANSACTIONS_PATH);
+    transactions = upsertTransaction(transactions, transactionData);
+    saveTransactions(TRANSACTIONS_PATH, transactions);
 
     // ═══════════════════════════════════════════════════════════
     // SUMMARY
@@ -314,7 +322,7 @@ async function main() {
     logger.info(`     (Need ${currentThreshold} signature(s))`);
     logger.info('  2. Execute: npx hardhat run tools/safeMultisig/executeSafeTransaction.ts --network <network>');
     logger.info('');
-    logger.info(`Output: ${OUTPUT_PATH}`);
+    logger.info(`Output: ${TRANSACTIONS_PATH}`);
 }
 
 main().catch((e) => {
