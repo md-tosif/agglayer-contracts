@@ -1,7 +1,6 @@
 import { ethers } from 'hardhat';
 import fs from 'fs';
 import path from 'path';
-import parameters from './parameters.json';
 import { logger } from '../../src/logger';
 import { checkParams } from '../../src/utils';
 import { fetchEventsInBatches, executeInBatches } from '../utils';
@@ -177,6 +176,15 @@ export async function getLBTData(
 }
 
 async function main() {
+    /*
+     * Load parameters from file
+     */
+    const parametersPath = path.join(__dirname, 'parameters.json');
+    if (!fs.existsSync(parametersPath)) {
+        throw new Error(`Parameters file not found: ${parametersPath}`);
+    }
+    const parameters = JSON.parse(fs.readFileSync(parametersPath, 'utf8'));
+
     /*
      * Check parameters
      * Check that every necessary parameter is fulfilled
