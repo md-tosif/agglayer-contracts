@@ -102,16 +102,6 @@ git checkout feature/addSafeMultisigTool
 npm install
 ```
 
-### 4. Apply Ledger Patch
-
-This patch fixes compatibility issues with Ledger hardware wallets:
-
-```bash
-npm run patch:ledger
-```
-
----
-
 ## Environment Configuration
 
 ### 1. Create Environment File
@@ -500,7 +490,6 @@ git clone https://github.com/agglayer/agglayer-contracts.git
 cd zkevm-contracts
 git checkout feature/addSafeMultisigTool
 npm install
-npm run patch:ledger
 
 # Configure environment
 cp .env.example .env
