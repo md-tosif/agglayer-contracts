@@ -8,9 +8,10 @@
  *   npx hardhat run tools/safeMultisig/executeSafeTransaction.ts --network mainnet
  *
  * Environment:
- *   EXECUTOR_INDEX  - Index of executor account (default: 0)
- *   FORCE_EXECUTE   - Set "true" to ignore nonce mismatch
- *   TX_INDEX        - Index of transaction to execute (default: latest)
+ *   DEPLOYER_PRIVATE_KEY - Private key for signing (alternative to mnemonic)
+ *   EXECUTOR_INDEX       - Index of executor account (default: 0, ignored if DEPLOYER_PRIVATE_KEY is set)
+ *   FORCE_EXECUTE        - Set "true" to ignore nonce mismatch
+ *   TX_INDEX             - Index of transaction to execute (default: latest)
  */
 /* eslint-disable import/no-unresolved */
 import path = require('path');
@@ -162,16 +163,31 @@ async function main() {
     // SELECT EXECUTOR
     // ═══════════════════════════════════════════════════════════
 
-    const signers = await ethers.getSigners();
-    const executorIndex = process.env.EXECUTOR_INDEX ? parseInt(process.env.EXECUTOR_INDEX, 10) : 0;
+    let executor;
+    let executorAddress: string;
+    let executorType: string;
 
-    if (executorIndex >= signers.length) {
-        throw new Error(`Executor index ${executorIndex} out of range (available: ${signers.length})`);
+    if (process.env.DEPLOYER_PRIVATE_KEY) {
+        // Use private key
+        const wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, ethers.provider);
+        executor = wallet;
+        executorAddress = await wallet.getAddress();
+        executorType = 'private key';
+    } else {
+        // Use mnemonic via hardhat signers
+        const signers = await ethers.getSigners();
+        const executorIndex = process.env.EXECUTOR_INDEX ? parseInt(process.env.EXECUTOR_INDEX, 10) : 0;
+
+        if (executorIndex >= signers.length) {
+            throw new Error(`Executor index ${executorIndex} out of range (available: ${signers.length})`);
+        }
+
+        executor = signers[executorIndex];
+        executorAddress = await executor.getAddress();
+        executorType = `mnemonic [${executorIndex}]`;
     }
 
-    const executor = signers[executorIndex];
-    const executorAddress = await executor.getAddress();
-    logger.info(`Executor: [${executorIndex}] ${executorAddress}`);
+    logger.info(`Executor: ${executorAddress} (${executorType})`);
     logger.info('');
 
     // ═══════════════════════════════════════════════════════════
