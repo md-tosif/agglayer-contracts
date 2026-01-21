@@ -30,7 +30,7 @@ tools/safeMultisig/
 ### 1. Setup
 
 ```bash
-# Copy example parameters adn edit them
+# Copy example parameters and edit them
 cp tools/safeMultisig/parameters.json.example tools/safeMultisig/parameters.json
 ```
 

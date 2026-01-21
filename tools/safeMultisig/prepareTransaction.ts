@@ -13,7 +13,6 @@
  */
 /* eslint-disable import/no-unresolved */
 import path = require('path');
-import fs = require('fs');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';

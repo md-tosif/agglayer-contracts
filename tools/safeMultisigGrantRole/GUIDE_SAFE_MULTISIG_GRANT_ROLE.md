@@ -71,7 +71,7 @@ This guide walks you through the process of:
 
 ```bash
 git clone https://github.com/agglayer/agglayer-contracts.git
-cd zkevm-contracts
+cd agglayer-contracts
 ```
 
 ### 2. Checkout the Feature Branch
