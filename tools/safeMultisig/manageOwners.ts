@@ -40,15 +40,15 @@ import parameters from './parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -187,9 +187,7 @@ async function main() {
 
     // Helper to find prevOwner in our simulated state
     const findPrevOwnerLocal = (ownerToRemove: string): string => {
-        const index = simulatedOwners.findIndex(
-            (o) => o.toLowerCase() === ownerToRemove.toLowerCase(),
-        );
+        const index = simulatedOwners.findIndex((o) => o.toLowerCase() === ownerToRemove.toLowerCase());
         if (index === -1) {
             throw new Error(`Cannot find ${ownerToRemove} in simulated owner list`);
         }
@@ -216,9 +214,7 @@ async function main() {
         });
 
         // Update our simulated state: remove this owner from the list
-        simulatedOwners = simulatedOwners.filter(
-            (o) => o.toLowerCase() !== owner.toLowerCase(),
-        );
+        simulatedOwners = simulatedOwners.filter((o) => o.toLowerCase() !== owner.toLowerCase());
 
         runningOwnerCount = newCount;
         runningThreshold = tempThreshold;

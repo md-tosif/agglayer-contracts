@@ -6,9 +6,9 @@ import fs = require('fs');
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 // EIP-712 type definition for Safe transactions
 // See: https://github.com/safe-global/safe-contracts/blob/main/contracts/GnosisSafe.sol
@@ -46,9 +46,9 @@ export const SENTINEL_ADDRESS = '0x0000000000000000000000000000000000000001';
 export const MULTI_SEND_ADDRESS = '0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761';
 export const MULTI_SEND_CALL_ONLY_ADDRESS = '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D';
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             TYPES
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 export interface SafeTransaction {
     to: string;
@@ -90,9 +90,9 @@ export interface MetaTransaction {
     operation?: number; // 0 = Call, 1 = DelegateCall (only for MultiSend, not MultiSendCallOnly)
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             HELPERS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 /**
  * Normalizes signature `v` value for Gnosis Safe compatibility.
@@ -129,7 +129,7 @@ export function normalizeSignatureV(signature: string): string {
         logger.warn(`Unexpected v value: ${v} (expected 27 or 28)`);
     }
 
-    return '0x' + r + s + v.toString(16).padStart(2, '0');
+    return `0x${r}${s}${v.toString(16).padStart(2, '0')}`;
 }
 
 /**
@@ -139,12 +139,10 @@ export function normalizeSignatureV(signature: string): string {
  */
 export function buildSignatureBytes(signatures: SafeSignature[]): string {
     // Sort by signer address (required by Safe)
-    const sorted = [...signatures].sort((a, b) =>
-        a.signer.toLowerCase().localeCompare(b.signer.toLowerCase()),
-    );
+    const sorted = [...signatures].sort((a, b) => a.signer.toLowerCase().localeCompare(b.signer.toLowerCase()));
 
     // Concatenate: remove '0x' prefix and join
-    return '0x' + sorted.map((s) => s.data.slice(2)).join('');
+    return `0x${sorted.map((s) => s.data.slice(2)).join('')}`;
 }
 
 /**
@@ -174,16 +172,8 @@ export function buildSafeTransaction(params: {
 /**
  * Calculates the EIP-712 transaction hash for a Safe transaction
  */
-export function calculateSafeTxHash(
-    safeAddress: string,
-    safeTx: SafeTransaction,
-    chainId: bigint | number,
-): string {
-    return ethers.TypedDataEncoder.hash(
-        { verifyingContract: safeAddress, chainId },
-        EIP712_SAFE_TX_TYPE,
-        safeTx,
-    );
+export function calculateSafeTxHash(safeAddress: string, safeTx: SafeTransaction, chainId: bigint | number): string {
+    return ethers.TypedDataEncoder.hash({ verifyingContract: safeAddress, chainId }, EIP712_SAFE_TX_TYPE, safeTx);
 }
 
 /**
@@ -227,9 +217,9 @@ export function upsertTransaction(transactions: TransactionData[], transaction: 
 export const loadSignedTransactions = loadTransactions;
 export const saveSignedTransactions = saveTransactions;
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                         OWNER MANAGEMENT
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 /**
  * Finds the previous owner in the Safe's linked list.
@@ -237,11 +227,9 @@ export const saveSignedTransactions = saveTransactions;
  */
 export async function findPrevOwner(safeAddress: string, ownerToRemove: string): Promise<string> {
     const safeContract = await ethers.getContractAt(SAFE_ABI, safeAddress);
-    const owners = await safeContract.getOwners() as string[];
+    const owners = (await safeContract.getOwners()) as string[];
 
-    const ownerIndex = owners.findIndex(
-        (o) => o.toLowerCase() === ownerToRemove.toLowerCase(),
-    );
+    const ownerIndex = owners.findIndex((o) => o.toLowerCase() === ownerToRemove.toLowerCase());
 
     if (ownerIndex === -1) {
         throw new Error(`Address ${ownerToRemove} is not an owner of this Safe`);
@@ -272,14 +260,6 @@ export function encodeRemoveOwner(prevOwner: string, ownerToRemove: string, thre
 }
 
 /**
- * Encodes a swapOwner call
- */
-export function encodeSwapOwner(prevOwner: string, oldOwner: string, newOwner: string): string {
-    const iface = new ethers.Interface(SAFE_ABI);
-    return iface.encodeFunctionData('swapOwner', [prevOwner, oldOwner, newOwner]);
-}
-
-/**
  * Encodes a changeThreshold call
  */
 export function encodeChangeThreshold(threshold: number): string {
@@ -287,9 +267,9 @@ export function encodeChangeThreshold(threshold: number): string {
     return iface.encodeFunctionData('changeThreshold', [threshold]);
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MULTISEND
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 /**
  * Encodes transactions for MultiSend / MultiSendCallOnly (Safe 1.3.0+)
@@ -355,9 +335,7 @@ export function encodeMultiSendCallOnly(transactions: MetaTransaction[]): {
     const encodedTransactions = encodeMultiSendTransactions(callOnlyTxs);
 
     // Encode the multiSend(bytes) call
-    const multiSendInterface = new ethers.Interface([
-        'function multiSend(bytes memory transactions) public payable',
-    ]);
+    const multiSendInterface = new ethers.Interface(['function multiSend(bytes memory transactions) public payable']);
     const data = multiSendInterface.encodeFunctionData('multiSend', [encodedTransactions]);
 
     return {
@@ -387,9 +365,7 @@ export function encodeMultiSend(transactions: MetaTransaction[]): {
     const encodedTransactions = encodeMultiSendTransactions(transactions);
 
     // Encode the multiSend(bytes) call
-    const multiSendInterface = new ethers.Interface([
-        'function multiSend(bytes memory transactions) public payable',
-    ]);
+    const multiSendInterface = new ethers.Interface(['function multiSend(bytes memory transactions) public payable']);
     const data = multiSendInterface.encodeFunctionData('multiSend', [encodedTransactions]);
 
     return {

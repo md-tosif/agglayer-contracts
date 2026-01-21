@@ -30,15 +30,15 @@ import {
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -48,8 +48,8 @@ async function main() {
     if (!fs.existsSync(TRANSACTIONS_PATH)) {
         throw new Error(
             `No transactions found.\nExpected: ${TRANSACTIONS_PATH}\n\nRun one of these first:\n` +
-            `  - prepareTransaction.ts (for arbitrary transactions)\n` +
-            `  - manageOwners.ts (for owner management)`,
+                `  - prepareTransaction.ts (for arbitrary transactions)\n` +
+                `  - manageOwners.ts (for owner management)`,
         );
     }
 
@@ -60,9 +60,7 @@ async function main() {
     }
 
     // Select transaction to sign (default: latest)
-    const txIndex = process.env.TX_INDEX
-        ? parseInt(process.env.TX_INDEX, 10)
-        : transactions.length - 1;
+    const txIndex = process.env.TX_INDEX ? parseInt(process.env.TX_INDEX, 10) : transactions.length - 1;
 
     if (txIndex >= transactions.length || txIndex < 0) {
         throw new Error(`Invalid TX_INDEX: ${txIndex}. Available: 0-${transactions.length - 1}`);
@@ -133,7 +131,7 @@ async function main() {
     logger.info(`  Value:     ${safeTx.value}`);
     logger.info(`  Operation: ${safeTx.operation === 0 ? 'Call' : 'DelegateCall'}`);
     logger.info(`  Nonce:     ${safeTx.nonce}`);
-    logger.info(`  Data:      ${safeTx.data.length > 66 ? safeTx.data.slice(0, 66) + '...' : safeTx.data}`);
+    logger.info(`  Data:      ${safeTx.data.length > 66 ? `${safeTx.data.slice(0, 66)}...` : safeTx.data}`);
     logger.info('');
 
     // Calculate EIP-712 hash
@@ -158,9 +156,7 @@ async function main() {
     logger.info(`Signer: [${signerIndex}] ${signerAddress}`);
 
     // Verify signer is a Safe owner
-    const isOwner = (owners as string[])
-        .map((o) => o.toLowerCase())
-        .includes(signerAddress.toLowerCase());
+    const isOwner = (owners as string[]).map((o) => o.toLowerCase()).includes(signerAddress.toLowerCase());
 
     if (!isOwner) {
         logger.error('⚠️  WARNING: This address is not a Safe owner!');
@@ -191,9 +187,7 @@ async function main() {
     const safeSignature: SafeSignature = { signer: signerAddress, data: signature };
 
     // Check for duplicate signature
-    const alreadySigned = transaction.signatures.some(
-        (s) => s.signer.toLowerCase() === signerAddress.toLowerCase(),
-    );
+    const alreadySigned = transaction.signatures.some((s) => s.signer.toLowerCase() === signerAddress.toLowerCase());
 
     if (alreadySigned) {
         logger.warn('⚠️  You have already signed this transaction!');

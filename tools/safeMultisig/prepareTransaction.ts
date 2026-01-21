@@ -31,15 +31,15 @@ import parameters from './parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -238,7 +238,7 @@ async function main() {
     logger.info(`  To:        ${to}`);
     logger.info(`  Value:     ${parsedValue} wei`);
     logger.info(`  Operation: ${operation === 0 ? 'Call' : 'DelegateCall'}`);
-    logger.info(`  Data:      ${data.length > 74 ? data.slice(0, 74) + '...' : data}`);
+    logger.info(`  Data:      ${data.length > 74 ? `${data.slice(0, 74)}...` : data}`);
     logger.info('');
     logger.info('Next steps:');
     logger.info('  1. Have owners sign: npx hardhat run tools/safeMultisig/signSafeTransaction.ts --network <network>');

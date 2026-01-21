@@ -23,9 +23,9 @@ import parameters from './parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const OUTPUT_PATH = path.join(__dirname, './signedTransactions.json');
 
@@ -53,9 +53,9 @@ const SAFE_ABI = [
     'function getOwners() view returns (address[])',
 ];
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             TYPES
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 interface SafeTransaction {
     to: string;
@@ -83,9 +83,9 @@ interface SignedTransactionData {
     parameters: typeof parameters;
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             HELPERS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 /**
  * Normalizes signature `v` value for Gnosis Safe compatibility.
@@ -122,12 +122,12 @@ function normalizeSignatureV(signature: string): string {
         logger.warn(`Unexpected v value: ${v} (expected 27 or 28)`);
     }
 
-    return '0x' + r + s + v.toString(16).padStart(2, '0');
+    return `0x${r}${s}${v.toString(16).padStart(2, '0')}`;
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -238,9 +238,7 @@ async function main() {
     logger.info(`Signer: [${signerIndex}] ${signerAddress}`);
 
     // Verify signer is a Safe owner
-    const isOwner = (owners as string[])
-        .map((o) => o.toLowerCase())
-        .includes(signerAddress.toLowerCase());
+    const isOwner = (owners as string[]).map((o) => o.toLowerCase()).includes(signerAddress.toLowerCase());
 
     if (!isOwner) {
         logger.error('⚠️  WARNING: This address is not a Safe owner!');
@@ -308,9 +306,8 @@ async function main() {
     // SUMMARY
     // ═══════════════════════════════════════════════════════════
 
-    const currentTx = existingIndex >= 0
-        ? signedTransactions[existingIndex]
-        : signedTransactions[signedTransactions.length - 1];
+    const currentTx =
+        existingIndex >= 0 ? signedTransactions[existingIndex] : signedTransactions[signedTransactions.length - 1];
 
     const sigCount = currentTx.signatures.length;
     const thresholdNum = Number(threshold);
@@ -327,7 +324,9 @@ async function main() {
 
     if (sigCount >= thresholdNum) {
         logger.info('✅ THRESHOLD REACHED - Ready to execute!');
-        logger.info('   Run: npx hardhat run tools/safeMultisigGrantRole/executeSafeTransaction.ts --network <network>');
+        logger.info(
+            '   Run: npx hardhat run tools/safeMultisigGrantRole/executeSafeTransaction.ts --network <network>',
+        );
     } else {
         logger.info(`⏳ Need ${thresholdNum - sigCount} more signature(s)`);
     }

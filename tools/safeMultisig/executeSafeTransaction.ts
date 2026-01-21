@@ -19,24 +19,19 @@ import fs = require('fs');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
-import {
-    SAFE_ABI,
-    TransactionData,
-    buildSignatureBytes,
-    loadTransactions,
-} from './safeUtils';
+import { SAFE_ABI, TransactionData, buildSignatureBytes, loadTransactions } from './safeUtils';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const TRANSACTIONS_PATH = path.join(__dirname, './transactions.json');
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -46,9 +41,9 @@ async function main() {
     if (!fs.existsSync(TRANSACTIONS_PATH)) {
         throw new Error(
             `No transactions found.\nExpected: ${TRANSACTIONS_PATH}\n\n` +
-            `First prepare and sign a transaction using:\n` +
-            `  1. prepareTransaction.ts or manageOwners.ts\n` +
-            `  2. signSafeTransaction.ts`,
+                `First prepare and sign a transaction using:\n` +
+                `  1. prepareTransaction.ts or manageOwners.ts\n` +
+                `  2. signSafeTransaction.ts`,
         );
     }
 
@@ -59,9 +54,7 @@ async function main() {
     }
 
     // Select transaction to execute
-    const txIndex = process.env.TX_INDEX
-        ? parseInt(process.env.TX_INDEX, 10)
-        : transactions.length - 1;
+    const txIndex = process.env.TX_INDEX ? parseInt(process.env.TX_INDEX, 10) : transactions.length - 1;
 
     if (txIndex >= transactions.length || txIndex < 0) {
         throw new Error(`Invalid TX_INDEX: ${txIndex}. Available: 0-${transactions.length - 1}`);
@@ -152,9 +145,7 @@ async function main() {
 
     // Check chain ID if available
     if (tx.chainId && tx.chainId !== Number(chainId)) {
-        throw new Error(
-            `Chain ID mismatch. Transaction signed for chain ${tx.chainId}, but connected to ${chainId}`,
-        );
+        throw new Error(`Chain ID mismatch. Transaction signed for chain ${tx.chainId}, but connected to ${chainId}`);
     }
 
     logger.info('');

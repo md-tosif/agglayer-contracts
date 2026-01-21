@@ -23,9 +23,9 @@ import parameters from './parameters.json';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             CONSTANTS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 const SIGNATURES_PATH = path.join(__dirname, './signedTransactions.json');
 
@@ -36,9 +36,9 @@ const SAFE_ABI = [
     'function execTransaction(address to, uint256 value, bytes data, uint8 operation, uint256 safeTxGas, uint256 baseGas, uint256 gasPrice, address gasToken, address payable refundReceiver, bytes signatures) payable returns (bool)',
 ];
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             TYPES
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 interface SafeTransaction {
     to: string;
@@ -65,9 +65,9 @@ interface SignedTransactionData {
     chainId?: number;
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             HELPERS
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 /**
  * Builds packed signature bytes from array of signatures.
@@ -76,17 +76,15 @@ interface SignedTransactionData {
  */
 function buildSignatureBytes(signatures: SafeSignature[]): string {
     // Sort by signer address (required by Safe)
-    const sorted = [...signatures].sort((a, b) =>
-        a.signer.toLowerCase().localeCompare(b.signer.toLowerCase()),
-    );
+    const sorted = [...signatures].sort((a, b) => a.signer.toLowerCase().localeCompare(b.signer.toLowerCase()));
 
     // Concatenate: remove '0x' prefix and join
-    return '0x' + sorted.map((s) => s.data.slice(2)).join('');
+    return `0x${sorted.map((s) => s.data.slice(2)).join('')}`;
 }
 
-/*//////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////
                             MAIN
-//////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////// */
 
 async function main() {
     // ═══════════════════════════════════════════════════════════
@@ -104,9 +102,7 @@ async function main() {
         throw new Error(`No signatures found. Run signSafeTransaction.ts first.\nExpected: ${SIGNATURES_PATH}`);
     }
 
-    const signedTransactions: SignedTransactionData[] = JSON.parse(
-        fs.readFileSync(SIGNATURES_PATH, 'utf8'),
-    );
+    const signedTransactions: SignedTransactionData[] = JSON.parse(fs.readFileSync(SIGNATURES_PATH, 'utf8'));
 
     if (signedTransactions.length === 0) {
         throw new Error('Signatures file is empty.');

@@ -58,9 +58,7 @@ const SAFE_SINGLETON_ADDRESS = '0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552';
 const FALLBACK_HANDLER_ADDRESS = '0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4';
 
 // Safe configuration
-const OWNERS = [
-    ""
-];
+const OWNERS = [''];
 
 const THRESHOLD = 1; // Number of signatures required
 
@@ -185,7 +183,7 @@ async function main() {
         const wallet = getWalletForNetwork(networkConfig, provider);
 
         if (i > 0) {
-            console.log('\n' + '='.repeat(60));
+            console.log(`\n${'='.repeat(60)}`);
         }
 
         const safeAddress = await deploySafe(networkName, wallet);
@@ -193,7 +191,7 @@ async function main() {
     }
 
     // Summary
-    console.log('\n' + '='.repeat(60));
+    console.log(`\n${'='.repeat(60)}`);
     console.log('DEPLOYMENT SUMMARY');
     console.log('='.repeat(60));
 
