@@ -7,7 +7,7 @@ import { HttpNetworkConfig } from 'hardhat/types';
 const SOURCE_NETWORK = 'sepolia';
 
 // Target: network where we want to replay the tx (uses --network flag)
-// Run with: npx hardhat run tools/replayTx/replayTx.ts --network <target_network>
+// Run with: npx hardhat run tools/safeTools/replayTx/replayTx.ts --network <target_network>
 
 // Transaction hash to replay
 const TX_HASH = '0xb5ea73627e2f671b7414c66b2e85b916a8f1e081c0acce59f8ae80ff48f16c23';

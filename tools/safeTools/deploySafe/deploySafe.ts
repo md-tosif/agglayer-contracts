@@ -1,4 +1,46 @@
 /* eslint-disable no-console */
+/**
+ * Deploy Gnosis Safe Multisig on Multiple Networks
+ *
+ * This script deploys a Gnosis Safe (v1.3.0) multisig wallet to one or more networks.
+ * Using the same salt nonce and owners will result in the same Safe address across all networks
+ * (deterministic deployment via CREATE2).
+ *
+ * ==================== USAGE ====================
+ *
+ * 1. Configure the script (see CONFIGURATION section below):
+ *    - Set NETWORKS: array of network names from hardhat.config.ts
+ *    - Set OWNERS: array of owner addresses for the Safe
+ *    - Set THRESHOLD: number of signatures required to execute transactions
+ *    - Set SALT_NONCE: use same value across networks for same address
+ *
+ * 2. Run the script:
+ *    npx hardhat run tools/safeTools/deploySafe/deploySafe.ts
+ *
+ * ==================== ENVIRONMENT ====================
+ *
+ * The script looks for credentials in this order:
+ *   1. DEPLOYER_PRIVATE_KEY env var
+ *   2. Mnemonic from network config or MNEMONIC env var
+ *   3. Private keys array from network config
+ *
+ * Example:
+ *   npx hardhat run tools/safeTools/deploySafe/deploySafe.ts
+ *
+ * ==================== DETERMINISTIC ADDRESSES ====================
+ *
+ * To get the same Safe address on multiple networks:
+ *   - Use the same OWNERS array (same addresses, same order)
+ *   - Use the same THRESHOLD
+ *   - Use the same SALT_NONCE
+ *   - Deploy from any account (deployer address doesn't affect Safe address)
+ *
+ * ==================== CONTRACT ADDRESSES ====================
+ *
+ * The script uses the canonical Gnosis Safe v1.3.0 factory addresses which are
+ * deployed at the same address on most EVM chains. If deploying to a chain where
+ * these aren't available, you'll need to update the addresses below.
+ */
 import { ethers, config } from 'hardhat';
 import { HttpNetworkConfig } from 'hardhat/types';
 
