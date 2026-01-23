@@ -13,7 +13,7 @@
  *
  * Note: If multiple operations are needed, they are batched using MultiSend.
  */
-/* eslint-disable import/no-unresolved */
+/* eslint-disable import/no-unresolved, no-restricted-syntax, no-plusplus */
 import path = require('path');
 import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';

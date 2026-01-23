@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, no-restricted-syntax, no-await-in-loop, prefer-destructuring */
 /**
  * Deploy Gnosis Safe Multisig on Multiple Networks
  *

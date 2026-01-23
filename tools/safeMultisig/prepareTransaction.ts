@@ -146,18 +146,18 @@ async function main() {
     // BUILD TRANSACTION
     // ═══════════════════════════════════════════════════════════
 
-    // Parse value
-    let parsedValue: number;
+    // Parse value - keep as bigint to avoid precision loss for uint256 values
+    let parsedValue: bigint;
     if (typeof value === 'string') {
         if (value.includes('ether')) {
-            parsedValue = Number(ethers.parseEther(value.replace('ether', '').trim()));
+            parsedValue = ethers.parseEther(value.replace('ether', '').trim());
         } else if (value.includes('gwei')) {
-            parsedValue = Number(ethers.parseUnits(value.replace('gwei', '').trim(), 'gwei'));
+            parsedValue = ethers.parseUnits(value.replace('gwei', '').trim(), 'gwei');
         } else {
-            parsedValue = Number(value);
+            parsedValue = BigInt(value);
         }
     } else {
-        parsedValue = value;
+        parsedValue = BigInt(value);
     }
 
     // Build Safe transaction struct
@@ -215,7 +215,7 @@ async function main() {
             safeAddress,
             to,
             data,
-            value: parsedValue,
+            value: parsedValue.toString(), // Store as string for JSON serialization
             operation,
         },
         createdAt: new Date().toISOString(),

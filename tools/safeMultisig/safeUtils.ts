@@ -2,6 +2,7 @@
  * Safe Multisig Utilities
  * Common utilities for Gnosis Safe 1.3.0+ multisig wallets.
  */
+/* eslint-disable no-restricted-syntax */
 import fs = require('fs');
 import { ethers } from 'hardhat';
 import { logger } from '../../src/logger';
@@ -52,7 +53,7 @@ export const MULTI_SEND_CALL_ONLY_ADDRESS = '0x40A2aCCbd92BCA938b02010E17A5b8929
 
 export interface SafeTransaction {
     to: string;
-    value: number;
+    value: string; // Stored as string to preserve precision for uint256 (JSON doesn't support bigint)
     data: string;
     operation: number;
     safeTxGas: number;
@@ -85,7 +86,7 @@ export type SignedTransactionData = TransactionData;
 
 export interface MetaTransaction {
     to: string;
-    value: number | bigint;
+    value: number | bigint | string; // Accepts string to preserve precision for uint256 values
     data: string;
     operation?: number; // 0 = Call, 1 = DelegateCall (only for MultiSend, not MultiSendCallOnly)
 }
@@ -147,17 +148,21 @@ export function buildSignatureBytes(signatures: SafeSignature[]): string {
 
 /**
  * Builds a Safe transaction struct with default values for gas-related fields
+ * @param params.value - Transaction value in wei. Accepts number, bigint, or string to avoid precision loss.
  */
 export function buildSafeTransaction(params: {
     to: string;
-    value?: number;
+    value?: number | bigint | string;
     data?: string;
     operation?: number;
     nonce: number;
 }): SafeTransaction {
+    // Convert value to string to preserve precision for uint256 values
+    const valueStr = params.value !== undefined ? String(params.value) : '0';
+
     return {
         to: params.to,
-        value: params.value || 0,
+        value: valueStr,
         data: params.data || '0x',
         operation: params.operation || 0, // 0 = Call, 1 = DelegateCall
         safeTxGas: 0,
