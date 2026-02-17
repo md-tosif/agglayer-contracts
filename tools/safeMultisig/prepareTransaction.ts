@@ -22,6 +22,8 @@ import {
     TransactionData,
     buildSafeTransaction,
     calculateSafeTxHash,
+    getNextNonce,
+    getTransactionsForSafe,
     loadTransactions,
     saveTransactions,
     upsertTransaction,
@@ -113,14 +115,21 @@ async function main() {
 
     const safeContract = await ethers.getContractAt(SAFE_ABI, safeAddress);
 
-    const [nonce, threshold, owners] = await Promise.all([
+    const [onChainNonce, threshold, owners] = await Promise.all([
         safeContract.nonce(),
         safeContract.getThreshold(),
         safeContract.getOwners(),
     ]);
 
+    // Check transactions.json for this Safe - use highest nonce (some may already be executed)
+    const allTransactions = loadTransactions(TRANSACTIONS_PATH);
+    const txsForThisSafe = getTransactionsForSafe(allTransactions, safeAddress, Number(chainId));
+    const nonce = getNextNonce(onChainNonce, txsForThisSafe);
+
     logger.info('Safe Info:');
-    logger.info(`  Nonce:     ${nonce}`);
+    logger.info(`  On-chain Nonce:  ${onChainNonce}`);
+    logger.info(`  Txs in file:    ${txsForThisSafe.length}`);
+    logger.info(`  Next Nonce:     ${nonce}`);
     logger.info(`  Threshold: ${threshold}`);
     logger.info(`  Owners:    ${(owners as string[]).length}`);
     (owners as string[]).forEach((owner, i) => logger.info(`    [${i}] ${owner}`));
@@ -166,7 +175,7 @@ async function main() {
         data,
         value: parsedValue,
         operation,
-        nonce: Number(nonce),
+        nonce,
     });
 
     logger.info('Transaction:');
@@ -221,7 +230,7 @@ async function main() {
         createdAt: new Date().toISOString(),
     };
 
-    // Load existing transactions and add/update this one
+    // Load existing transactions and add/update this one (reload to get latest)
     let transactions = loadTransactions(TRANSACTIONS_PATH);
     transactions = upsertTransaction(transactions, transactionData);
     saveTransactions(TRANSACTIONS_PATH, transactions);

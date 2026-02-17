@@ -31,6 +31,8 @@ import {
     encodeRemoveOwner,
     encodeChangeThreshold,
     encodeMultiSendCallOnly,
+    getNextNonce,
+    getTransactionsForSafe,
     loadTransactions,
     saveTransactions,
     upsertTransaction,
@@ -112,7 +114,7 @@ async function main() {
 
     const safeContract = await ethers.getContractAt(SAFE_ABI, safeAddress);
 
-    const [nonce, threshold, owners] = await Promise.all([
+    const [onChainNonce, threshold, owners] = await Promise.all([
         safeContract.nonce(),
         safeContract.getThreshold(),
         safeContract.getOwners(),
@@ -121,8 +123,15 @@ async function main() {
     const currentOwners = owners as string[];
     const currentThreshold = Number(threshold);
 
+    // Check transactions.json for this Safe - use highest nonce (some may already be executed)
+    const allTransactions = loadTransactions(TRANSACTIONS_PATH);
+    const txsForThisSafe = getTransactionsForSafe(allTransactions, safeAddress, Number(chainId));
+    const nonce = getNextNonce(onChainNonce, txsForThisSafe);
+
     logger.info('Safe Info:');
-    logger.info(`  Nonce:     ${nonce}`);
+    logger.info(`  On-chain Nonce:  ${onChainNonce}`);
+    logger.info(`  Txs in file:    ${txsForThisSafe.length}`);
+    logger.info(`  Next Nonce:     ${nonce}`);
     logger.info(`  Threshold: ${currentThreshold}`);
     logger.info(`  Owners:    ${currentOwners.length}`);
     currentOwners.forEach((owner, i) => logger.info(`    [${i}] ${owner}`));
@@ -263,7 +272,7 @@ async function main() {
         safeTx = buildSafeTransaction({
             to: op.tx.to,
             data: op.tx.data,
-            nonce: Number(nonce),
+            nonce,
         });
         description = op.description;
     } else {
@@ -278,7 +287,7 @@ async function main() {
             to: multiSendData.to,
             data: multiSendData.data,
             operation: multiSendData.operation,
-            nonce: Number(nonce),
+            nonce,
         });
         description = `Batch: ${operations.map((op) => op.description).join(', ')}`;
     }

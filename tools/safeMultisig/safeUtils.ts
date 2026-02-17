@@ -182,6 +182,35 @@ export function calculateSafeTxHash(safeAddress: string, safeTx: SafeTransaction
 }
 
 /**
+ * Computes the next nonce to use for a Safe transaction.
+ * Uses the highest nonce among transactions in the file for this Safe on this chain.
+ * Some of those may already be executed - the max nonce is the source of truth for what's "claimed".
+ *
+ * @param onChainNonce - Current nonce from Safe.nonce()
+ * @param transactionsForSafe - Transactions for this Safe on this chain (from transactions.json)
+ * @returns Next nonce to use
+ */
+export function getNextNonce(onChainNonce: bigint | number, transactionsForSafe: TransactionData[]): number {
+    const onChain = Number(onChainNonce);
+    const maxInFile =
+        transactionsForSafe.length > 0 ? Math.max(...transactionsForSafe.map((tx) => Number(tx.safeTx.nonce))) : -1;
+    return maxInFile >= 0 ? Math.max(onChain, maxInFile + 1) : onChain;
+}
+
+/**
+ * Filters transactions for a specific Safe on a specific chain.
+ */
+export function getTransactionsForSafe(
+    transactions: TransactionData[],
+    safeAddress: string,
+    chainId: number,
+): TransactionData[] {
+    return transactions.filter(
+        (tx) => tx.safeAddress.toLowerCase() === safeAddress.toLowerCase() && tx.chainId === chainId,
+    );
+}
+
+/**
  * Loads transactions from a JSON file
  */
 export function loadTransactions(filePath: string): TransactionData[] {
