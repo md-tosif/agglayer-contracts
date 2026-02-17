@@ -487,7 +487,7 @@ npx hardhat run tools/safeMultisig/executeSafeTransaction.ts --network custom
 # ═══════════════════════════════════════════════════════════════
 
 git clone https://github.com/agglayer/agglayer-contracts.git
-cd zkevm-contracts
+cd agglayer-contracts
 git checkout feature/addSafeMultisigTool
 npm install
 

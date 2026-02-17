@@ -59,7 +59,7 @@ const SAFE_ABI = [
 
 interface SafeTransaction {
     to: string;
-    value: number;
+    value: string;
     data: string;
     operation: number;
     safeTxGas: number;
@@ -197,10 +197,10 @@ async function main() {
     logger.info(`  Receiver: ${roleReceiver}`);
     logger.info('');
 
-    // Build Safe transaction struct
+    // Build Safe transaction struct (string for uint256 fields to handle large values safely)
     const safeTx: SafeTransaction = {
         to: timelockAddress,
-        value: 0,
+        value: '0',
         data: calldata,
         operation: 0, // 0 = Call, 1 = DelegateCall
         safeTxGas: 0,

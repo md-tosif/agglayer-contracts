@@ -372,8 +372,8 @@ Granting EXECUTOR_ROLE...
 
 ```bash
 # 1. Setup
-git clone https://github.com/0xPolygonHermez/zkevm-contracts.git
-cd zkevm-contracts
+git clone https://github.com/agglayer/agglayer-contracts.git
+cd agglayer-contracts
 git checkout feature/addSafeMultisigTool
 npm install
 

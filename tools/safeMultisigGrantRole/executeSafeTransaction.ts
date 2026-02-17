@@ -42,7 +42,7 @@ const SAFE_ABI = [
 
 interface SafeTransaction {
     to: string;
-    value: number;
+    value: string;
     data: string;
     operation: number;
     safeTxGas: number;
