@@ -76,9 +76,20 @@ const SAFE_ABI = [
     'function setup(address[] calldata _owners, uint256 _threshold, address to, bytes calldata data, address fallbackHandler, address paymentToken, uint256 payment, address payable paymentReceiver) external',
 ];
 
+const SAFE_ADDRESSES = [PROXY_FACTORY_ADDRESS, SAFE_SINGLETON_ADDRESS, FALLBACK_HANDLER_ADDRESS];
+
+async function assertContractsExist(provider: any, networkName: string): Promise<void> {
+    const codes = await Promise.all(SAFE_ADDRESSES.map((a) => provider.getCode(a)));
+    const missing = SAFE_ADDRESSES.filter((_, i) => !codes[i] || codes[i] === '0x' || codes[i] === '0x0');
+    if (missing.length > 0)
+        throw new Error(`[${networkName}] Not all Safe contracts deployed. Missing: ${missing.join(', ')}`);
+}
+
 async function deploySafe(networkName: string, signer: any): Promise<string> {
     console.log(`\n--- Deploying Safe on ${networkName} ---`);
     console.log(`Deployer: ${await signer.getAddress()}`);
+
+    await assertContractsExist(signer.provider, networkName);
 
     // Create contract instances
     const proxyFactory = new ethers.Contract(PROXY_FACTORY_ADDRESS, PROXY_FACTORY_ABI, signer);
