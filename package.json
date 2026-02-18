@@ -32,6 +32,7 @@
     "devDependencies": {
         "@0xpolygonhermez/zkevm-commonjs": "github:0xPolygonHermez/zkevm-commonjs#v8.0.0-fork.12",
         "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
+        "@nomicfoundation/hardhat-ledger": "^1.2.2",
         "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
         "@nomicfoundation/hardhat-verify": "^1.1.1",
         "@nomiclabs/hardhat-solhint": "^4.0.1",
@@ -60,6 +61,7 @@
         "hardhat-dependency-compiler": "^1.1.3",
         "hardhat-switch-network": "^1.2.0",
         "lodash": "^4.17.21",
+        "patch-package": "^8.0.1",
         "prettier": "^3.5.3",
         "prettier-plugin-solidity": "^1.4.2",
         "shelljs": "^0.8.5",
@@ -101,6 +103,7 @@
         "deploy:testnet:v2:sepolia": "npx hardhat compile && rm -f deployment/v2/deploy_ongoing.json && npm run prepare:testnet:ZkEVM:sepolia && npm run deploy:v2:sepolia",
         "verify:v2:sepolia": "npx hardhat run deployment/v2/verifyContracts.js --network sepolia",
         "deploy:testnet:testV1ToV2:localhost": "npx hardhat compile && rm -f deployment/testV1ToV2/deploy_ongoing.json && npm run prepare:testV1ToV2:ZkEVM:localhost && npm run deploy:testV1ToV2:localhost",
-        "saveDeployment:sepolia": "mkdir -p deployments/sepolia_$(date +%s) && cp -r deployment/v2/deploy_*.json deployments/sepolia_$(date +%s) && cp .openzeppelin/sepolia.json deployments/sepolia_$(date +%s) && cp deployment/v2/genesis.json deployments/sepolia_$(date +%s) && cp deployment/v2/create_rollup_output_*.json deployments/sepolia_$(date +%s)"
+        "saveDeployment:sepolia": "mkdir -p deployments/sepolia_$(date +%s) && cp -r deployment/v2/deploy_*.json deployments/sepolia_$(date +%s) && cp .openzeppelin/sepolia.json deployments/sepolia_$(date +%s) && cp deployment/v2/genesis.json deployments/sepolia_$(date +%s) && cp deployment/v2/create_rollup_output_*.json deployments/sepolia_$(date +%s)",
+        "postinstall": "patch-package"
     }
 }

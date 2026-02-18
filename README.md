@@ -18,8 +18,8 @@ Agglayer smart contracts implementation
 
 ## Requirements
 
--  node version: 16.x
--  npm version: 7.x
+-  node version: 22.x
+-  npm version: 10.x
 
 ## Install repo
 

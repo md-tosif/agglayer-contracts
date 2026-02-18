@@ -9,8 +9,20 @@ import '@typechain/hardhat';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-verify';
+import '@nomicfoundation/hardhat-ledger';
 
 const DEFAULT_MNEMONIC = 'test test test test test test test test test test test junk';
+const LEDGER_ACCOUNT = process.env.LEDGER_ACCOUNT ? [process.env.LEDGER_ACCOUNT] : undefined;
+
+const DEFAULT_ACCOUNTS = {
+    mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
+    path: "m/44'/60'/0'/0",
+    initialIndex: 0,
+    count: 20,
+};
+
+/** Ledger if LEDGER_ACCOUNT is set, otherwise mnemonic-based accounts. Applied to all networks. */
+const accountsConfig = LEDGER_ACCOUNT ? { ledgerAccounts: LEDGER_ACCOUNT } : { accounts: DEFAULT_ACCOUNTS };
 
 /*
  * You need to export an object to set up your config
@@ -285,52 +297,27 @@ const config: HardhatUserConfig = {
             url: process.env.MAINNET_PROVIDER
                 ? process.env.MAINNET_PROVIDER
                 : `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         sepolia: {
             url: process.env.SEPOLIA_PROVIDER
                 ? process.env.SEPOLIA_PROVIDER
                 : `https://sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         localhost: {
             url: 'http://127.0.0.1:8545',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         custom: {
             url: process.env.CUSTOM_PROVIDER ? process.env.CUSTOM_PROVIDER : 'http://127.0.0.1:8545',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         hardhat: {
             initialDate: '0',
             allowUnlimitedContractSize: true,
             initialBaseFeePerGas: 0,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
             chains: {
                 747474: {
                     hardforkHistory: {
@@ -346,40 +333,20 @@ const config: HardhatUserConfig = {
         },
         polygonZKEVMTestnet: {
             url: 'https://rpc.cardona.zkevm-rpc.com',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         polygonZKEVMMainnet: {
             url: 'https://zkevm-rpc.com',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         zkevmDevnet: {
             url: 'http://123:123:123:123:123',
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
         opSepolia: {
             url: 'https://sepolia.optimism.io',
             chainId: 11155420,
-            accounts: {
-                mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-                path: "m/44'/60'/0'/0",
-                initialIndex: 0,
-                count: 20,
-            },
+            ...accountsConfig,
         },
     },
     gasReporter: {
