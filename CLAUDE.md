@@ -50,6 +50,17 @@ deployments/        Historical deployment output snapshots
 
 Note: These were originally deployed under different names (e.g. `PolygonRollupManager`, `PolygonZkEVMBridgeV2`). Etherscan shows the original names. Always use the Agglayer names in code and docs.
 
+## Cardona (Testnet) Contracts
+
+Cardona is the Agglayer testnet (on Sepolia).
+
+| Contract | Address | Role |
+|---|---|---|
+| AgglayerManager | `0x32d33D5137a7cFFb54c5Bf8371172bcEc5f310ff` | Rollup management (testnet) |
+| AgglayerBridge | `0x528e26b25a34a4A5d0dbDa1d57D318153d2ED582` | Cross-chain bridging (testnet) |
+| AgglayerGER | `0xAd1490c248c5d3CbAE399Fd529b79B42984277DF` | Global Exit Root manager (testnet) |
+| AgglayerGateway | `0xaA8103640A6C92af48A97D720168011E9f3Ec697` | PP verification keys, aggchain multisig (testnet) |
+
 ## Build & Test
 
 **Requirements:** Node 22.x, npm 10.x
