@@ -2,39 +2,34 @@
 import { ethers, config } from 'hardhat';
 import { HttpNetworkConfig } from 'hardhat/types';
 
-// ============== CONFIGURATION ==============
-// Source: network name from hardhat.config.ts (where the original tx was executed)
-const SOURCE_NETWORK = 'sepolia';
-
-// Target: network where we want to replay the tx (uses --network flag)
-// Run with: npx hardhat run tools/safeTools/replayTx/replayTx.ts --network <target_network>
-
-// Transaction hash to replay
-const TX_HASH = '0xb5ea73627e2f671b7414c66b2e85b916a8f1e081c0acce59f8ae80ff48f16c23';
-// ============================================
-
 async function main() {
+    const sourceNetwork = process.env.SOURCE_NETWORK;
+    const txHash = process.env.TX_HASH;
+
+    if (!sourceNetwork || !txHash) {
+        console.error('Usage: SOURCE_NETWORK=<network> TX_HASH=<hash> npx hardhat run tools/safeTools/replayTx/replayTx.ts --network <target_network>');
+        process.exit(1);
+    }
+
     console.log('='.repeat(60));
     console.log('Replay Transaction Script');
     console.log('='.repeat(60));
 
-    // Get source network RPC from hardhat config
-    const sourceNetworkConfig = config.networks[SOURCE_NETWORK] as HttpNetworkConfig;
+    const sourceNetworkConfig = config.networks[sourceNetwork] as HttpNetworkConfig;
     if (!sourceNetworkConfig || !sourceNetworkConfig.url) {
-        throw new Error(`Network "${SOURCE_NETWORK}" not found in hardhat.config.ts or has no URL`);
+        throw new Error(`Network "${sourceNetwork}" not found in hardhat.config.ts or has no URL`);
     }
     const sourceRpc = sourceNetworkConfig.url;
-    console.log(`\nSource network: ${SOURCE_NETWORK} (${sourceRpc})`);
+    console.log(`\nSource network: ${sourceNetwork} (${sourceRpc})`);
 
-    // Create provider for source network
     const sourceProvider = new ethers.JsonRpcProvider(sourceRpc);
 
     // Get the original transaction
-    console.log(`\nFetching tx from source: ${TX_HASH}`);
-    const tx = await sourceProvider.getTransaction(TX_HASH);
+    console.log(`\nFetching tx from source: ${txHash}`);
+    const tx = await sourceProvider.getTransaction(txHash);
 
     if (!tx) {
-        throw new Error(`Transaction ${TX_HASH} not found on source network`);
+        throw new Error(`Transaction ${txHash} not found on source network`);
     }
 
     console.log('\n--- Original Transaction ---');
@@ -60,6 +55,7 @@ async function main() {
         to: tx.to,
         data: tx.data,
         value: tx.value,
+        gasLimit: tx.gasLimit,
     });
 
     console.log(`Tx hash: ${replayTx.hash}`);
