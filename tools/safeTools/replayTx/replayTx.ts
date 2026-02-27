@@ -7,7 +7,9 @@ async function main() {
     const txHash = process.env.TX_HASH;
 
     if (!sourceNetwork || !txHash) {
-        console.error('Usage: SOURCE_NETWORK=<network> TX_HASH=<hash> npx hardhat run tools/safeTools/replayTx/replayTx.ts --network <target_network>');
+        console.error(
+            'Usage: SOURCE_NETWORK=<network> TX_HASH=<hash> npx hardhat run tools/safeTools/replayTx/replayTx.ts --network <target_network>',
+        );
         process.exit(1);
     }
 

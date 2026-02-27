@@ -23,7 +23,9 @@ const NETWORK_CONFIG: Record<string, { agglayerManagerAddress: string; bridgeAdd
 
 const networkConfig = NETWORK_CONFIG[network.name];
 if (!networkConfig) {
-    throw new Error(`Unsupported network: ${network.name}. Supported networks: ${Object.keys(NETWORK_CONFIG).join(', ')}`);
+    throw new Error(
+        `Unsupported network: ${network.name}. Supported networks: ${Object.keys(NETWORK_CONFIG).join(', ')}`,
+    );
 }
 
 const AGGLAYER_MANAGER_ADDRESS = networkConfig.agglayerManagerAddress;
