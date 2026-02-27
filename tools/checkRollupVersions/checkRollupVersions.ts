@@ -3,13 +3,33 @@
 import * as dotenv from 'dotenv';
 import path = require('path');
 import fs = require('fs');
-import { ethers } from 'hardhat';
+import { ethers, network } from 'hardhat';
 import { AgglayerManager } from '../../typechain-types';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
-const AGGLAYER_MANAGER_ADDRESS = '0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2';
-const BRIDGE_ADDRESS = '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe';
+const NETWORK_CONFIG: Record<string, { agglayerManagerAddress: string; bridgeAddress: string; outputFile: string }> = {
+    mainnet: {
+        agglayerManagerAddress: '0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2',
+        bridgeAddress: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe',
+        outputFile: 'rollupVersions.json',
+    },
+    sepolia: {
+        agglayerManagerAddress: '0x32d33D5137a7cFFb54c5Bf8371172bcEc5f310ff',
+        bridgeAddress: '0x528e26b25a34a4A5d0dbDa1d57D318153d2ED582',
+        outputFile: 'rollupVersionsCardona.json',
+    },
+};
+
+const networkConfig = NETWORK_CONFIG[network.name];
+if (!networkConfig) {
+    throw new Error(
+        `Unsupported network: ${network.name}. Supported networks: ${Object.keys(NETWORK_CONFIG).join(', ')}`,
+    );
+}
+
+const AGGLAYER_MANAGER_ADDRESS = networkConfig.agglayerManagerAddress;
+const BRIDGE_ADDRESS = networkConfig.bridgeAddress;
 
 // ABI for AggchainBase functions
 const AGGCHAIN_BASE_ABI = [
@@ -532,7 +552,7 @@ async function main() {
     }
 
     // Write results to JSON file
-    const outputPath = path.join(__dirname, './rollupVersions.json');
+    const outputPath = path.join(__dirname, `./${networkConfig.outputFile}`);
     const outputData = {
         rollups: results,
         versionAnalysis,
