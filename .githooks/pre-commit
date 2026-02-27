@@ -27,7 +27,7 @@ if npm run lint; then
     cp artifacts/@openzeppelin/contracts4/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json compiled-contracts/
     cp artifacts/@openzeppelin/contracts4/proxy/transparent/TransparentUpgradeableProxy.sol/TransparentUpgradeableProxy.json compiled-contracts/
     cp artifacts/contracts/deployment/PolygonZkEVMDeployer.sol/PolygonZkEVMDeployer.json compiled-contracts/
-    cp artifacts/contracts/verifiers/v4.0.0-rc.3/SP1VerifierPlonk.sol/SP1VerifierPlonk.json compiled-contracts/SP1VerifierPlonk.json
+    cp artifacts/contracts/verifiers/v5.0.0/SP1VerifierPlonk.sol/SP1VerifierPlonk.json compiled-contracts/SP1VerifierPlonk.json
     cp artifacts/contracts/deployment/PolygonZkEVMDeployer.sol/PolygonZkEVMDeployer.json compiled-contracts/
 
     ## openzeppelin
@@ -55,13 +55,15 @@ if npm run lint; then
     cp artifacts/contracts/sovereignChains/AgglayerBridgeL2.sol/AgglayerBridgeL2.json compiled-contracts/
     cp artifacts/contracts/AgglayerGateway.sol/AgglayerGateway.json compiled-contracts/
     cp artifacts/contracts/lib/AggchainBase.sol/AggchainBase.json compiled-contracts/
-    cp artifacts/contracts/aggchains/AggchainECDSA.sol/AggchainECDSA.json compiled-contracts/
+    cp artifacts/contracts/aggchains/AggchainECDSAMultisig.sol/AggchainECDSAMultisig.json compiled-contracts/
     cp artifacts/contracts/aggchains/AggchainFEP.sol/AggchainFEP.json compiled-contracts/
+    cp artifacts/contracts/sovereignChains/AgglayerBridgeL2FromEtrog.sol compiled-contracts/
 
     git add compiled-contracts
 
     ## Forge nightly version should be installed to properly parse transient storage
     ## 'foundryup --install nightly'
+    forge soldeer install
     forge selectors ls > docs/selectors.txt
     forge doc --out docs/contracts
     sh storage-layout.sh
