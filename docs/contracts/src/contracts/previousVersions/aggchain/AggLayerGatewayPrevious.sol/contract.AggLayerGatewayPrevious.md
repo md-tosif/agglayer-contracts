@@ -263,4 +263,3 @@ function version() external pure returns (string memory);
 |----|----|-----------|
 |`<none>`|`string`|version of the contract.|
 
-

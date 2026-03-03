@@ -66,7 +66,7 @@ Cardona is the Agglayer testnet (on Sepolia).
 **Requirements:** Node 22.x, npm 10.x
 
 ```bash
-npm i                          # Install dependencies (runs patch-package via postinstall)
+npm i                          # Install dependencies (runs patch-package via prepare hook)
 npx hardhat compile            # Compile contracts (required before Foundry tests too)
 npm run test                   # Run all Hardhat tests
 npm run coverage               # Coverage report (test/contractsv2/*.ts only)
